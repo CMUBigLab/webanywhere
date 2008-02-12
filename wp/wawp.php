@@ -3,7 +3,8 @@
    +-----------------+------------------------------------------------------------+
    |  Script         | PHProxy                                                    |
    |  Author         | Abdullah Arif                                              |
-   |  Last Modified  | 5:27 PM 1/20/2007                                          |
+   |                 | Jeffrey P. Bigham (jbigham@cs.washington.edu)              |
+   |  Last Modified  | 8:00 PM 2/11/2008                                          |
    +-----------------+------------------------------------------------------------+
    |  This program is free software; you can redistribute it and/or               |
    |  modify it under the terms of the GNU General Public License                 |
@@ -426,14 +427,35 @@ if(url_parse($_url, $_url_parts)) {
   show_report(array('which' => 'index', 'category' => 'error', 'group' => 'url', 'type' => 'external', 'error' => 2));
 }
 
+
+// Make sure the subdomain is the right one for this request,
+// if it's not, then redirect to the correct subdomain.
+if($cross_domain_security==='true') {
+  $_url_domain = preg_replace('#(https?://)?([^\/]+)(/.*)?$#is', '$2', $_url);
+  $correct_domain = $_url_domain . '.' . $webanywhere_domain;
+
+  //echo "URL is " . $_url . '</br>' . $_SERVER['SERVER_NAME'] . '</br>' . $webanywhere_domain . '</br>' . $correct_domain . "</br>\n";
+
+  if(preg_match('#^' . $correct_domain . '#i', $_SERVER['SERVER_NAME'] . $webanywhere_domain)) {
+    //echo 'matched!';
+    //echo $correct_domain;
+    //Header( "HTTP/1.1 301 Moved Permanently" );
+    //Header( "Location: http://www.yahoo.com" );
+?>
+<h1>Error</h1>
+<p>
+There was a problem with your request, please try it again, or email <a href="mailto:<?php echo $admin_email; ?>"><?php echo $admin_email; ?></a>.
+</p>
+<?php
+    exit(0);
+  }
+}
 //
 // IP-Based Throttle-Check
 //
 $link = null;
 if($limit_request_rate) {
   if(isset($_SERVER['REMOTE_ADDR'])) {
-    //$ip=$_SERVER['REMOTE_ADDR'];
-
     $ipArr = explode('.',$_SERVER['REMOTE_ADDR']);
     $ip = $ipArr[0] * 0x1000000
           + $ipArr[1] * 0x10000
@@ -441,7 +463,7 @@ if($limit_request_rate) {
           + $ipArr[3];
 
     $link =
-      pg_pconnect("host=localhost dbname=webanywhere user=$db_user password=$db_password") or die ('Connect to db failed: ' . pg_last_error());
+      pg_pconnect("host=localhost dbname=webanywhere user=$db_user password=$db_password") or die ('2Connect to db failed: ' . pg_last_error());
 
     if($link) {
       $select_query = "SELECT count FROM day_log WHERE ip=$ip AND time=date_trunc('day', now())";
@@ -809,10 +831,10 @@ if($_content_type == 'text/css') {
       + $ipArr[2] * 0x100
       + $ipArr[3];
 
-    if($limit_request_rate) {
+    if($limit_request_rate === true) {
       if(!$link) {
         $link =
-	      pg_pconnect("host=localhost dbname=webanywhere user=jbigham password=jeffman82") or die ('Connect to db failed: ' . pg_last_error());
+	      pg_pconnect("host=localhost dbname=webanywhere user=$db_user password=$db_password") or die ('2Connect to db failed: ' . pg_last_error());
       }
 
       if($link) {
@@ -1160,9 +1182,6 @@ for ($i = 0, $count_i = count($matches); $i < $count_i; ++$i) {
   //$_response_body = str_replace($matches[$i][0], $replacement, $_response_body);
 }
 */
-
-
-
 
 echo $_response_body;
 ?>
