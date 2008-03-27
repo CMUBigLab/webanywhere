@@ -2,8 +2,7 @@
 
 = Introduction =
 
-Add your content here.
-
+[[Installation]]
 
 = Details =
 
