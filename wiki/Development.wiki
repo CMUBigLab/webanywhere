@@ -2,7 +2,7 @@
 
 = Introduction =
 
-[[Installation]]
+[Installation]
 
 = Details =
 
