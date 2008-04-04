@@ -20,4 +20,4 @@ Tortoise svn is recommended for windows machines
 
 Move the downloaded WebAnywhere code into the ?? folder where Apache gets the information to host.
 
-Directing your internet browser to: ??? should now go the WebAnyWhere hosted on your computer.
+Directing your internet browser to: ??? should now go the WebAnywhere hosted on your computer.
