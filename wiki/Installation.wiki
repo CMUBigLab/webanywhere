@@ -8,16 +8,15 @@
 = Details =
 ==Installing Apache Webserver==
 
-Instal Apache Webserver
-Install PhP and make sure it is applied to the Webserver
+ # Instal Apache Webserver
+ # Install PhP and make sure it is applied to the Webserver
 
 ==Downloading the Code==
 
-Install svn on the computer and checkout the code from this site.
-Tortoise svn is recommended for windows machines
+ # Install svn on the computer and checkout the code from this site.
+ # Tortoise svn is recommended for windows machines
 
 ==Setting Up Webanywhere in Apache==
 
-Move the downloaded WebAnywhere code into the ?? folder where Apache gets the information to host.
-
-Directing your internet browser to: ??? should now go the WebAnywhere hosted on your computer.
+ # Move the downloaded WebAnywhere code into the ?? folder where Apache gets the information to host.
+ # Directing your internet browser to: ??? should now go the WebAnywhere hosted on your computer.
