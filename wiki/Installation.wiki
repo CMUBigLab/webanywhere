@@ -14,7 +14,7 @@
 ==Downloading the Code==
 
  # Install svn on the computer and checkout the code from this site.
- # Tortoise svn is recommended for windows machines
+ * Tortoise svn is recommended for windows machines
 
 ==Setting Up Webanywhere in Apache==
 
