@@ -8,7 +8,7 @@
 = Details =
 ==Installing Apache Webserver==
 
- # Instal Apache Webserver
+ # Instal Apache Webserver (also called Apache http server)
  # Install PhP and make sure it is applied to the Webserver
 
 ==Downloading the Code==
