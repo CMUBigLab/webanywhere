@@ -19,4 +19,5 @@
 ==Setting Up Webanywhere in Apache==
 
  # Move the downloaded WebAnywhere code into the ?? folder where Apache gets the information to host.
+ # Adjust the config.php file with the following adjustments: ... 
  # Directing your internet browser to: ??? should now go the WebAnywhere hosted on your computer.
