@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Direction of the project development and the structure of the code
 
 = Introduction =
 
@@ -13,3 +13,28 @@ Add your content here.  Format your content with:
   * Automatic links to other wiki pages
 
 = Code Structure =
+== front end ==
+=== index.php ===
+Main page of the WebAnywhere system. Holds two frames containing browser.php and content.php .
+=== browser.php ===
+=== content.php ===
+== main scripts ==
+=== config.php ===
+== sound ==
+Sound folder.
+== proxy ==
+wp folder.
+== playing sounds ==
+== capturing keys ==
+== tracking location of reader and states ==
+
+==scripts yet to be placed under a catagory==
+recorder.php
+sound_embed.js
+soundmanager2.js
+soundmanager2.swf
+soundmanager.js
+sounds3.js
+sounds.js
+survey.php
+ustils.js
