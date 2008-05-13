@@ -1,41 +1,16 @@
-var myNewWindow = null;
-
-function writeConsole(content) {
-  return;
-  if(myNewWindow == null) {
-    myNewWindow=window.open('','myconsole',
-      'width=350,height=250'
-      +',menubar=0'
-      +',toolbar=1'
-      +',status=0'
-      +',scrollbars=1'
-      +',resizable=1')
-   myNewWindow.document.writeln(
-    '<html><head><title>Console</title></head>'
-    +'<body bgcolor=white onLoad="self.focus()"><h1>Console</h1>'
-    + '</body></html>'
-  )
-  }
-
-  myNewWindow.document.body.innerHTML += content + "<br\>\n";
-}
-
 // Some useful string functions.
 function trim(stringToTrim) {
   return stringToTrim.replace(/^\s+|\s+$/g,"");
 }
 
-function filterText(text) {
-  text = text.replace(/\n/g, ' ');
-  return text;
-}
-
+// Returns a reference to the textarea used for recording messages.
 function getRecordingTextarea() {
   var doc = getNavigationDocument();
   var rta = doc.getElementById('recording');
   return rta;
 }
 
+// Returns the current time.
 function getTime() {
   var d = new Date();
   return d.valueOf();
@@ -49,6 +24,8 @@ function recordLine(line) {
   }
 }
 
+// Returns an XPATH for the specified node, starting with its document element
+// as root.
 function getXPath(node) {
  if(!node) {
  	return "(none)";
@@ -79,7 +56,7 @@ function getXPath(node) {
    var segment = prefix + tag;
    if(tag.length > 0) {
      var cl = node2.getAttribute('class');
-     if (id && id != "" && false) {
+     if(id && id != "" && false) {
        xpath = "//" + segment + '[@id="' + id + '"]' + xpath;
        break;
      } else {
@@ -101,14 +78,14 @@ function getXPath(node) {
        }
        segment += '[' + node_num + ']';
      }
-   } else if (tag == "tr") {
+   } else if(tag == "tr") {
      var rowCount = node2.parentNode.rows.length;
      if(rowCount > 1 && rowCount < 5) {
        segment += '[' + (node2.rowIndex+1) + ']';
      }
-   } else if (tag == "td") {
+   } else if(tag == "td") {
      var cellCount = node2.parentNode.cells.length;
-     if (cellCount > 1 && cellCount < 5) {
+     if(cellCount > 1 && cellCount < 5) {
        segment += '[' + (node2.cellIndex+1) + ']';
      }
    }
@@ -122,4 +99,23 @@ function getXPath(node) {
    xpath += '#' + node_id;
  }
  return xpath;
+}
+
+
+// Boolean function.
+// Returns true if the user is using IE and false otherwise.
+function isIE() {
+  return (navigator.appName == "Microsoft Internet Explorer");
+}
+
+// Returns 'true' if the given node contains the specified attribute,
+// and 'false' otherwise.
+function myHasAttribute(node, attrib) {
+  // A cross-browser friendlier has attribute
+  if(node.hasAttribute) {
+    return node.hasAttribute(attrib);
+  } else {
+	var attr= node.attributes[attrib];
+    return (attr != undefined) && attr && attr.specified; 
+  }
 }
