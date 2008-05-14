@@ -31,3 +31,6 @@ function foobar() {
 for(var i=0; i<doneYet(myarray.length); i++) {
 ...
 }}}
+
+==No spaces in otherwise blank lines==
+No line should contain only spaces.
