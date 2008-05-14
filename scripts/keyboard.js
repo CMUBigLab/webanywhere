@@ -21,6 +21,9 @@
  * to specific functionality more flexible and personalizable.
  */
 
+// Variables to track when CTRL, ALT, and SHIFT keys are pressed,
+// and if an intervening press of another key should prevent these from being
+// spoken.
 var wa_ctrl_pressed = 0;
 var wa_alt_pressed = 0;
 var wa_shift_pressed = 0;
@@ -32,8 +35,12 @@ var wa_shift_speaks = 0;
 // This is only used if the user is using forms mode.
 var formsModeOn = false;
 
+// The last action that was performed.
+// Used for predictive prefetching.
+var last_action = null;
+
 // Handle key events.
-// The monster global key event handler thing.
+// The monster global key event handler.
 // Uses parameters specifying keys pressed that are created
 // by the event handlers below.
 function doKeyPress(e, target, key_string, source) {
@@ -92,12 +99,7 @@ function doKeyPress(e, target, key_string, source) {
       focusNavigationElement('location_go');
     } else {
       browseMode = KEYBOARD;
-      //setCurrentNode(lastFocusableNode);
       resetSounds();
-      /*prevNode();
-      if(isFocusable(currentNode)) {
-        prevNode();
-      }*/
       prevNodeFocus();
       browseMode = PLAY_ONE;
     }
@@ -275,7 +277,7 @@ function doKeyPress(e, target, key_string, source) {
 
   var select_chosen = false;
 
-  // Select elements are odd, must handle them regardless.
+  // Special handling for SELECT nodes.
   if(target_type == "SELECT") {
   	select_chosen = true;
     if(key_string.match(/ctrl arrow(up|down)/)) {
@@ -323,36 +325,34 @@ function doKeyPress(e, target, key_string, source) {
       key_string = String(key_string);
       if(source == 'key up') {
         if(/^ctrl|alt|shift|insert$/.test(key_string)) {}
-      } else if(source == 'key press') {} else if(source == 'key down') {}
+      } else if(source == 'key press') {
+      } else if(source == 'key down') {}
       addSound("Invalid key press");
       suppressKeys(e);	
     }
   }
 
-  recordObservation(key_string, new_node, lastNode)
+  recordObservation(key_string, new_node, lastNode);
 
   if(new_node != null) {
   	lastNode = new_node;
   }
 
-  // Improves response time.
+  // Improves response time, could introduce a race condition, doesn't seem to.
   setTimeout("playWaiting();", 0);
 
   return return_val;
 }
 
-
-var last_action = null;
-//var last_node = null;
-
-// Records the observation for use by the Markov-model-based prefetcher.
+// Records an observation for use by the Markov-model-based prefetcher.
 function recordObservation(key_string, new_node, old_node) {
   var action = keyToAction(key_string)
   addObservation(action, old_node, last_action);
   last_action = action;
 }
 
-function getKey(e) {
+// Returns a string representation of the provided key event.
+function getKeyString(e) {
   var key_id = e.which ? e.which : e.keyCode;
 
   var key = "";
@@ -360,100 +360,104 @@ function getKey(e) {
     key = String.fromCharCode(key_id);
   } else {
     switch(key_id) {
-		// Set key name in case of other (mostly) control keys.
-        case 8: key = "backspace"; break;  
-		case 9: key = "tab"; break;
-		case 13: key = "enter"; break;
-        case 16: key = "shift"; break;  
-        case 17: key = "ctrl"; break;  
-        case 18: key = "alt"; break;
-		case 19: key = "pause"; break;
-        case 20: key = "capslock"; break;
-        case 27: key = "esc"; break;
-        case 32: key = "spacebar"; break;
-        case 33: key = "pageup"; break;  
-        case 34: key = "pagedown"; break;  
-        case 35: key = "end"; break;                  
-        case 36: key = "home"; break;
-		case 37: key = "arrowleft"; break;
-		case 38: key = "arrowup"; break;
-		case 39: key = "arrowright"; break;
-		case 40: key = "arrowdown"; break;
-		case 45: key = "insert"; break;
-      	case 46: key = "del"; break;
-      	case 59: key = "semi-colon"; break;  // same as key code 186.
-        case 91: key = "left windows"; break;
-        case 92: key = "right windows"; break;
-        case 93: key = "select"; break;
-        case 96: key = "numpad 0"; break;
-        case 97: key = "numpad 1"; break;
-        case 98: key = "numpad 2"; break;
-        case 99: key = "numpad 3"; break;
-        case 100: key = "numpad 4"; break;
-        case 101: key = "numpad 5"; break;
-        case 102: key = "numpad 6"; break;
-        case 103: key = "numpad 7"; break;
-        case 104: key = "numpad 8"; break;
-        case 105: key = "numpad 9"; break;
-        case 106: key = "multiply"; break;
-        case 107: key = "add"; break;
-        case 109: key = "subtract"; break;
-        case 110: key = "decimal point"; break;
-        case 111: key = "divide"; break;
-        case 112: key = "f1"; break;
-        case 113: key = "f2"; break;
-        case 114: key = "f3"; break;
-        case 115: key = "f4"; break;
-        case 116: key = "f5"; break;
-        case 117: key = "f6"; break;
-        case 118: key = "f7"; break;
-        case 119: key = "f8"; break;
-        case 120: key = "f9"; break;
-        case 121: key = "f10"; break;
-        case 122: key = "f11"; break;
-        case 123: key = "f12"; break;
-        case 144: key = "num lock"; break;
-        case 145: key = "scroll lock"; break;
-        case 186: key = "semi-colon"; break;  // same as key code 59.
-        case 187: key = "equal sign"; break;
-        case 188: key = "comma"; break;
-        case 189: key = "dash"; break;
-        case 190: key = "period"; break;
-        case 191: key = "forward slash"; break;
-        case 192: key = "grave accent"; break;
-        case 219: key = "open bracket"; break;
-        case 220: key = "back slash"; break;
-        case 221: key = "close braket"; break;
-        case 222: key = "single quote"; break;
+	  // Set other key names based on key codes < 48 && > 90.
+      case 8: key = "backspace"; break;  
+      case 9: key = "tab"; break;
+      case 13: key = "enter"; break;
+      case 16: key = "shift"; break;  
+      case 17: key = "ctrl"; break;  
+      case 18: key = "alt"; break;
+      case 19: key = "pause"; break;
+      case 20: key = "capslock"; break;
+      case 27: key = "esc"; break;
+      case 32: key = "spacebar"; break;
+      case 33: key = "pageup"; break;  
+      case 34: key = "pagedown"; break;  
+      case 35: key = "end"; break;                  
+      case 36: key = "home"; break;
+      case 37: key = "arrowleft"; break;
+      case 38: key = "arrowup"; break;
+      case 39: key = "arrowright"; break;
+      case 40: key = "arrowdown"; break;
+      case 45: key = "insert"; break;
+      case 46: key = "del"; break;
+      case 59: key = "semi-colon"; break;  // same as key code 186.
+      case 91: key = "left windows"; break;
+      case 92: key = "right windows"; break;
+      case 93: key = "select"; break;
+      case 96: key = "numpad 0"; break;
+      case 97: key = "numpad 1"; break;
+      case 98: key = "numpad 2"; break;
+      case 99: key = "numpad 3"; break;
+      case 100: key = "numpad 4"; break;
+      case 101: key = "numpad 5"; break;
+      case 102: key = "numpad 6"; break;
+      case 103: key = "numpad 7"; break;
+      case 104: key = "numpad 8"; break;
+      case 105: key = "numpad 9"; break;
+      case 106: key = "multiply"; break;
+      case 107: key = "add"; break;
+      case 109: key = "subtract"; break;
+      case 110: key = "decimal point"; break;
+      case 111: key = "divide"; break;
+      case 112: key = "f1"; break;
+      case 113: key = "f2"; break;
+      case 114: key = "f3"; break;
+      case 115: key = "f4"; break;
+      case 116: key = "f5"; break;
+      case 117: key = "f6"; break;
+      case 118: key = "f7"; break;
+      case 119: key = "f8"; break;
+      case 120: key = "f9"; break;
+      case 121: key = "f10"; break;
+      case 122: key = "f11"; break;
+      case 123: key = "f12"; break;
+      case 144: key = "num lock"; break;
+      case 145: key = "scroll lock"; break;
+      case 186: key = "semi-colon"; break;  // same as key code 59.
+      case 187: key = "equal sign"; break;
+      case 188: key = "comma"; break;
+      case 189: key = "dash"; break;
+      case 190: key = "period"; break;
+      case 191: key = "forward slash"; break;
+      case 192: key = "grave accent"; break;
+      case 219: key = "open bracket"; break;
+      case 220: key = "back slash"; break;
+      case 221: key = "close bracket"; break;
+      case 222: key = "single quote"; break;
     }
   }
 
   return key;	
 }
 
+// Returns the target of the supplied key event.
+// Returns null on error.
 function getTarget(e) {
   var target;
 
   if(e.target) target = e.target;
   else if(e.srcElement) target = e.srcElement;
-  else return null; // Something is wrong.
+  else return null;
 
-  // Returned #text node (defeat Safari bug).
   if(target.nodeType == 3)
     target = target.parentNode;
 
   return target;
 }
 
-/* Detects key combinations: first part - key down
- * flags are set in the case that shift, ctrl, or alt is pressed
- * in case any og those flags is true, a combination is detected and logged.  */
+// Handles the keydown event.
+// Most keys will be passed through
+// to getKeyString() and then handled by doKeyPresses().
+// The main exception are the ALT, CTRL, and SHIFT modifiers, which
+// are recorded here, but have no effect until either another key is pressed,
+// or the keyup event is recorded (in case of CTRL).
 function handleKeyDown(e) {
   if(!e) e = window.event;
 
   var return_val = true;
 
-  var key = getKey(e);
+  var key = getKeyString(e);
 
   var target = getTarget(e);
 
@@ -538,9 +542,11 @@ function alwaysAllowed(key) {
   return /enter/i.test(key);
 }
 
-// Processes the release of key combinations: second part - key up/released
-// flags are reset in case shift, ctrl, or alt is released
-// in case any flag is true a combination is detected and logged.
+// Handles the keyup event.
+// Because users can release keys in any order, this can also trigger a key
+// combination.
+// Suppresses the event for most keys, exceptions are modifiers like
+// CTRL, ALT, SHIFT.
 function handleKeyUp(e) {
   if(!e) e = window.event;
 
@@ -554,7 +560,7 @@ function handleKeyUp(e) {
     }
   }
 
-  var key = getKey(e);
+  var key = getKeyString(e);
 
   if(alwaysAllowed(key)) {
   	return true;
@@ -573,7 +579,6 @@ function handleKeyUp(e) {
   if(wa_shift_pressed && key != "shift") {
     string += "shift ";
   }
-
   if(key && key != "") {
     string += key;
   }
@@ -601,35 +606,33 @@ function handleKeyUp(e) {
     
     key = full_key.substring(0, full_key.length -1); // Remove last space.
 
-    // Reset the one that triggered the event.
+    // Reset modifier key that triggered the event.
     switch(orig_key) {
-    case "ctrl": wa_ctrl_pressed = 0; break;
-    case "alt": wa_alt_pressed = 0; break;
-    case "shift": wa_shift_pressed = 0; break;
+      case "ctrl": wa_ctrl_pressed = 0; break;
+      case "alt": wa_alt_pressed = 0; break;
+      case "shift": wa_shift_pressed = 0; break;
     }
-    return_val =
-      doKeyPress(e, target, key, "key up");
+    return_val = doKeyPress(e, target, key, "key up");
   } else {
     switch(orig_key) {
-    case "ctrl": wa_ctrl_pressed = 0; break;
-    case "alt": wa_alt_pressed = 0; break;
-    case "shift": wa_shift_pressed = 0; break;
+      case "ctrl": wa_ctrl_pressed = 0; break;
+      case "alt": wa_alt_pressed = 0; break;
+      case "shift": wa_shift_pressed = 0; break;
     }
     suppressKeys(e);
-  	//doKeyPress(e, target, key, "fake key up orig(" + orig_key + ") " + wa_ctrl_speaks + wa_alt_speaks + wa_shift_speaks + wa_ctrl_pressed + wa_alt_pressed + wa_shift_pressed);
   }
   if(!return_val) {
     suppressKeys(e);
   }
 
-
   return return_val;
 }
 
-/* Logs all regular single key presses. are logged
- * If keyPress flag is enabled (in case no control key is clicked at the same time)
- * the keyPress event returns for regular char keys the correct small case key code. */
+// Handles the keypress event.
+// Currently, this mostly suppresses the event, allowing other handlers to
+// process the event, and preventing the browser from attempting to handle it.
 function handleKeyPress(e) {
+  // Another event handler will process key presses on password boxes.
   var target = getTarget(e);
   if(target.nodeName == "INPUT") {
     var target_type = target.getAttribute('type');
@@ -638,8 +641,8 @@ function handleKeyPress(e) {
     }
   }
 
-  var key = getKey(e);
-
+  // Don't suppress the enter key, unless playByType says too.
+  var key = getKeyString(e);
   if(key != "enter" && !playByType(target)) {
     suppressKeys(e);
     return false;
@@ -648,6 +651,8 @@ function handleKeyPress(e) {
   }
 }
 
+// Function for determining which keys to have key events
+// passed through to them.
 function playByType(target) {
   var target_id = null;
   var target_name = null;
@@ -667,24 +672,30 @@ function playByType(target) {
   }
 
   return false;
-} 
-// Suppress all control keys to prevent user from accidently leaving
-// the browsing window.
-function suppressKeys(e) { //, key) {
-	if(e.stopPropagation) {
-		e.stopPropagation();
-		e.preventDefault();
-	} else {
-		e.cancelBubble = true;
-		e.returnValue = false;
-		e.keyCode = 0;
-	}
+}
 
-	return false;
+// Suppresses all key events.
+// This is used to let WebAnywhere process key events and helps prevent users
+// from accidently pressing a shortcut that would cause them to leave the
+// browsing window.
+function suppressKeys(e) { //, key) {
+  if(e.stopPropagation) {
+    e.stopPropagation();
+    e.preventDefault();
+  } else {
+    e.cancelBubble = true;
+    e.returnValue = false;
+    e.keyCode = 0;
+  }
+
+  return false;
 }
 
 // For some reason, suppressing keys on select objects needs to be
 // handled more carefully, at least in Firefox.
+// 
+// This first blurs the target, then calls a function to focus it again
+// after the blur.
 function suppressSelect(e, target, refocus) {
   if(!e.which) {
     e.cancelBubble = true;
