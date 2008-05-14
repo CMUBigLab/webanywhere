@@ -6,14 +6,17 @@
 <title>WebAnywhere Browser Frame</title>
 <script type="text/javascript">
 /* <![CDATA[ */
+
 var hasConsole = (typeof console != 'undefined' && typeof console.log != 'undefined');
 top.webanywhere_domain='<?php echo $webanywhere_domain; ?>';
 top.webanywhere_location = String(document.location).replace(/^(https?:\/\/[^\/]*)\/.*$/, '$1');
 top.webanywhere_url=top.webanywhere_location+'<?php echo $root_path; ?>';
-if(hasConsole) console.log(top.sound_url_base + ' ' + top.web_proxy_url);
+
 top.sound_url_base='<?php echo $sound_url_base; ?>';
 top.web_proxy_url='<?php echo $wp_path; ?>';
-top.cross_domain_security = <?php echo $cross_domain_security; ?>;
+top.cross_domain_security = '<?php echo $cross_domain_security; ?>';
+
+if(hasConsole) console.log(top.sound_url_base + ' ' + top.web_proxy_url);
 /* ]]> */
 </script>
 <script language="Javascript" src="<?php echo $script_path; ?>/keymapping.php"></script>
@@ -63,11 +66,14 @@ if($_REQUEST[debug]==='true') {
 body {
   font-family: Georgia, "Times New Roman", Times, serif;
 }
-#input { font-size: 2em; }
-#body { font-family: arial; }
+#input {font-size: 2em;}
+#body {font-family: arial;}
 </style>
-
 </head>
+<?
+// Flush what we have so far so the browser can start downloading/processing the scripts.
+flush();
+?>
 <body onload="focusLocation(); prefetchLetters();" bgcolor="#CCCCFF">
 <div align="center" valign="bottom" style="font-size: 1em;">
 <form onSubmit="javascript:navigate(this);return false;">

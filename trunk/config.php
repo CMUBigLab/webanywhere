@@ -40,11 +40,11 @@ $limit_request_rate = false;
 // Enabling this can cause the system to run more slowly because WebAnywhere,
 // including the SoundManger2 Flash movie, needs to be reloaded when navigating
 // to a new domain.
-// This should be enabled if using a fast connection and when untrusted sites
+// This should be enabled if using a fast connection or when untrusted sites
 // may be visited.
-$cross_domain_security = 'false';
+$cross_domain_security = false;
 
-// Databse information for functionality that requires it.
+// Database information for functionality that requires it.
 // Currently, this is primarily the IP-based limiting of requests.
 $db_user = '';
 $db_password = '';

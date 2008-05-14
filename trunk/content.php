@@ -1,3 +1,4 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
 <html>
 <head>
 <title>Welcome to WebAnywhere</title>
@@ -8,41 +9,49 @@ body {
 </style>
 </head>
 <body bgcolor="#FFFFFF">
-
 <?php
 if(!isset($_REQUEST['submit'])) {
 ?>
-
 <?php if($_REQUEST[debug]==='true') { ?>
 <a href="">One</a><a href="">Two</a><a href="">Three</a>
 <?php } ?>
 
 <div style="width: 50%; margin: auto;">
 <h1>WebAnywhere</h1>
+The system is initialized and is ready to use.
+<h2>Introduction</h2>
 <p>
-The system is initialized and is ready to use.  <a href="http://webinsight.cs.washington.edu/projects/webanywhere/">WebAnywhere</a> works much like screen readers that you may have used before, such as JAWS or Window-Eyes.  The keyboard commands that are currently available are as follows:<br>
+<a href="http://webinsight.cs.washington.edu/projects/webanywhere/">WebAnywhere</a>
+works much like screen readers that you may have used before, such as JAWS or Window-Eyes.
+WebAnywhere has been developed targeting the Firefox web browser with Adobe Flash installed -
+the system will also work with other browsers (Internet Explorer, Safari, etc.) and
+with embedded sound players (Quicktime, Windows Media Player, etc.) but
+the system's response may be less predictable.
+A main focus of continued development is full support of these other browsers and sound players.
+If you'd like to help with development, please see our <a href="http;//webanywhere.googlecode.com">Google Code Project Page</a>.
+</p>
+
+<h2>Keyboard Commands</h2>
+<p>
+A selection of keyboard commands that are currently supported is listed below.
+Pressing SHIFT in combination with them, searches backward from the current cursor position.<br>
 </p>
 
 <?php if($_REQUEST[debug]==='true') { ?>
 <input type="hidden" name="dumb"/>
 <?php } ?>
-
 <ul>
 <li><b>CTRL-L</b> - move the cursor to the location box where you can type a URL to visit.</li>
-<li><b>Page Down</b> - read from the current position.</li>
 <li><b>Arrow Down</b> - read the next element on the page.</li>
 <li><b>Arrow Up</b> - read the previous element on the page.</li>
-<li><b>Arrow Left</b> - read the previous character.</li>
-<li><b>Arrow Right</b> - read the next character.</li>
 <li><b>CTRL-H</b> - skip to the next heading.</li>
 <li><b>CTRL-I</b> - skip to the next input element.</li>
+<li><b>CTRL-R</b> - skip to the next row by cell when in a table.</li>
+<li><b>CTRL-D</b> - skip to the next column by cell when in a table.</li>
+<li><b>Page Down</b> - read continuously from the current position.</li>
+<li><b>Home</b> - read continuously, starting over from the beginning of the page.</li>
 </ul>
-
-<p>
-Please send comments using our <a href="content/feedback.html">feedback form</a>.
-</p>
 </div>
-
 <!--
 <h2>Login</h2>
 <p>
@@ -58,9 +67,7 @@ Please send comments using our <a href="content/feedback.html">feedback form</a>
 </form>
 </p>
 -->
-
 <?php if($_REQUEST[debug]==='true') { ?>
-
 <div>
 <form>
 <input type="text" name="password"><br/>
@@ -71,16 +78,12 @@ Please send comments using our <a href="content/feedback.html">feedback form</a>
 </select>
 </form>
 </div>
-
 <?php } ?>
-
 <?php } else { ?>
 <h1>Invalid Login</h1>
 <p>
    That login name/password that you entered is not valid.  If you should have access to WebAnywhere, please email <a href="mailto:jbigham@cs.washington.edu">jbigham@cs.washington.edu</a> to reset your credentials.
 </p>
-
 <?php } ?>
-
 </body>
 </html>
