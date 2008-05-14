@@ -1,3 +1,26 @@
+/*
+ * keyboards.js
+ * 
+ * Contains functions for handling keyboard events.
+ * 
+ * Contains a separate function for handling
+ * keydown (handleKeyDown),
+ * keyup (handleKeyUp),
+ * & keypress (handleKeyPress) events.
+ * 
+ * Each first calls getKey, which returns a string representation of the key event.
+ * 
+ * Most key events are caught and handled in keydown.  Exceptions primarily
+ * involve the modifier keys, such as SHIFT, ALT, CTRL, etc., which are set
+ * on keydown, but are released in keyup.
+ * 
+ * After being caught by these handlers, the events are blocked so that the
+ * browser does not attempt to handle them.  suppressKeys(e) does this.
+ * 
+ * Eventual integration with keymapping.php will make the keys corresponding
+ * to specific functionality more flexible and personalizable.
+ */
+
 var wa_ctrl_pressed = 0;
 var wa_alt_pressed = 0;
 var wa_shift_pressed = 0;
@@ -6,6 +29,8 @@ var wa_ctrl_speaks = 0;
 var wa_alt_speaks = 0;
 var wa_shift_speaks = 0;
 
+// This is only used if the user is using forms mode.
+var formsModeOn = false;
 
 // Handle key events.
 // The monster global key event handler thing.
@@ -27,7 +52,6 @@ function doKeyPress(e, target, key_string, source) {
 
   recordLine('keypress: ' + key_string + ' ' + source + ' ' + getXPath(target) + ' ' + getXPath(currentNode));
 
-  //writeConsole(source + ' ' + target_id + ' ' + target_type + ' ' + key_string);
   var return_val = false;
 
   var default_case = false;
@@ -110,6 +134,7 @@ function doKeyPress(e, target, key_string, source) {
     browseMode = KEYBOARD;
     resetSounds();
     focusNavigationElement('finder_field');
+    finderBarFocus();
     break;
   case 'ctrl d':
     suppressKeys(e);
@@ -127,7 +152,7 @@ function doKeyPress(e, target, key_string, source) {
     suppressKeys(e);
     browseMode = KEYBOARD;
     resetSounds();
-    new_node = nextNodeTagAttrib("TABLE",null);
+    new_node = nextNodeTagAttrib("TABLE", null);
     if(new_node) {
       browseMode = READ;
     } else {
@@ -138,7 +163,7 @@ function doKeyPress(e, target, key_string, source) {
     suppressKeys(e);
     browseMode = KEYBOARD;
     resetSounds();
-    new_node = prevNodeTagAttrib("TABLE",null);
+    new_node = prevNodeTagAttrib("TABLE", null);
     if(new_node) {
     browseMode = READ;
     } else {
@@ -149,7 +174,7 @@ function doKeyPress(e, target, key_string, source) {
     suppressKeys(e);
     browseMode = KEYBOARD;
     resetSounds();
-    new_node = nextNodeTagAttrib("H",null);
+    new_node = nextNodeTagAttrib("H", null);
     if(new_node) {
       browseMode = READ;
     } else {
@@ -297,14 +322,8 @@ function doKeyPress(e, target, key_string, source) {
     } else if(!select_chosen) {
       key_string = String(key_string);
       if(source == 'key up') {
-        if(/^ctrl|alt|shift|insert$/.test(key_string)) {
-          //alert('id: ' + target_id + 'type: ' +target_type + '  doing key up: ' + key_string + ' ' + target + ' ' + source);
-        }
-      } else if(source == 'key press') {
-        //alert('id: ' + target_id + 'type: ' +target_type + ' doing key press: ' + key_string + ' ' + target + ' ' + source);
-      } else if(source == 'key down') {
-        //alert('id: ' + target_id + 'type: ' +target_type + ' doing key down: ' + key_string + ' ' + target + ' ' + source);
-      }
+        if(/^ctrl|alt|shift|insert$/.test(key_string)) {}
+      } else if(source == 'key press') {} else if(source == 'key down') {}
       addSound("Invalid key press");
       suppressKeys(e);	
     }
@@ -415,12 +434,12 @@ function getKey(e) {
 function getTarget(e) {
   var target;
 
-  if (e.target) target = e.target;
-  else if (e.srcElement) target = e.srcElement;
+  if(e.target) target = e.target;
+  else if(e.srcElement) target = e.srcElement;
   else return null; // Something is wrong.
 
   // Returned #text node (defeat Safari bug).
-  if (target.nodeType == 3)
+  if(target.nodeType == 3)
     target = target.parentNode;
 
   return target;
@@ -430,7 +449,7 @@ function getTarget(e) {
  * flags are set in the case that shift, ctrl, or alt is pressed
  * in case any og those flags is true, a combination is detected and logged.  */
 function handleKeyDown(e) {
-  if (!e) e = window.event;
+  if(!e) e = window.event;
 
   var return_val = true;
 
@@ -442,11 +461,11 @@ function handleKeyDown(e) {
   var altPressed = false;
   var shiftPressed = false;
 
-  if (parseInt(navigator.appVersion)>3) {
+  if(parseInt(navigator.appVersion)>3) {
     var evt = ( navigator.appName=="Netscape" || 
                 navigator.appName=="Microsoft Internet Explorer") ? e : window.event;
 
-    if (navigator.appName=="Netscape" && parseInt(navigator.appVersion)==4) {
+    if(navigator.appName=="Netscape" && parseInt(navigator.appVersion)==4) {
       var mString =(e.modifiers+32).toString(2).substring(3,6);
       shiftPressed=(mString.charAt(0)=="1");
       ctrlPressed =(mString.charAt(1)=="1");
@@ -523,7 +542,7 @@ function alwaysAllowed(key) {
 // flags are reset in case shift, ctrl, or alt is released
 // in case any flag is true a combination is detected and logged.
 function handleKeyUp(e) {
-  if (!e) e = window.event;
+  if(!e) e = window.event;
 
   var return_val = false;
 
@@ -649,9 +668,10 @@ function playByType(target) {
 
   return false;
 } 
-// upress all control keys to prevent user from accidently leaving the browsing window.
+// Suppress all control keys to prevent user from accidently leaving
+// the browsing window.
 function suppressKeys(e) { //, key) {
-	if (e.stopPropagation) {
+	if(e.stopPropagation) {
 		e.stopPropagation();
 		e.preventDefault();
 	} else {
@@ -659,14 +679,14 @@ function suppressKeys(e) { //, key) {
 		e.returnValue = false;
 		e.keyCode = 0;
 	}
-	
+
 	return false;
 }
 
 // For some reason, suppressing keys on select objects needs to be
 // handled more carefully, at least in Firefox.
 function suppressSelect(e, target, refocus) {
-  if (!e.which) {
+  if(!e.which) {
     e.cancelBubble = true;
     e.returnValue = false;
   } else {
@@ -676,6 +696,6 @@ function suppressSelect(e, target, refocus) {
       setTimeout("refocusSelect()",0);
     }
   }
-  
+
   return false;
 }

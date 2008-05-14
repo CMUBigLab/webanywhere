@@ -1,3 +1,11 @@
+/*
+ * utils.js
+ * 
+ * Some useful functions dealing with string manipulation, time, debugging,
+ * xpaths, and DOM manipulation.
+ * 
+ */
+
 // Some useful string functions.
 function trim(stringToTrim) {
   return stringToTrim.replace(/^\s+|\s+$/g,"");
