@@ -1,3 +1,12 @@
+/*
+ * wa.js  -  main WebAnywhere script
+ * 
+ * This script provides the main functionality for reading through a web page,
+ * skipping through a web page, handling new page loads, capturing user input,
+ * etc.
+ */
+
+
 // WebAnywhere Operating States.
 var READING_PAGE = 0;
 var LOADING_PAGE = 1;
@@ -6,9 +15,6 @@ var IN_BROWSER = 2;
 // The current state of WebAnywhere.
 // Start with IN_BROWSER.
 var operating_state = IN_BROWSER;
-
-// Should the system prefetch items?
-var doprefetching = true;
 
 // Information about the document that the system is currently reading.
 var currentLoc = null;
@@ -22,9 +28,8 @@ var currentChar = 0;
 // The last node to be played by the system.
 var lastNodePlayed = null;
 
+// Keeps track of whehter a programmatic focus was requested.
 var programmaticFocus = false;
-
-var num = 0;
 
 var textBoxFocused = false;
 
@@ -45,10 +50,14 @@ var recordActions = false;
 // 0 none, 1 JAWS, 2 Window-Eyes
 var emulationType = 0;
 
+// Recursion limit.
+// TODO: remove 20 level "fudge factor"
+var recursion_limit = 1000 - 20;
+
 // Attach browser onload handler
-if (window.addEventListener) {
+if(window.addEventListener) {
   window.addEventListener('load', init_browser, false);
-} else if (window.attachEvent) {
+} else if(window.attachEvent) {
   window.attachEvent('onload', init_browser);
 }
 
@@ -60,7 +69,9 @@ function debug(str) {
   	debug_div.appendChild(document.createTextNode(str));
   }
 }
-
+// Counts number of times that updatePlaying() has been called.
+// Something like the clock tick of the system.
+var updatePlayingCount = 0;
 // Updates the text that is displayed visually as what is currently being
 // played by the system.
 function updatePlaying() {
@@ -72,9 +83,9 @@ function updatePlaying() {
   var sound_div = document.getElementById('sound_div');
 
   if(currentNode && currentNode.nodeType == 1) {
-    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + soundQ.length + " b: " + browseMode + ' focus: ' + focusedNode + ' las: ' + lastPath + ' threads: ' + free_threads + ' ' + (num++) + ' ' + soundQ + ' val: ' + valPath + ' bMode:' + browseMode;
+    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + soundQ.length + " b: " + browseMode + ' focus: ' + focusedNode + ' las: ' + lastPath + ' threads: ' + free_threads + ' ' + (updatePlayingCount++) + ' ' + soundQ + ' val: ' + valPath + ' bMode:' + browseMode;
   } else {
-    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + soundQ.length + " b: " + browseMode + ' focus: ' + focusedNode + ' las: ' + lastPath + ' threads: ' + free_threads + ' ' + (num++) + ' ' + soundQ + ' val: ' + valPath + ' bMode:' + browseMode;
+    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + soundQ.length + " b: " + browseMode + ' focus: ' + focusedNode + ' las: ' + lastPath + ' threads: ' + free_threads + ' ' + (updatePlayingCount++) + ' ' + soundQ + ' val: ' + valPath + ' bMode:' + browseMode;
   }
 }
 
@@ -131,20 +142,27 @@ function init_browser() {
   if(window.attachEvent) document.attachEvent('onkeypress', handleKeyPress);
   else if(window.addEventListener) document.addEventListener('keypress', handleKeyPress, false);
 
-  if(soundManagerLoaded) {
+  if(soundPlayerLoaded) {
     setupBaseSounds();
+  }
+
+  // For Flash, the system waits until the Flash movie has loaded.
+  // For embedded sounds, the system can proceed immediately.
+  if(soundMethod == EMBED_SOUND_METHOD) {
+    soundPlayerLoaded = true;
+    newPage();
   }
 }
 
 // Called when the location bar gains focus.
 function locationFocus(e) {
   top.navigation_frame.textBoxFocused = true;
+
   var target;
-  if (!e) e = window.event;
-  if (e.target) target = e.target;
-  else if (e.srcElement) target = e.srcElement;
-  if (target.nodeType == 3) // defeat Safari bug
-    target = target.parentNode;
+  if(!e) e = window.event;
+  if(e.target) target = e.target;
+  else if(e.srcElement) target = e.srcElement;
+  if(target.nodeType == 3) target = target.parentNode;
 
   resetSounds();
 
@@ -152,6 +170,12 @@ function locationFocus(e) {
   if(target.value) {
     addSound(target.value);
   }
+}
+
+// Called when the finder box receives focus.
+function finderBarFocus() {
+  resetSounds();
+  addSound("Type a string to find in the current page");
 }
 
 // Called in response to a keydown event on the browser frame's "GO" button.
@@ -174,10 +198,10 @@ function goKeyDown(e) {
 // Called in response to the focus event on the browser frame's "GO" button.
 function goButtonFocus(e) {
   var target;
-  if (!e) e = window.event;
-  if (e.target) target = e.target;
-  else if (e.srcElement) target = e.srcElement;
-  if (target.nodeType == 3) // defeat Safari bug
+  if(!e) e = window.event;
+  if(e.target) target = e.target;
+  else if(e.srcElement) target = e.srcElement;
+  if(target.nodeType == 3) // defeat Safari bug
     target = target.parentNode;
 
   var text = handlenode(target, true);
@@ -209,6 +233,7 @@ function tabStartNode(e) {
   }
 }
 
+// Called when the user hits the TAB key from the location bar.
 function tabLocation(e) {
   var key = top.navigation_frame.keyString(e);
   if(key == 'ctrl l') {
@@ -222,6 +247,7 @@ function tabLocation(e) {
   }
 }
 
+// Focuses the location bar.
 function focusLocation() {
   var location_field = document.getElementById('location');
   if(location_field) {
@@ -231,6 +257,8 @@ function focusLocation() {
   }
 }
 
+// A flexible "focus element" function.
+// Focuses the element with the provided ID in the provided document.
 function focusElement(doc, element_id) {
   browseMode = PAUSED;
   resetSounds();
@@ -243,7 +271,6 @@ function focusElement(doc, element_id) {
       elem.select();
     }
     setCurrentNode(elem);
-    //nextNode();
   }
 }
 
@@ -275,6 +302,7 @@ function getLastContent() {
   return last;
 }
 
+// Gets the document element of the Navigation element.
 function getNavigationDocument() {
   return top.navigation_frame.document;
 }
@@ -296,7 +324,7 @@ function getCursor(myField) {
   }
   if(!myField.value || myField.value == '') {
     return 0;
-  } else if (document.selection) {
+  } else if(document.selection) {
     var delim = "deliim";
     myField.focus();
     sel = document.selection.createRange();
@@ -304,7 +332,7 @@ function getCursor(myField) {
     var pos = myField.value.indexOf("deliim");
     myField.value = myField.value.replace(/deliim/, '');
     return pos;
-  } else if (myField.selectionStart || myField.selectionStart == '0') {
+  } else if(myField.selectionStart || myField.selectionStart == '0') {
     var startPos = myField.selectionStart;
     return startPos;
   }
@@ -312,7 +340,7 @@ function getCursor(myField) {
 }
 
 function stopProp(e) {
-  if (e.stopPropagation) {
+  if(e.stopPropagation) {
     e.stopPropagation();
     e.preventDefault();
   } else {
@@ -339,10 +367,10 @@ function docKeyUpDown(e) {
 
 function docKeyPress(e) {
   var targ;
-  if (!e) e = window.event;
-  if (e.target) targ = e.target;
-  else if (e.srcElement) targ = e.srcElement;
-  if (targ.nodeType == 3) // defeat Safari bug
+  if(!e) e = window.event;
+  if(e.target) targ = e.target;
+  else if(e.srcElement) targ = e.srcElement;
+  if(targ.nodeType == 3) // defeat Safari bug
     targ = targ.parentNode;
 
   var key = top.navigation_frame.keyString(e);
@@ -426,11 +454,11 @@ function playKeypress(e) {
   top.navigation_frame.resetSounds();
   top.navigation_frame.browseMode = top.navigation_frame.KEYBOARD;
 
-  if (!e) e = window.event;
+  if(!e) e = window.event;
 
   var targ;
-  if (e.target) targ = e.target;
-  else if (e.srcElement) targ = e.srcElement;
+  if(e.target) targ = e.target;
+  else if(e.srcElement) targ = e.srcElement;
 
   var key = top.navigation_frame.getKey(e);
 
@@ -488,11 +516,6 @@ function preVisit(node) {
   }
 
   if(node.nodeType == 1) {
-    // Sanity Check: Rewrite any URLS for us
-    //if(myHasAttribute( node, 'href' ) && node.href != null && node.href !="") {
-    //  var loc_val = node.href;
-    //}
-
     if(node.tagName == "LABEL") {
       var for_id = node.getAttribute('for');
       if(for_id) {
@@ -546,7 +569,9 @@ function selectChange(key_string, target) {
   }
 }
 
-
+//
+// Called when a new page loads.
+//
 function newPage() {
   browseMode = PAUSED;
 
@@ -556,16 +581,14 @@ function newPage() {
     if(src.indexOf(top.webanywhere_url)!=0) {
       var location_field = document.getElementById('location');
       if(/mail\.google\.com\/mail/.test(location_field.value) &&
-        !(/ui=?html/i.test(location_field.value))) {
+          !(/ui=?html/i.test(location_field.value))) {
         setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
-      } else {
-        //setContentLocation(top.webanywhere_url + '/content.php');
-      }
-    } else if(/starting_url=.*/.test(src)) {}
+      } else {}
+    } else if(/starting_url=.*/.test(src)) {} // Eventually will enable users to specify starting page.
   }
 
   var newDoc = top.content_frame.document;
-  var newLoc = top.content_frame.document.location + "";
+  var newLoc = String(top.content_frame.document.location);  // Document URL.
 
   valPath += "|";
 
@@ -573,11 +596,6 @@ function newPage() {
     var location_field = document.getElementById('location');
     if(location_field) {
       recordLine('new page: ' + location_field.value);
-
-      //if(/^http:\/\/webinsight\.cs\.washington\.edu\/wa\/wp\/wawp.php\?q=/.test(newLoc)) {
-      //  var encoded_url = newLoc.replace(/^http:\/\/webinsight\.cs\.washington\.edu\/wa\/wp\/wawp.php\?q=/, '');
-      //  location_field.value = decode64(encoded_url);
-      //}
       if(/mail\.google\.com\/mail/.test(location_field.value) && !(/ui=?html/.test(location_field.value))) {
       	setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
       }
@@ -585,24 +603,11 @@ function newPage() {
       location_field.value = temp_loc.replace(/[^A-Za-z0-9\s~!@#\$%\^&\*\\.\,:<>\+\{\}(\)\-\?\\\/]/g, "");
     }
 
-
- var loc_val = location_field.value;
- if(loc_val.match(/.*ServiceLogin.*/)) {
-   //alert('matched');
-   var content_doc = top.content_frame.document;
+  var loc_val = location_field.value;
+  if(loc_val.match(/.*ServiceLogin.*/)) {
+    //alert('matched');
+    var content_doc = top.content_frame.document;
     var login_form = content_doc.getElementById("gaia_loginform");
-    if(login_form) {
-      //login_form.setAttribute('action', 'https://www.google.com/accounts/ServiceLoginAuth?service=mail');
-      //var onsubmit = login_form.getAttribute('onsubmit');
-      //login_form.setAttribute('onsubmit', 'setTimeout("window.open(\'http://webinsight.cs.washington.edu/wa/dev/index.php?starting_url=https://mail.google.com/mail/?ui=html&zy=f\')", 1200); ' + onsubmit);
-      //var iframe = content_doc.createElement('iframe');
-      //iframe.setAttribute("name","login_target");
-      //iframe.setAttribute("id", "login_target");
-      //login_form.setAttribute("target", "gmail_login_window");
-      //if(content_doc.body) {
-      //  content_doc.body.appendChild(iframe);
-      //}
-    }
   }
 
   currentDoc = newDoc;
@@ -621,13 +626,13 @@ function newPage() {
   if(window.attachEvent) currentDoc.attachEvent('onkeypress', handleKeyPress);
   else if(window.addEventListener) currentDoc.addEventListener('keypress', handleKeyPress, false);
 
-  treeTraverseRecursion(currentNode, preVisit, leafNode, 980, true);
+  treeTraverseRecursion(currentNode, preVisit, leafNode, recursion_limit, true);
 
   var start_node = currentDoc.createElement('div');
   start_node.innerHTML = currentDoc.title;
   if(isIE()) {
     start_node.tabIndex = 0;
-  } else {
+   } else {
     start_node.setAttribute('tabindex', 0);
   }
   start_node.setAttribute('id', 'always_first_node');
@@ -669,9 +674,6 @@ function newPage() {
   if(prefetchStrategy > 0) {
     prefetchNext();
   }
-    //if(doprefetching) {
-    //  prefetchSounds(currentDoc);
-    //}
   }
 
   soundsPlayed = 0;
@@ -680,13 +682,14 @@ function newPage() {
 
   resetSounds();
   playing = null;
+
   addSound("Page has loaded.");
   if(currentDoc.title) {
     addSound(currentDoc.title);
   }
 
   // Speak the number of headings and links on the page
-  addSound( countNumHeadings() + " Headings " + countNumLinks() + " Links" );
+  addSound(countNumHeadings() + " Headings " + countNumLinks() + " Links");
 
   browseMode = READ;
 
@@ -699,6 +702,8 @@ function newPage() {
   }
 }
 
+// Focuses the first node of the document and resets the reading to start
+// back at the beginning.
 function startNodeFocus(e) {
   if(currentDoc && currentDoc.title) {
     resetSounds();
@@ -706,6 +711,7 @@ function startNodeFocus(e) {
   }
 }
 
+// Focuses the end node and resets the reading to last node in the document.
 function endNodeFocus(e) {
   if(currentDoc && currentDoc.title) {
     resetSounds();
@@ -713,12 +719,14 @@ function endNodeFocus(e) {
   }
 }
 
+// Goes back one step in the history.
 function goBack() {
   if(top.content_frame.history.back) {
   	top.content_frame.history.back();
   }
 }
 
+// Goes forward one step in the history.
 function goForward() {
   if(top.content_frame.history.forward) {
   	top.content_frame.history.forward();
@@ -732,11 +740,10 @@ function navigate(e) {
   var loc = document.getElementById('location');
   var loc_val = loc.value;
 
+  // GMail-specific redirection.
   if((/^(https?:\/\/)?((www\.)?gmail\.com|mail\.google\.com)/.test(loc_val)) &&
       !(/ui=?html/.test(loc_val))) {
     loc_val = "https://mail.google.com/mail/?ui=html&zy=a";
-    //waitingforgmail = true;
-    //setTimeout(loadGmail, 2000);
   } else if(loc_val.match(/\.pdf$/)) {
     loc_val = "http://www.google.com/search?q=cache:" + loc_val;
   }
@@ -746,22 +753,19 @@ function navigate(e) {
   setContentLocation(loc_val);
 }
 
-var waitingforgmail = false;
-function loadGmail() {
-  if(waitingforgmail) {
-    waitingforgmail = false;
-    setContentLocation('https://mail.google.com/mail/?ui=html&zy=a');
-  }
-}
-
 
 // Makes URL come from same domain as WebAnywhere using the web proxy.
-function proxifyURL(loc) {
+// The subdomain (if supplied) is tacked on to the front.
+function proxifyURL(loc, subdomain) {
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
   if(loc.indexOf(top.webanywhere_url) != 0) {
     loc = top.web_proxy_url.replace(/\$url\$/, encode64(loc));
-    if(hasConsole) console.log('changed to ' + loc);
+    if(subdomain && subdomain.length > 0) {
+      loc = top.webanywhere_location + loc;
+      loc = loc.replace(top.webanywhere_domain, (subdomain + '.' + top.webanywhere_domain));
+    }
+    if(hasConsole) console.debug('in here: ' + subdomain + ' ' + loc + top.webanywhere_domain);
   }
 
   return loc;
@@ -774,9 +778,25 @@ function proxifyURL(loc) {
 //  console.log('setting: ' + top.sound_url_base);
 //}
 
+var domainRegExp = /^(https?:\/\/)?([^\/]+\.[^\/]+[^\/]*)/;
+
 // Called to set the location of content frame.
 function setContentLocation(loc) {
-  loc = proxifyURL(loc);
+  var dmatches = String(loc).match(domainRegExp);
+
+  var domain_requested = "";
+
+  if(top.cross_domain_security) {
+    if(dmatches && dmatches.length > 2) {
+      domain_requested = dmatches[2];
+    } else { // Domain is invalid.
+    }
+  }
+  
+  loc = proxifyURL(loc, domain_requested);
+
+  if(hasConsole) console.debug('location is ' + loc);
+
   // Set new location by setting the src attribute of the content frame.
   // Do not set the location of the frame document because WebAnywhere can
   // lose control of this because of redirects, etc.
@@ -840,10 +860,10 @@ function treeTraverseRecursion(node, visitor, isleaf, inv_depth, first) {
 // Unused function.  Should probably delete it.
 function gotFocus(e) { 
   var targ;
-  if (!e) e = window.event;
-  if (e.target) targ = e.target;
-  else if (e.srcElement) targ = e.srcElement;
-  if (targ.nodeType == 3) // defeat Safari bug
+  if(!e) e = window.event;
+  if(e.target) targ = e.target;
+  else if(e.srcElement) targ = e.srcElement;
+  if(targ.nodeType == 3) // defeat Safari bug
     targ = targ.parentNode;
 
   debug( "stat:" + top.navigation_frame.programmaticFocus );
@@ -904,6 +924,8 @@ function getCurrentChar() {
 
 //----------------------- START ADVANCE TO TAG ---------------------
 
+// Returns a function that return true when a provided elem has
+// the specified name (tag) and attribute (attrib).
 function matchByTag(tag, attrib) {
   var matchByTagFunc = function(elem) {
  	return isTagAttribute(elem, tag, attrib);
@@ -912,7 +934,7 @@ function matchByTag(tag, attrib) {
 }
 
 // Determines if a tag is visible.
-// Tags that aren't set to display, probably shouldn't be read.
+// Tags that aren't visible, shouldn't be read.
 function isVisible(elem) {
   if(elem.nodeType == 1) {
   	if(elem.tagName == "INPUT") {
@@ -924,15 +946,6 @@ function isVisible(elem) {
   }
   // Default is that it's visible.
   return true;  
-}
-
-function findMatchingParent(node, tag) {
-  if(node && node.nodeName != "TR") {
-    do {
-      node = node.parentNode;
-    } while(node && node.nodeName != tag);
-  }
-  return node;
 }
 
 
@@ -950,7 +963,7 @@ function prevTableCol(node) {
   return navTableCell(node, 0, -1, "start of table");
 }
 
-
+// Primary function for navigating within a table.
 function navTableCell(node, row_offset, col_offset, edge_message) {
   if(!node) return null;
 	
@@ -1042,10 +1055,8 @@ function contentMatchFunc(context) {
       var text = handlenode(elem, true);
       var reg = new RegExp(context, "i");
 
-      //alert('comparing: ' + context + '||' + text);
-
       if(reg.test(text)) {
-	return true;
+    	return true;
       }
     }
 
@@ -1089,11 +1100,17 @@ function nextNonEmpty() {
 }
 
 function getFinderValue() {
-  var nav_doc = getNavigationDocument();
-  var find_text = nav_doc.getElementById('finder_field');
+  var find_text = getFinderBox();
   var find_val = find_text.value;
 
   return find_val;
+}
+
+function getFinderBox() {
+  var nav_doc = getNavigationDocument();
+  var find_text = nav_doc.getElementById('finder_field');
+
+  return find_text;
 }
 
 function nextNodeContentFinder() {
@@ -1174,6 +1191,11 @@ function firstNodeNoSound(node) {
   return result;
 }
 
+// Function takes as input
+// 1)  a "matcher" function which takes as input a DOM element and returns
+//     true if it matches and false otherwise.
+// 2)  a "description" which is a string that describes the type of element
+//     being looked for, which is used to describe to users what was found.
 function nextNodeByMatcher(matcher, description) {
   if(browseMode == PAUSED) {
     return false;
@@ -1217,7 +1239,7 @@ function nextNodeNoSound(node, matcher, first, num) {
   var result = "";
 
   // Don't let Javascript die because of recursion limit.
-  if(num > 980) {
+  if(num > recursion_limit) {
     return node;
   }
 
@@ -1289,6 +1311,7 @@ function prevNodeFocus() {
   prevNodeByMatcher(matcher);
 }
 
+// Maches the previous node that matches the function matcher.
 function prevNodeByMatcher(matcher) {
   if(browseMode == PAUSED) {
     return;
@@ -1336,7 +1359,7 @@ function internalNode(node) {
 }
 
 function prevNodeNoSound(node, matcher, first, num) {
-  if(first > 970) {
+  if(first > recursion_limit) {
     return node;
   }
 
@@ -1656,7 +1679,7 @@ function isFocusable(node) {
       if(!input_type || input_type != 'hidden') {
         return true;
       }    	
-    } else if ((node.tagName == "A" && myHasAttribute(node, 'href')) || 
+    } else if((node.tagName == "A" && myHasAttribute(node, 'href')) || 
         node.tagName == "SELECT" ||
         node.tagName == "TEXTAREA") {
       return true;
@@ -1674,7 +1697,7 @@ function isFocusable(node) {
 */
 function findPos(obj) {
   var curleft = curtop = 0;
-  if (obj.offsetParent) {
+  if(obj.offsetParent) {
     curleft = obj.offsetLeft;
     curtop = obj.offsetTop;
       while (obj = obj.offsetParent) {

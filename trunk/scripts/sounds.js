@@ -1,9 +1,29 @@
+/*
+ * sounds.js
+ * 
+ * Contains functions for retrieving, prefetching, and playing sounds.
+ * 
+ * Also handles stores and updates the current "browseMode" of the system,
+ * which controls how the system moves through web pages.  For instance,
+ * does it keep reading or stop after reading the next element.  Does it
+ * read through by element, word, or character.
+ * 
+ * The current browseMode is set in wa.js from user input, and here (sounds.js)
+ * when done automatically.
+ * 
+ * The system calls playWaiting() every playWaitingInterval milliseconds to
+ * update the current status of the system, check if a new sound needs to be
+ * played.
+ * 
+ * Sounds to be played are stored in the soundQ array.
+ */
+
 var soundsPlayed = 0;
 var totalLatency = 0;
 var startTime = 0;
 
 // 1 == Flash, 2 == embed
-var soundMethod = 1;
+var soundMethod = -1;
 var soundsLoaded = new Array();
 
 // BrowseMode sound playback states.
@@ -16,6 +36,9 @@ var PLAY_TWO_BACKWARD = 6;
 var PREV_CHAR = 7;
 var PREV_CHAR_BACKONE = 8;
 
+var FLASH_SOUND_METHOD = 1;
+var EMBED_SOUND_METHOD = 2;
+
 // Set the initial browseMode to KEYBOARD.
 var browseMode = READ;
 
@@ -23,7 +46,7 @@ var browseMode = READ;
 var startPriority = 30000;
 var basePriority = startPriority;
 var free_threads = 25;
-var soundManagerLoaded = false;
+var soundPlayerLoaded = false;
 
 // The queue of sounds that are waiting to play.
 var soundQ = new Array();
@@ -31,20 +54,54 @@ var soundQ = new Array();
 // The sound that is currently being played.
 var playing = null;
 
+// The clock frequency of the system.  The system looks for new sounds to play
+// in the queue every playWaitingInterval milliseconds.
+var playWaitingInterval = 50;
+
+var inPlayWaiting = false;
+var lastPath = -1;
+var newPlaying = false;
+var soundState = -1;
+var readyState = -1;
+
+var startedSoundInit = false;
+
+// Embedded sounds take a bit of time to load.  This time makes sure they don't get cut off prematurely.
+// Setting this too high will cause unnecessary latency.
+// Setting this too low will cause sounds to get cut off.
+var embedLatencyBuffer = 750;
+
+// Used for debugging.
+if(typeof console != 'undefined') {
+  var hasConsole = (typeof console != 'undefined' && typeof console.log != 'undefined');
+}
+
 // 0 == none, 1 == parallel dom, 2 == next node, 3 == markov
-var prefetchStrategy = 2;
+var prefetchStrategy = 0;
 var top_location = top.location + '';
 if(/prefetch=\d+/.test(top_location)) {
   top_location = top_location.replace(/^.*prefetch=(\d+).*$/, "$1");
   prefetchStrategy = parseInt(top_location);
 }
 
+// Determines the soundMethod that should be used.
+// Currently this is detected from the URL, eventually this should be done
+// completely automatically.
+function setSoundMethod() {
+  if(/embed=true/.test(document.location + "")) {
+    return EMBED_SOUND_METHOD;
+  } else {
+    return FLASH_SOUND_METHOD;  
+  }
+}
+soundMethod = setSoundMethod();
+
 // Initialize the sounds.
 function initSounds() {
   startPriority = 30000;
   basePriority = startPriority;
   free_threads = 5;
-  soundManagerLoaded = false;
+  soundPlayerLoaded = false;
 
   soundQ = new Array();
   playing = null;
@@ -66,15 +123,49 @@ function prepareSound(sid) {
   return sid;
 }
 
-function addSound(sid) {
-  sid = prepareSound(sid);
-  soundQ.unshift(sid);
+// Returns a unique ID for the text entered.
+function getSoundID(text) {
+  return poorHash(text);
 }
+
+// Processes a sound by breaking it up according to punctuation,
+// then adds the resulting sound(s) to the queue of sounds to play.
+var splitSoundsByBoundaries = true;
+var boundarySplitterRegExp = /[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+)+[\.!\?:;\s]*/;
+function splitSoundsByBoundary(sid) {
+  return (sid + "").split(boundarySplitterRegExp);  
+}
+
+// Adds a new sound to the queue of sounds to be played.
+function addSound(sid) {
+  // Split sounds into multiple pieces to improve latency of sound retrieval.
+  if(splitSoundsByBoundaries) {
+    var matches = splitSoundsByBoundary(sid);
+    if(matches && matches.length > 0) {
+      for(var match_i=0; match_i<matches.length; match_i++) {
+        if(!boundarySplitterRegExp.test(matches[match_i])) {
+          _addIndividualSound(matches[match_i]);
+        }
+      }
+    }
+  } else { // TODO:  Is this needed?
+    _addIndividualSound(sid);
+  }
+}
+
+// Adds a single sound (one that does not get split) to the sound queue.
+function _addIndividualSound(sid) {
+  sid = prepareSound(sid);
+  soundQ.unshift(sid);  
+}
+
+// Gets the next sound in the queue that should be played.
 function getSound() {
   var sid = soundQ.pop();
   return sid;
 }
 
+// Prefetches the next element in the sound queue.
 function prefetchFromSoundQ() {
   if(soundQ.length > 0) {
   	var remaining = soundQ.slice();
@@ -84,22 +175,22 @@ function prefetchFromSoundQ() {
   }
 }
 
+// Resets all sounds.
+function stopAllSounds() {
+  if(soundMethod == FLASH_SOUND_METHOD) {
+    soundManager.stopAll();
+  } else {
+    EmbedSound.stopSounds();
+  }
+}
+
+// Resets all sounds.
 function resetSounds() {
-  soundManager.stopAll();
+  stopAllSounds();
   soundQ = null;
   soundQ = new Array();
   playing = null;
 }
-
-var playWaitingInterval = 50;
-
-var inPlayWaiting = false;
-var lastPath = -1;
-var newPlaying = false;
-var soundState = -1;
-var readyState = -1;
-
-var startedSoundInit = false;
 
 //  Main function called that actually plays sounds when it's supposed to.
 function playWaiting() {
@@ -107,7 +198,10 @@ function playWaiting() {
     return;
   }
   inPlayWaiting = true;
-  if(!soundManagerLoaded) {
+
+  //if(hasConsole) console.debug(soundPlayerLoaded + '||' + playing + '||' + soundQ.length + '||' + browseMode);
+
+  if(!soundPlayerLoaded) {
     lastPath = 0;
     inPlayWaiting = false;
     return;
@@ -133,6 +227,7 @@ function playWaiting() {
     }
   } else if(playing) {
     var is_playing = isPlaying(playing);
+    //if(hasConsole) console.debug('playing ' + playing + ' ' + is_playing);
     if(!is_playing) {
       playing = null;
     }
@@ -140,87 +235,40 @@ function playWaiting() {
   inPlayWaiting = false;
 }
 
-
-soundManager.defaultOptions = {
-  'autoLoad': false,             // enable automatic loading (otherwise .load() will be called on demand with .play()..)
-  'stream': true,                // allows playing before entire file has loaded (recommended)
-  'autoPlay': false,             // enable playing of file as soon as possible (much faster if "stream" is true)
-  'onid3': null,                 // callback function for "ID3 data is added/available"
-  'onload': null,                // callback function for "load finished"
-  'whileloading': null,          // callback function for "download progress update" (X of Y bytes received)
-  'onplay': null,                // callback for "play" start
-  'whileplaying': null,          // callback during play (position update)
-  'onstop': null,                // callback for "user stop"
-  'onfinish': null,              // callback function for "sound finished playing"
-  'onbeforefinish': null,        // callback for "before sound finished playing (at [time])"
-  'onbeforefinishtime': 5000,    // offset (milliseconds) before end of sound to trigger beforefinish..
-  'onbeforefinishcomplete':null, // function to call when said sound finishes playing
-  'onjustbeforefinish':null,     // callback for [n] msec before end of current sound
-  'onjustbeforefinishtime':200,  // [n] - if not using, set to 0 (or null handler) and event will not fire.
-  'multiShot': true,             // let sounds "restart" or layer on top of each other when played multiple times..
-  'pan': 0,                      // "pan" settings, left-to-right, -100 to 100
-  'volume': 100                  // self-explanatory. 0-100, the latter being the max.
-}
-
-//  Not used anymore.  See prepareSound.
-/*function preprocessSound(string) {
-  if(!string || !string.toLowerCase) return "";
-  string = string.toLowerCase();
-  string = string.replace(/^\s+|\s+$/g, ' ');
-
-  return string;
-}*/
-
 // Returns the URL for the sound file for this string.
 function urlForString(string) {
   var url = top.sound_url_base.replace(/\$text\$/, escape(string));
-  url = proxifyURL(url);
+  url = proxifyURL(url, "");
   return url;
 }
 
+// Play the sound.
+// TODO:  This is not actually used for prefetching anymore...should change its name.
 function prefetch(string, playdone, bm) {
   string = prepareSound(string);
 
   var url = urlForString(string);
 
   switch(soundMethod) {
-  case 1: _prefetchFlash(string, url, playdone, bm); break;
-  case 2: _prefetchEmbed(string, url, playdone, bm); break;
+    case FLASH_SOUND_METHOD: _prefetchFlash(string, url, playdone, bm); break;
+    case EMBED_SOUND_METHOD: _prefetchEmbed(string, url, playdone, bm); break;
   }
 }
 
 function prefetchKeycode(keycode, playdone) {
   var speak = "";
   switch(keycode) {
-  case 8: speak = "back space"; break;
-  default: speak = String.fromCharCode(keycode); 
+    case 8: speak = "back space"; break;
+    default: speak = String.fromCharCode(keycode); 
   }
 
   var url = '/cgi-bin/getsound.pl?text=' + escape(speak);
+  url = proxifyURL(url, "");
 
-  switch(soundMethod)
-    {
-    case 1: _prefetchFlash("keycode_" + keycode, url, playdone, false); break;
-    case 2: _prefetchEmbed("keycode_" + keycode, url, playdone, false); break;
-    }
-}
-
-soundManager.onload = function() {
-  // soundManager should be ready to use/call at this point.
-  soundManagerLoaded = true;
-
-  addSound("Welcome to Web Anywhere");
-
-  newPage();
-
-  if(browserInit) {
-    setupBaseSounds();
+  switch(soundMethod) {
+    case FLASH_SOUND_METHOD: _prefetchFlash("keycode_" + keycode, url, playdone, false); break;
+    case EMBED_SOUND_METHOD: _prefetchEmbed("keycode_" + keycode, url, playdone, false); break;
   }
-}
-
-soundManager.onerror = function() {
-	soundManagerLoaded = false;
-	soundMethod = 2;
 }
 
 // Load all the sounds for the keypresses
@@ -233,46 +281,47 @@ function setupBaseSounds() {
   for(var i=32; i<97; i++) {
     prefetchKeycode(i, false);
   }
-  //soundManager.createSound( String(i), './base_speech/mp3/0' + String(i) + '.mp3' );
+
   for( var j=123; j<127; j++ ) {
     prefetchKeycode(i, false);
   }
-  //soundManager.createSound( String(j), './base_speech/mp3/' + String(j) + '.mp3' );
 
   init = 1;
 }
 
-function _queuePrefetch(string, url, playdone, bm) {
-}
 
 function _fetchFromQueue() {
   for(var i=0; i<5 && i <N && free_threads > 0; i++) {
     var p = popQ();
     switch(soundMethod) {
-    case 1: _prefetchFlash(p.text, p.url, p.playdone, p.bm); break;
-    case 2: _prefetchEmbed(p.text, p.url, p.playdone, p.bm); break;
-    default: break;
+      case 1: _prefetchFlash(p.text, p.url, p.playdone, p.bm); break;
+      case 2: _prefetchEmbed(p.text, p.url, p.playdone, p.bm); break;
+      default: break;
     }
   }
 }
 
+// Is the current sid being played right now?
 function isPlaying(sid) {
   sid = prepareSound(sid);
 
   switch(soundMethod) {
-  case 1: return _isPlayingFlash(sid);
-  case 2: return _isPlayingEmbed(sid);
-  default: break;
+    case 1: return _isPlayingFlash(sid);
+    case 2: return _isPlayingEmbed(sid);
+    default: break;
   }
   return false;
 }
 
+// Is the embedded sound still playing?
+// TODO:  Implement this function.
 function _isPlayingEmbed(string) {
-  return false;
+  return true;
 }
 
+// Is the Flash sound still playing?
 function _isPlayingFlash(string) {
-  string = poorHash(string);
+  string = getSoundID(string);
   var sound = soundManager.getSoundById(string);
   if(!sound) soundState = 8;
   if(sound && sound.readyState >= 2 && sound.playState == 0) {
@@ -282,9 +331,8 @@ function _isPlayingFlash(string) {
   }
 }
 
+// Stores timing information useful when conducting studies.
 var timingArray = new Object();
-
-
 function getTimingList() {
   var timing_list = "";
   var total_latency = 0;
@@ -292,8 +340,6 @@ function getTimingList() {
   var total_length = 0;
   for(i in timingArray) {
     if(timingArray[i].playStart) {
-      //alert(i + ': ' + timingArray[i].end + ' ' + timingArray[i].playStart +
-      //' ' + (timingArray[i].end - timingArray[i].playStart));
       var latency = (timingArray[i].end - timingArray[i].playStart);
       if(latency > 0) {
         timing_list += latency + '\n';
@@ -311,8 +357,6 @@ function getTimingList() {
   
   for(i in timingArray) {
     if(timingArray[i].playStart) {
-      //alert(i + ': ' + timingArray[i].end + ' ' + timingArray[i].playStart +
-      //' ' + (timingArray[i].end - timingArray[i].playStart));
       var latency = (timingArray[i].end - timingArray[i].playStart);
       if(latency < 60000)
       sd += (latency - mean)*(latency - mean);
@@ -332,12 +376,17 @@ function tInfo(string) {
   this.length = null;
 }
 
+// "Prefetch" a sound into the Flash movie.
+// The name suggests that this method is only used for prefetching, but it is
+// also the primary mechanism for playing sounds as well.
 function _prefetchFlash(string, url, playdone, bm) {
-  if(!soundManagerLoaded) {
+  if(!soundPlayerLoaded) {
     return;
   }
 
-  string = poorHash(string);
+  var orig_string = string;
+
+  string = getSoundID(string);
   var sound = soundManager.getSoundById(string);
 
   var old_length = 0;
@@ -347,12 +396,12 @@ function _prefetchFlash(string, url, playdone, bm) {
   }
 
   timingArray[string] = new tInfo(string);
-  //if(sound && sound.readyState == 3) {
+  timingArray[string].orig_string = orig_string;
   if(playdone) {
     timingArray[string].playStart = new Date();
+    if(hasConsole) console.debug('starting sound: ' + timingArray[string].playStart.getTime() + ' ' + orig_string);
   }
   timingArray[string].length = old_length;
-  //timingArray[string].start = new Date();
 
   if(!sound || sound.readyState == 2) {
     if(free_threads <= 0) {
@@ -361,19 +410,17 @@ function _prefetchFlash(string, url, playdone, bm) {
       pushQ(p);
     } else {
       free_threads--;
-      //var ti = new tInfo(string);
-      //timingArray[string] = ti;
-      //timingArray[string].start = new Date();
       soundManager.createSound({
         id: string,
-	url: url,
+	    url: url,
         autoLoad: true,
-	stream: playdone,
+	    stream: playdone,
         autoPlay: playdone,
         onload: function() {
 	      timingArray[this.sID].end = new Date();
 	      timingArray[this.sID].length = this.durationEstimate;
-          //alert(timingArray[this.sID].playStart + ' ' + timingArray[this.sID].end);
+	      if(hasConsole) console.debug('finished sound: ' + timingArray[this.sID].end.getTime() + ' ' + this.durationEstimate + ' ' + timingArray[this.sID].orig_string);
+
           free_threads++;
 	      lastPath = 10;
 	      this.didalmostfinish = false;
@@ -389,23 +436,18 @@ function _prefetchFlash(string, url, playdone, bm) {
             this.whileplaying = null;
           }
         },
-        //onjustbeforefinish: _onjustbeforefinish,
 	    onfinish: _onjustbeforefinish,
-        //onfinish: function() {
-	    //if(hasConsole) console.log(timingArray[this.sID].start + ' ' + timingArray[this.sID].end + ' ' + timingArray[this.sID].playStart);
-	    //},
         volume: 75
       });
     }
   } else if(sound.readyState == 3) {
-    //sound.position = 300;
     lastPath = 15;
-    sound.onjustbeforefinish = _onjustbeforefinish; //function() { alert('onjust before finish'); };
-    //alert('callback: ' + sound.onjustbeforefinish);
+    sound.onjustbeforefinish = _onjustbeforefinish;
+    var duration = (prefetchRecords[string] && prefetchRecords[string].soundlength) ? prefetchRecords[string].soundlength : timingArray[string].length; 
+    if(hasConsole) console.debug('finished sound: ' + timingArray[string].playStart.getTime() + ' ' + duration + ' ' + timingArray[string].orig_string);
     sound.play();
-    //soundManager.play(string);
   } else if(sound.readyState == 0 ||
-	    sound.readyState == 1) {
+	sound.readyState == 1) {
     sound.autoPlay = playdone;
   }
 }
@@ -417,140 +459,97 @@ function playLoadingSound() {
 	url: url,
         autoLoad: true,
 	stream: playdone,
-        autoPlay: playdone,
-        onload: function() {
-	      timingArray[this.sID].end = new Date();
-	      timingArray[this.sID].length = this.durationEstimate;
-          free_threads++;
-	      lastPath = 10;
-	      this.didalmostfinish = false;
-        },
-        onplay: function() {
-	      valPath += this.sID;
-	      soundsPlayed++;
-        },
-        whileplaying: function() {
-          if(timingArray[this.sID].end == null) {
-            soundsPlayed++;
-            timingArray[this.sID].end = new Date();
-            this.whileplaying = null;
-          }
-        },
-	    onfinish: _onjustbeforefinish,
-        volume: 75
-      });
+    autoPlay: playdone,
+    onload: function() {
+	  timingArray[this.sID].end = new Date();
+	  timingArray[this.sID].length = this.durationEstimate;
+      free_threads++;
+	  lastPath = 10;
+	  this.didalmostfinish = false;
+    },
+    onplay: function() {
+	 valPath += this.sID;
+	 soundsPlayed++;
+    },
+    whileplaying: function() {
+      if(timingArray[this.sID].end == null) {
+        soundsPlayed++;
+        timingArray[this.sID].end = new Date();
+        this.whileplaying = null;
+      }
+    },
+	onfinish: _onjustbeforefinish,
+    volume: 75
+  });
 }
 
 
 function _onjustbeforefinish() {
-  timingArray[this.sID].length = this.duration;
+  if(this && this.duration) {
+    timingArray[this.sID].length = this.duration;
+    if(hasConsole) console.debug('finished sound: ' + timingArray[string].playStart.getTime() + ' ' + this.duration + ' ' + timingArray[string].orig_string);
+  } else {
+    if(hasConsole) console.debug('finished sound: ' + timingArray[string].end.getTime() + ' ' + this.durationEstimate + ' ' + timingArray[string].orig_string);
+  }
   if(playing != null) {
     var is_playing = isPlaying(playing);
     if(is_playing) {
       setTimeout("_onjustbeforefinish();", 100);
     } else {
-      //alert('assigned null here: ');
       playing = null;
       // Don't wait for timed event if there's something else to read right now.
-      if(browseMode == READ ||
-        soundQ.length > 0) {
+      if(browseMode == READ || soundQ.length > 0) {
         playWaiting();
       }
     }
   }
 }
 
-function _onfinish() {
-  alert('setting null here instead');
-  if(playing != null) {
-    playing = null;
-    // Don't wait for timed event if there's something else to read right now.
-    if(browseMode == READ ||
-      soundQ.length > 0) {
-      playWaiting();
-    }
-  }
+// Called after the system believes that it should be done playing a sound.
+function _donePlayingEmbedSound() {
+  if(hasConsole) console.debug('done playing: ' + playing);
+  playing = null;
 }
 
+// Plays a sound using an embedded sound player.
 function _prefetchEmbed(string, url, playdone, bm) {
-  string = poorHash(string);
-  var sound = EmbedSound.getSoundById(string);
+  var sid = getSoundID(string);
 
-  if(!timingArray[string]) {
-    timingArray[string] = new tInfo();
+  if(hasConsole) console.debug('playing: ' + string);
+
+  // If the sound has already been prefetched, then we'll try to play it.
+  if(prefetchRecords[sid]) {
+    var sl = String(prefetchRecords[sid].soundlength);
+
+    var sl_f = parseInt(sl.replace(/\..*$/, ''));  // Make it a whole number of microseconds.
+
+    EmbedSound._playSound(url);
+
+    // Magical formula that seems to guess reasonably accurately
+    // when the sound will finish playing.
+    var timeout = sl_f*1.1 + embedLatencyBuffer;
+
+    if(hasConsole) console.debug('will be done in ' + timeout + 'seconds');    
+
+    // Simulate the onfinish event with a timer.
+    setTimeout("_donePlayingEmbedSound();", timeout);
+  } else {  // Prefetch the sound and set it to play automatically.
+    prefetchRecords[sid] = new Object();
+    prefetchRecords[sid].soundlength = -1;
+    prefetchRecords[sid].contentlength = -1;
+
+    prefetchSound(url, string, true);    
   }
-
-  if(timingArray[string].playStart == null) {
-    timingArray[string].playStart = new Date();
-  }
-
-  if(timingArray[string].start == null) {
-    timingArray[string].start = new Date();
-  }
-
-  if(!sound || sound.readyState == 2) {
-    if(free_threads <= 0) {
-      var p = new domQueue(string, url, playdone, bm, basePriority);
-      basePriority++;
-      pushQ(p);
-    } else {
-      free_threads--;
-      var ti = new tInfo(string);
-      timingArray[string] = ti;
-      timingArray[string].start = new Date();
-      EmbedSound.createSound({
-        id: string,
-        url: url,
-        autoLoad: true,
-        stream: playdone,
-        autoPlay: playdone,
-        onload: function() {
-	      timingArray[this.sID].end = new Date();
-          free_threads++;
-	      lastPath = 10;
-	      this.didalmostfinish = false;
-        },
-        onplay: function() {
-	      valPath += this.sID;
-	      soundsPlayed++;
-        },
-        onjustbeforefinish: _onjustbeforefinish,
-	    onfinish: function() {
-	    //alert(timingArray[this.sID].start + ' ' + timingArray[this.sID].end + ' ' + timingArray[this.sID].playStart);
-        },
-        volume: 75
-      });
-    }
-  } else if(sound.readyState == 3) {
-    //sound.position = 300;
-    lastPath = 15;
-    sound.onjustbeforefinish = _onjustbeforefinish; //function() { alert('onjust before finish'); };
-    //alert('callback: ' + sound.onjustbeforefinish);
-    sound.play();
-    //soundManager.play(string);
-  } else if(sound.readyState == 0 ||
-	sound.readyState == 1) {
-    sound.autoPlay = playdone;
-  }  
-}
-
-function playSound(string) {
-  switch(soundMethod) {
-  case 1: soundManager.play(poorHash(string)); break;
-  }
-}
-
-function prefetchSounds(doc) {
-
 }
 
 var qLock = false;
 var domQ = new Array();
 var N = 0;
 
-// Code for the priority queue for DOM element prefetching.
+// A queueu element that can be prefetched.
 function domQueue(text, url, playdone, bm, val) {
   this.text = text;
+  this.sid = getSoundID(text);
   this.val = val;
   this.url = url;
   this.playdone = playdone;
@@ -558,6 +557,7 @@ function domQueue(text, url, playdone, bm, val) {
   this.alertMe = function() { alert(text + ' ' + url + ' ' + playdone + ' ' + bm + ' ' + val); };
 }
 
+// Do upHeap operation on the queue.
 function upHeap(child) {
   var newElt = domQ[child];
   var parent = Math.floor(child/2);
@@ -571,6 +571,7 @@ function upHeap(child) {
   domQ[child] = newElt;
 }
 
+// Adds an element to the priority queue.
 function pushQ(elem) {
   qLock = true;
   N++;
@@ -579,6 +580,7 @@ function pushQ(elem) {
   qLock = false;
 }
 
+// Do downHeap operation on the queue.
 function downHeap(parent) {
   var newElt = domQ[parent];
   var child = 2*parent;
@@ -605,52 +607,66 @@ function popQ() {
   qLock = false;
 }
 
+// Peaks at next element in the queue without modifying it.
 function peakQ() {
   return domQ[1];
 }
 
-/*if(prefetchStrategy == 1) {
-  setInterval("prefetchNode();", 4000);
-}*/
-
 // Gets called to prefetch the things in the queue.
 function prefetchNext() {
   switch(prefetchStrategy) {
-  case -1:
-    if(N > 0) {
-      var p = peakQ();
-      loadURL(p.url);
-    } else {
-    }
-    break;
-  case 0:
-    break;
-  case 1:
-  case 2:
-  case 3:
-    var text_to_fetch = getFromPrefetchQ();
-    if(text_to_fetch && /\S/.test(text_to_fetch)) {
-      var pred = prefetchText(text_to_fetch);
-      if(!pred) setTimeout("prefetchNext();", 0);
-    } else {
-      setTimeout("prefetchNext();", 2500);
-    }
-    break;
-    default:
-      //if(hasConsole) console.log('default');
+    case -1:
+      if(N > 0) {
+        var p = peakQ();
+        prefetchSound(p.url, p.text, p.playdone);
+      } else {}
+      break;
+    case 0:
+      break;
+    // For all of the prefetch stratgies,
+    // we just retrieve elements form the queue.
+    case 1:
+    case 2:
+    case 3:
+      var text_to_fetch = getFromPrefetchQ();
+      if(text_to_fetch) {
+        if(/\S/.test(text_to_fetch)) {
+          var pred = prefetchText(text_to_fetch);
+          if(!pred) setTimeout("prefetchNext();", 0);
+        } else {
+          setTimeout("prefetchNext();", 500);
+        }
+      } else {
+        // Nothing in the prefetch queue.  Wait longer before trying again.
+        setTimeout("prefetchNext();", 3000);
+      }
+      break;
+    default: // Do nothing.
   }
 }
 
+// The prefetch queue is set up as a queue of caches,
+// each with its own priority.
+// prefetch_array: is the array holding each cache, which is itself
+//                 an array of strings.
+// prefetch_curr_index:  the index of the current cache.
 var prefetch_array = new Array();
 var prefetch_curr_index = 0;
 
-var prefetchRecord = new Object();
+// Record of what has been previously prefetched by the system
+// during this session.
+var prefetchRecords = new Object();
 
+// Adds an array of sounds to the prefetch queue.
 function addArrayToPrefetchQ(sarray) {
   prefetch_array[prefetch_curr_index + 1] = new Array();
   for(var i=0; i<sarray.length; i++) {
     var sid = sarray[i];
-    var poor_hash = poorHash(sid);
+    //var poor_hash = getSoundID(sid);
+    // If changed to !poor_hash would indicate that sounds should not be
+    // prefetched twice.  Generally, it's more trouble than it's worth to
+    // keep track of this, considering prefetching from the cache requires
+    // little overhead and sounds can be evicted from the browser cache.
     if(true) { //!poor_hash) {
       prefetch_array[prefetch_curr_index + 1].push(sid);
     } else {
@@ -660,22 +676,35 @@ function addArrayToPrefetchQ(sarray) {
   prefetch_curr_index++;
 }
 
+// Move to another prefetch row.
 function incPrefetchIndex() {
   prefetch_curr_index++;
   prefetch_array[prefetch_curr_index] = new Array();
 }
 
+// Adds the sid (sound ID) to the prefetch queue.
 function addToPrefetchQ(sid) {
-  var poor_hash = poorHash(sid);
-  //if(!poor_hash) {
-    //prefetch_array[prefetch_curr_index] = new Array();
-    prefetch_array[prefetch_curr_index].push(sid);
-    //prefetch_curr_index++;
-  //} else {
- // 	alert('ssid ' + sid + ' already fetched.');
-  //}
+  if(splitSoundsByBoundaries) {
+    var matches = splitSoundsByBoundary(sid);
+    if(matches && matches.length > 0) {
+      for(var match_i=0; match_i<matches.length; match_i++) {
+        if(!boundarySplitterRegExp.test(matches[match_i])) {
+          _addIndividualToPrefetchQ(matches[match_i]);
+        }
+      }
+    }
+  } else { // TODO:  Is this needed?
+    _addIndividualToPrefetchQ(sid);
+  }
 }
 
+// Adds the sid (sound ID) to the prefetch queue.
+function _addIndividualToPrefetchQ(sid) {
+  sid = prepareSound(sid);
+  prefetch_array[prefetch_curr_index].push(sid);
+}
+
+// Returns the next sound to be prefetched from the queue.
 function getFromPrefetchQ() {
   var sid = null;
   if(prefetch_array && prefetch_array[prefetch_curr_index].length < 1
@@ -691,31 +720,66 @@ function getFromPrefetchQ() {
   return sid;
 }
 
-var prefetch_req;
+// The XMLHttpRequest object for prefetching.
+var prefetch_req = null;
 
-// retrieve XML document (reusable generic function);
-// parameter is URL string (relative or complete) to
-// an .xml file whose Content-Type is a valid XML
-// type, such as text/xml; XML source must be from
-// same domain as HTML file
-function loadURL(url) {
-  // branch for native XMLHttpRequest object
-  if(window.XMLHttpRequest) {
-    prefetch_req = new XMLHttpRequest();
-    prefetch_req.onreadystatechange = processReqChange;
-    prefetch_req.open("GET", url, true);
-    prefetch_req.send(null);
-    // branch for IE/Windows ActiveX version
-  } else if (window.ActiveXObject) {
-    prefetch_req = new ActiveXObject("Microsoft.XMLHTTP");
-    if(prefetch_req) {
-      prefetch_req.onreadystatechange = processReqChange;
-      prefetch_req.open("GET", url, true);
-      prefetch_req.send();
+// Prefetch a sound using an AJAX request.
+// This also lets us know how long the sound is, ideally.
+function prefetchSound(url, text, playdone) {
+  // Try to reuse the prefetch_req object is possible.
+  if(!prefetch_req) {
+    // Branch for native XMLHttpRequest object
+    if(window.XMLHttpRequest) {
+      prefetch_req = new XMLHttpRequest();
+      // branch for IE/Windows ActiveX version
+    } else if(window.ActiveXObject) {
+      prefetch_req = new ActiveXObject("Microsoft.XMLHTTP");
     }
+  }
+
+  prefetch_req.text = text;
+  prefetch_req.sid = getSoundID(text);
+  prefetch_req.playdone = playdone;
+
+  // Setup the request and the make the request.
+  prefetch_req.onreadystatechange = processReqChangePrefetchSound;
+  prefetch_req.open("GET", url, true);
+  prefetch_req.send(null);
+}
+
+// Handle onreadystatechange event of httpreq object.
+function processReqChangePrefetchSound() {
+  if(prefetch_req.readyState == 4) {
+    if(prefetch_req.status == 200) {      
+      var soundLength = prefetch_req.getResponseHeader('sound-length');
+      if(soundLength) {  // Not all TTS have lengths.
+        if(hasConsole) console.debug('got sound ' + prefetch_req.text + ' ' + soundLength);
+        prefetchRecords[prefetch_req.sid].soundlength = soundLength;
+      } else {
+        // This TTS doesn't support the length header.
+      }
+      var contentLength = prefetch_req.getResponseHeader('content-length');
+      if(contentLength) {  // Not all TTS have lengths.
+        if(hasConsole) console.debug('got sound ' + prefetch_req.text + ' ' + contentLength);
+        prefetchRecords[prefetch_req.sid].contentlength = contentLength;
+      } else {
+        // This TTS doesn't support the length header.
+      }
+
+      if(prefetch_req.playdone) {
+        if(hasConsole) console.debug("playing after supposed fetching");
+        prefetch(prefetch_req.text, true, false);
+      }
+
+      //prefetch_req = null;    
+    } else {}
+
+    // Requests that the next sound be prefetched, assuming there is one.
+    prefetchNext();
   }
 }
 
+// Makes an HTTP Post requeste.
 function postURL(url, params) {
   // branch for native XMLHttpRequest object
   if(window.XMLHttpRequest) {
@@ -729,7 +793,7 @@ function postURL(url, params) {
 
     prefetch_req.send(params);
     // branch for IE/Windows ActiveX version
-  } else if (window.ActiveXObject) {
+  } else if(window.ActiveXObject) {
     prefetch_req = new ActiveXObject("Microsoft.XMLHTTP");
     if(prefetch_req) {
       //Send the proper header information along with the request
@@ -744,6 +808,7 @@ function postURL(url, params) {
   }
 }
 
+// Defines the types of predictive prefetching that the system can do.
 var prefetchTypes = new Object();
 prefetchTypes.NEXTNODE = 1;
 prefetchTypes.PREVNODE = 2;
@@ -755,10 +820,11 @@ prefetchTypes.NEXTHEADING = 7;
 prefetchTypes.PREVHEADING = 8;
 prefetchTypes.OTHER = 9;
 
+// Matches key presses to the supported kinds of predictive prefetching.
 function keyToAction(key_string) {
-  if(key_string == "downarrow") {
+  if(key_string == "arrowdown") {
   	return prefetchTypes.NEXTNODE;
-  } else if(key_string == "uparrow") {
+  } else if(key_string == "arrowup") {
   	return prefetchTypes.PREVNODE;
   } else if(key_string == "tab") {
   	return prefetchTypes.NEXTFOCUS;
@@ -777,8 +843,10 @@ function keyToAction(key_string) {
   }
 }
 
+// Holds counts of observations of user actions to build the Markov model.
 var prefetchObservations = new Object();
 
+// Records the specified observation to the predictive prefetching model.
 function addObservation(currAction, currNode, prevAction) {
   var obs_string = String(prevAction) + " " + String(nodeToString(currNode));
   if(prefetchObservations[obs_string] == null) {
@@ -791,6 +859,7 @@ function addObservation(currAction, currNode, prevAction) {
   prefetchObservations[obs_string][0]++;
 }
 
+// Converts node to a descriptive type/name for predictive prefetching.
 function nodeToString(currNode) {
   if(currNode) {
     return currNode.nodeName;
@@ -799,7 +868,7 @@ function nodeToString(currNode) {
   }
 }
 
-// Retuns a normalized probability array of possible actions
+// Returns a normalized probability array of possible actions
 // that could be taken.
 function predictNext(currNode, prevAction) {
   var possActions = new Array(prefetchTypes.OTHER + 1);
@@ -817,6 +886,8 @@ function predictNext(currNode, prevAction) {
   return possActions;
 }
 
+// Makes the input array of numbers into a uniform array in which all
+// elements add to one.
 function uniformArray(array) {
   var val = 1.0 / (array.length);
   for(var i=0; i<array.length; i++) {
@@ -824,6 +895,7 @@ function uniformArray(array) {
   }
 }
 
+// Alerts information about the current state of the prefetching algorithm.
 function alertPrefetching() {
   var string = "";
   for(i in prefetchObservations) {
@@ -833,58 +905,36 @@ function alertPrefetching() {
   var predictN = predictNext(lastNode, last_action);
 
   string += "\n" + lastNode + "  " + last_action;
-
   string += "\n\n" + predictN.join(", ");
 
   alert(string);
   return;
 }
 
-function doesNothing(text) {
-  var node = text;
-  return node;
-}
-
-// handle onreadystatechange event of req object
-function processReqChange() {
-  // only if req shows "loaded"
-  if(prefetch_req.readyState == 4) {
-    // only if "OK"
-    if(prefetch_req.status == 200) {
-      //doesNothing(prefetch_req.responseText);
-      //alert('got 200 response');
-    } else {
-      //alert("There was a problem retrieving the XML data:\n" +
-      //prefetch_req.statusText);
-    }
-    //if(hasConsole) console.log("calling prefetch Next from processReqChange");
-    prefetchNext();
-  }
-}
-
-var lastPrefetched = null;
-
+// Prefetch a the sound for the supplied text.
 var numPrefetched = 0;
 function prefetchText(text) {
   var string = prepareSound(text);
   var url = urlForString(string);
 
-  if(!prefetchRecord[poorHash(text)]) {
-    prefetchRecord[poorHash(text)] = true;
+  var sid = getSoundID(text);
+
+  if(!prefetchRecords[sid]) {
+    prefetchRecords[sid] = new Object();
+    prefetchRecords[sid].soundlength = -1;
     numPrefetched++;
-    loadURL(url);
+    prefetchSound(url, text, false);
     return true;
   } else {
   	return false;
   }
 }
 
+// Adds the textual representation of the node to the prefetch queue.
 function prefetchNode(node) {
   if(node) {
     var text = handlenode(node, true);
-    var string = prepareSound(text);
-    addToPrefetchQ(string);
-    //prefetchText(text);
+    addToPrefetchQ(text);
   }
 }
 
@@ -896,6 +946,7 @@ function prefetchNextOnes(node, num) {
   }
 }
 
+// Prediction-based prefetching.
 function prefetchSomething() {
   var predictions = predictNext(lastNode, last_action);
 
@@ -917,34 +968,34 @@ function prefetchSomething() {
   incPrefetchIndex();
 
   switch(highest) {
-  case prefetchTypes.NEXTFOCUS:
-    next_node = nextByFocus(currentNode); prefetchNode(next_node);
-    var best_node = next_node;
-    prefetchNextOnes(currentNode, 2);
-    best_node = firstNodeNoSound(best_node);    
-    next_node = nextByFocus(best_node); prefetchNode(next_node);
-    prefetchNextOnes(best_node, 1);
-    break;
-  case prefetchTypes.NEXTHEADING:
-    next_node = nextByTag(currentNode, "H"); prefetchNode(next_node);
-    var best_node = next_node;
-    prefetchNextOnes(currentNode, 2);
-    best_node = firstNodeNoSound(best_node);    
-    next_node = nextByTag(best_node, "H"); prefetchNode(next_node);
-    prefetchNextOnes(best_node, 1);
-    break;
-  case prefetchTypes.NEXTINPUT:
-    next_node = nextByTag(currentNode, "INPUT|SELECT|TEXTAREA"); prefetchNode(next_node);
-    var best_node = next_node;
-    prefetchNextOnes(currentNode, 2);
-    best_node = firstNodeNoSound(best_node);    
-    next_node = nextByTag(best_node, "INPUT|SELECT|TEXTAREA"); prefetchNode(next_node);
-    prefetchNextOnes(best_node, 1);
-    break;
-  case prefetchTypes.NEXTNODE:
-  default:
-    prefetchNextOnes(currentNode, 3);
-    break;
+    case prefetchTypes.NEXTFOCUS:
+      next_node = nextByFocus(currentNode); prefetchNode(next_node);
+      var best_node = next_node;
+      prefetchNextOnes(currentNode, 2);
+      best_node = firstNodeNoSound(best_node);    
+      next_node = nextByFocus(best_node); prefetchNode(next_node);
+      prefetchNextOnes(best_node, 1);
+      break;
+    case prefetchTypes.NEXTHEADING:
+      next_node = nextByTag(currentNode, "H"); prefetchNode(next_node);
+      var best_node = next_node;
+      prefetchNextOnes(currentNode, 2);
+      best_node = firstNodeNoSound(best_node);    
+      next_node = nextByTag(best_node, "H"); prefetchNode(next_node);
+      prefetchNextOnes(best_node, 1);
+      break;
+    case prefetchTypes.NEXTINPUT:
+      next_node = nextByTag(currentNode, "INPUT|SELECT|TEXTAREA"); prefetchNode(next_node);
+      var best_node = next_node;
+      prefetchNextOnes(currentNode, 2);
+      best_node = firstNodeNoSound(best_node);    
+      next_node = nextByTag(best_node, "INPUT|SELECT|TEXTAREA"); prefetchNode(next_node);
+      prefetchNextOnes(best_node, 1);
+      break;
+    case prefetchTypes.NEXTNODE:
+    default:
+      prefetchNextOnes(currentNode, 3);
+      break;
   }
 
   //treeTraverseRecursion(next_node, addNodeToPrefetch, leafNode, 3, true);
@@ -962,14 +1013,16 @@ function prefetchSomething() {
   }*/
 }
 
+// A simple hash function, not necessarily secure or good, but
+// produces unique strings used as keys in the system.
 function poorHash(str) {
   if(!str || str.length <= 0) {
-    return 'a((((0009209384';
+    return 'aaaa0009209384';
   }
 
   str = str.replace(/[\n\r]+/, "");
 
-  str = str.replace(/&#(\d)+;/, "$1");
+  str = str.replace(/&#(\d)+;/, "p$1");
 
   var orig_str_num = (str.length > 15) ? 15 : str.length - 1;
   var orig_piece = (str.length < 15) ? str : str.substring(0, orig_str_num);
@@ -977,7 +1030,6 @@ function poorHash(str) {
   orig_piece = orig_piece.replace(/'/, 'gE'); //'
   orig_piece = orig_piece.replace(/"/, 'gEE'); //'
   orig_piece = orig_piece.replace(/#/, 'gnE'); //'x
-
 
   var bin = Array();
   var mask = 0xFFF;
@@ -1014,3 +1066,52 @@ function prefetchLetters() {
     }
   }
 }
+
+//
+// After all the function definitions, start initializing the system.
+//
+if(soundMethod == FLASH_SOUND_METHOD) {
+  soundManager.defaultOptions = {
+  'autoLoad': false,             // enable automatic loading (otherwise .load() will be called on demand with .play()..)
+  'stream': true,                // allows playing before entire file has loaded (recommended)
+  'autoPlay': false,             // enable playing of file as soon as possible (much faster if "stream" is true)
+  'onid3': null,                 // callback function for "ID3 data is added/available"
+  'onload': null,                // callback function for "load finished"
+  'whileloading': null,          // callback function for "download progress update" (X of Y bytes received)
+  'onplay': null,                // callback for "play" start
+  'whileplaying': null,          // callback during play (position update)
+  'onstop': null,                // callback for "user stop"
+  'onfinish': null,              // callback function for "sound finished playing"
+  'onbeforefinish': null,        // callback for "before sound finished playing (at [time])"
+  'onbeforefinishtime': 5000,    // offset (milliseconds) before end of sound to trigger beforefinish..
+  'onbeforefinishcomplete':null, // function to call when said sound finishes playing
+  'onjustbeforefinish':null,     // callback for [n] msec before end of current sound
+  'onjustbeforefinishtime':200,  // [n] - if not using, set to 0 (or null handler) and event will not fire.
+  'multiShot': true,             // let sounds "restart" or layer on top of each other when played multiple times..
+  'pan': 0,                      // "pan" settings, left-to-right, -100 to 100
+  'volume': 100                  // self-explanatory. 0-100, the latter being the max.
+  }
+}
+
+if(soundMethod == FLASH_SOUND_METHOD) {
+  soundManager.onload = function() {
+    // soundManager 2 should be ready to use/call at this point.
+    soundPlayerLoaded = true;
+
+    newPage();
+
+    if(browserInit) {
+      setupBaseSounds();
+    }
+  }
+
+  // Called when there is an error with the Flash sound player.
+  // Currently, this means the the program will try to play sounds
+  // using the embedded method instead.
+  soundManager.onerror = function() {
+    soundPlayerLoaded = false;
+    soundMethod = EMBED_SOUND_METHOD;
+  }
+}
+addSound("Welcome to Web Anywhere");
+
