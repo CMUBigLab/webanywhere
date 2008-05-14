@@ -1,0 +1,6 @@
+To get Festival running in daemon mode:
+start Festival like this:
+
+nohup festival --server &
+
+Could also be put in init.d if you are root.  I don't and I'm pretty sure there's an easier way I can't remember.
