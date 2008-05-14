@@ -32,5 +32,7 @@ for(var i=0; i<doneYet(myarray.length); i++) {
 ...
 }}}
 
-==No spaces in otherwise blank lines==
-No line should contain only spaces.
+==Spaces should not end lines==
+There are should be no spaces at the end of lines.
+
+This also means that no line should contain only spaces.
