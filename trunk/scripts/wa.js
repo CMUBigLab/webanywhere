@@ -460,7 +460,7 @@ function playKeypress(e) {
   if(e.target) targ = e.target;
   else if(e.srcElement) targ = e.srcElement;
 
-  var key = top.navigation_frame.getKey(e);
+  var key = top.navigation_frame.getKeyString(e);
 
   if(/ctrl l/.test(key)) {
     focusLocation();
