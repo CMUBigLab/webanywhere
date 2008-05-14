@@ -1,0 +1,33 @@
+Description of the coding style that should be used in WebAnywhere project.
+
+= Introduction =
+
+This document describes the coding style used throughout the WebAnywhere project.  Coding style preference is personal and no choice is right or wrong.  But, projects without consistent style appear sloppy and can be difficult to read, so please follow these guidlines.
+
+
+= Coding Style Details =
+
+The coding style used in this project is a tight style.  For now, I'll illustrate through examples:
+
+==Indents should be 2 spaces (not tab)==
+{{{
+if(true) {
+  while(notDone()) {
+    alert('hello!');
+  }
+}
+}}}
+
+==No blank lines before code blocks==
+{{{
+function foobar() {
+  if(foo) {
+    bar();
+  }
+}
+}}}
+==Spaces to make things clearer, but no more==
+{{{
+for(var i=0; i<doneYet(myarray.length); i++) {
+...
+}}}
