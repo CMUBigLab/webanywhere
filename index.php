@@ -1,42 +1,32 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors','On');
+include('config.php');
+?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" 
  "http://www.w3.org/TR/html4/frameset.dtd">
-<html>
-<head>
-<title>Web Anywhere</title>
-<script>
-
+<HTML>
+<HEAD>
+<TITLE>Web Anywhere</TITLE>
+<SCRIPT LANGUAGE="Javascript">
+/* <![CDATA[ */
 var old_open = window.open;
 window.open = function() {}
-
 var navLoaded = false;
 function navigationLoad() {
   navLoaded = true;
-
-  if(/embed=true/.test(document.location + "")) {
-    window.navigation_frame.soundMethod = 2;
-  } else {
-    window.navigation_frame.soundMethod = 1;  
-  }
-
-  if(/embed=true/.test(document.location + "")) {
-    window.navigation_frame.soundMethod = 2;
-  } else {
-    window.navigation_frame.soundMethod = 1;  
-  }
 }
-
 var returning = false;
 
-if (window.addEventListener) {
+if(window.addEventListener) {
   window.addEventListener('focus', focus_webanywhere, false);
   window.addEventListener('blur', blur_webanywhere, true);
   window.addEventListener('unload', unload_webanywhere, false);
-} else if (window.attachEvent) {
+} else if(window.attachEvent) {
   window.attachEvent('onfocus', focus_webanywhere);
   window.attachEvent('onblur', blur_webanywhere);
   window.attachEvent('onunload', unload_webanywhere);
 }
-
 function announce_in_focus() {
   if(returning && navLoaded) {
     if(window.navigation_frame) {
@@ -47,7 +37,6 @@ function announce_in_focus() {
     }
   }
 }
-
 function focus_webanywhere() {
   //announce_in_focus();
   returning = false;
@@ -62,7 +51,6 @@ function unload_webanywhere() {
   //window.navigation_frame.prefetch("Web Anywhere is being unloaded.  If the system stops responding, try pressing either backspace or alt + left arrow to return to this page.", true, false);
   //returning = true;
 }
-
 var pageLoaded = false;
 function newPage() {
   pageLoaded = true;
@@ -70,14 +58,28 @@ function newPage() {
     window.navigation_frame.newPage();
   }
 }
-
-
-</script>
-</head>
-
+/* ]]> */
+</SCRIPT>
+</HEAD>
+<?php
+// Prepare optional argument string.
+$arguments = "";
+if(isset($_REQUEST['debug'])) {
+  $arguments .= 'debug=' . $_REQUEST['debug'];
+}
+if(isset($_REQUEST['embed'])) {
+  if(strlen($arguments) > 0) {
+    $arguments .= '&';
+  }
+  $arguments .= 'embed=' . $_REQUEST['embed'];
+}
+if(strlen($arguments) > 0) {
+  $arguments = '?' . $arguments;
+}
+$start_url = (isset($_REQUEST['starting_url']) ? str_replace('$url$', base64_encode($_REQUEST['starting_url']), $wp_path) : "content.php");
+?>
 <FRAMESET ROWS="15%, *" BORDER="0">
-     <FRAME SRC="browser.php?embed=<?php echo $_REQUEST[embed]; ?>&debug=<?php echo $_REQUEST[debug]; ?>" id="navigation_frame" NAME="navigation_frame" onLoad="navigationLoad()">
-     <FRAME SRC="content.php?debug=<?php echo $_REQUEST[debug]; ?>&starting_url=<?php echo $_REQUEST[starting_url]; ?>" id="content_frame" NAME="content_frame" onLoad="newPage();">
+     <FRAME SRC="browser.php<?php echo $arguments; ?>" id="navigation_frame" NAME="navigation_frame" onLoad="navigationLoad()">
+     <FRAME SRC=<?php echo $start_url; ?> id="content_frame" NAME="content_frame" onLoad="newPage();">
 </FRAMESET>
-
-</html>
+</HTML>
