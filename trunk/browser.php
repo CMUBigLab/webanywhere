@@ -30,7 +30,8 @@ if($_REQUEST[embed]!=='true') { ?>
 
 // Array of scripts used by the system.
 $scripts =
-  array('/utils.js',
+  array('/vars.js',
+        '/utils.js',
         '/base64.js',
         '/handlenodes.js',
         '/wa.js',
