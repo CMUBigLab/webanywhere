@@ -998,8 +998,6 @@ function prefetchSomething() {
       break;
   }
 
-  //treeTraverseRecursion(next_node, addNodeToPrefetch, WA.Nodes.leafNode, 3, true);
-
   /*
   console.log(next_node);
   next_node = firstNodeNoSound(next_node)

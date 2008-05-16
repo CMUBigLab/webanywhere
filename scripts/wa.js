@@ -50,10 +50,6 @@ var recordActions = false;
 // 0 none, 1 JAWS, 2 Window-Eyes
 var emulationType = 0;
 
-// Recursion limit.
-// TODO: remove 20 level "fudge factor"
-var recursion_limit = 1000 - 20;
-
 // Attach browser onload handler
 if(window.addEventListener) {
   window.addEventListener('load', init_browser, false);
@@ -450,7 +446,7 @@ function preVisit(node) {
       if(for_id) {
   	    var id_elem = node.ownerDocument.getElementById(for_id);
   	    if(id_elem) {
-  	      id_elem.setAttribute('my_label', this.handleChildNodes(node));
+  	      id_elem.setAttribute('my_label', WA.Nodes.handleChildNodes(node));
   	    }
       }
     }
@@ -554,7 +550,7 @@ function newPage() {
   if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
   else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
 
-  treeTraverseRecursion(currentNode, preVisit, function(node){WA.Nodes.leafNode(node)}, recursion_limit, true);
+  WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){WA.Nodes.leafNode(node)});
 
   var start_node = currentDoc.createElement('div');
   start_node.innerHTML = currentDoc.title;
@@ -689,7 +685,7 @@ function proxifyURL(loc, subdomain) {
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
   if(loc.indexOf(top.webanywhere_url) != 0) {
-    loc = top.web_proxy_url.replace(/\$url\$/, encode64(loc));
+    loc = top.web_proxy_url.replace(/\$url\$/, WA.Base64.encode64(loc));
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
       loc = loc.replace(top.webanywhere_domain, (subdomain + '.' + top.webanywhere_domain));
@@ -751,7 +747,7 @@ function playNodeSound(node, node_text) {
       //while(node && node.nodeName != "BODY" && node.parentNode.childNodes.length < 2) {
    	  //  node = node.parentNode;
       //}
-      //treeTraverseRecursion(node, addNodeToPrefetch, WA.Nodes.leafNode, 3, true);
+      //treeTraverseRecursion(node, addNodeToPrefetch, function(node){WA.Nodes.leafNode(node)});
       //}
   }
 }
@@ -762,27 +758,6 @@ function addNodeToPrefetch(node) {
 
   if(text && /\S/.test(text) && (prefetchStrategy >= 1 || prefetch_curr_index == 0)) {
     addToPrefetchQ(text);
-  }
-}
-
-// Does a DFS on the supplied node.
-function treeTraverseRecursion(node, visitor, isleaf, inv_depth, first) {
-  if(inv_depth < 0) {
-  	return;
-  }
-
-  if(!first && node) {
-    visitor(node);
-  }
-
-  if(!isleaf || !isleaf(node)) {
-    if(node.firstChild) {
-      treeTraverseRecursion(node.firstChild, visitor, isleaf, inv_depth-1, false);
-    }
-  }
-
-  if(node.nextSibling) {  	
-    treeTraverseRecursion(node.nextSibling, visitor, isleaf, inv_depth-1, false);
   }
 }
 
@@ -1182,7 +1157,7 @@ function nextNodeNoSound(node, matcher, first, num) {
   var result = "";
 
   // Don't let Javascript die because of recursion limit.
-  if(num > recursion_limit) {
+  if(num > WA.Nodes.recursion_limit) {
     return node;
   }
 
@@ -1301,7 +1276,7 @@ function internalNode(node) {
 function prevNodeNoSound(node, matcher, first, num) {
   // Prevents Javascript from crashing as a result of going over the
   // 1000-level recursion limit.
-  if(first > recursion_limit) {
+  if(first > WA.Nodes.recursion_limit) {
     return node;
   }
 
