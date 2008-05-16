@@ -19,6 +19,10 @@ WA.Nodes = {
   // between "Image" and the alt text for that image.
   nodeTypeBreaker: (this._breakUpSound ? this._breakUpSoundDelimiter : ""),
   
+  // Recursion limit.
+  // TODO: remove 20 level "fudge factor"
+  recursion_limit: 1000 - 20,
+
   // Return true if we should treat this node as a leaf, false otherwise.
   // The only nodes that possibly aren't leaves are the element nodes (type 3)
   leafNode: function(node) {
@@ -337,6 +341,40 @@ WA.Nodes = {
       if(rows[i].cells.length > longest)
         longest = rows[i].cells.length;
     return longest;
+  },
+
+  // Does a DFS on the supplied node, passing node to visitor for each
+  // node that it encounters.
+  // Leaf nodes can be determined by the optional isleaf function.
+  // inv_depth keeps track of the depth of the recursion.
+  // first is a boolean value indicating whether this is the first iteration.
+  treeTraverseRecursion: function(node, visitor, isleaf) {
+    this._treeTraverseRecursion(node, visitor, isleaf, 0);
+  },
+
+  // Does a DFS starting from node, passing node to visitor for each
+  // node that it encounters.
+  // Leaf nodes can be determined by the optional isleaf function.
+  // inv_depth keeps track of the depth of the recursion.
+  // first is a boolean value indicating whether this is the first iteration.
+  _treeTraverseRecursion: function(node, visitor, isleaf, depth) {
+    if(depth < this.recursion_limit) {
+      return;
+    }
+  
+    if(depth!=0 && node) {
+      visitor(node);
+    }
+  
+    if(!isleaf || !isleaf(node)) {
+      if(node.firstChild) {
+        this._treeTraverseRecursion(node.firstChild, visitor, isleaf, depth+1);
+      }
+    }
+
+    if(node.nextSibling) {    
+      this._treeTraverseRecursion(node.nextSibling, visitor, isleaf, depth+1);
+    }
   },
 
   // Function to get the computed style of an element for the specified property.
