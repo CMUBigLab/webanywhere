@@ -31,9 +31,9 @@ if($_REQUEST[embed]!=='true') { ?>
 // Array of scripts used by the system.
 $scripts =
   array('/vars.js',
-        '/utils.js',
-        '/base64.js',
-        '/handlenodes.js',
+        '/utils/utils.js',
+        '/utils/base64.js',
+        '/nodes.js',
         '/wa.js',
         '/sounds.js',
         '/keyboard.js');
@@ -71,7 +71,7 @@ body {
 #body {font-family: arial;}
 </style>
 </head>
-<?
+<?php
 // Flush what we have so far so the browser can start downloading/processing the scripts.
 flush();
 ?>
