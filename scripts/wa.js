@@ -111,36 +111,15 @@ function init_browser() {
 
   if(window.attachEvent) go_button.attachEvent('onfocus', goButtonFocus);
   else if(window.addEventListener) go_button.addEventListener('focus', goButtonFocus, false);
-
-  //  All for the location textbox.
-  /*if(window.attachEvent) location_field.attachEvent('onkeypress', playKeypress);
-  else if(window.addEventListener) location_field.addEventListener('keypress', playKeypress, false);
-
-  if(window.attachEvent) location_field.attachEvent('onkeydown', tabLocation);
-  else if(window.addEventListener) location_field.addEventListener('keypress', tabLocation, false);
-
-  if(window.attachEvent) go_button.attachEvent('onkeydown', goKeyDown);
-  else if(window.addEventListener) go_button.addEventListener('keydown', goKeyDown, false);
-
-  // Deal with key presses elsewhere in document.
-  if(window.attachEvent) document.attachEvent('onkeydown', docKeyPress);
-  else if(window.addEventListener) document.addEventListener('keydown', docKeyPress, false);
-
-  if(window.attachEvent) document.attachEvent('onkeypress', suppressKeys);
-  else if(window.addEventListener) document.addEventListener('keypress', suppressKeys, false);
-
-  if(window.attachEvent) document.attachEvent('onkeyup', suppressKeys);
-  else if(window.addEventListener) document.addEventListener('keyup', suppressKeys, false);
-*/
    
-  if(window.attachEvent) document.attachEvent('onkeydown', function(e) { WA.Keyboard.handleKeyDown(e) });
-  else if(window.addEventListener) document.addEventListener('keydown', function(e) { WA.Keyboard.handleKeyDown(e) }, false);
+  if(window.attachEvent) document.attachEvent('onkeydown', function(e){WA.Keyboard.handleKeyDown(e)});
+  else if(window.addEventListener) document.addEventListener('keydown', function(e){WA.Keyboard.handleKeyDown(e)}, false);
 
-  if(window.attachEvent) document.attachEvent('onkeyup', function(e) { WA.Keyboard.handleKeyUp(e) });
-  else if(window.addEventListener) document.addEventListener('keyup', function(e) { WA.Keyboard.handleKeyUp(e) }, false);
+  if(window.attachEvent) document.attachEvent('onkeyup', function(e){WA.Keyboard.handleKeyUp(e)});
+  else if(window.addEventListener) document.addEventListener('keyup', function(e){WA.Keyboard.handleKeyUp(e)}, false);
 
-  if(window.attachEvent) document.attachEvent('onkeypress', function(e) { WA.Keyboard.handleKeyPress(e) });
-  else if(window.addEventListener) document.addEventListener('keypress', function(e) { WA.Keyboard.handleKeyPress(e) }, false);
+  if(window.attachEvent) document.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
+  else if(window.addEventListener) document.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
 
   if(soundPlayerLoaded) {
     setupBaseSounds();
@@ -204,7 +183,7 @@ function goButtonFocus(e) {
   if(target.nodeType == 3) // defeat Safari bug
     target = target.parentNode;
 
-  var text = handlenode(target, true);
+  var text = WA.Nodes.handleNode(target, true);
   resetSounds();
   addSound("Go") //text);
 }
@@ -314,7 +293,7 @@ function silenceAll() {
 
 // Speak text boxes when they are focused.
 function textBoxFocus(element) {
-  //var text = handlenode(element, true);
+  //var text = WA.Nodes.handleNode(element, true);
   //prefetch(text, true, false);  
 }
 
@@ -412,21 +391,22 @@ function toUpperKeyCode(k) {
   return k;
 }
 
+// Plays a single key press.
+// Determines what to play based on the target element.
 function _playkey(key, targ) {
   top.navigation_frame.resetSounds();
   top.navigation_frame.browseMode = top.navigation_frame.KEYBOARD;
 
   if(/ctrl l/.test(key)) {
     focusLocation();
-  } /* else if(/ctrl/.test(key)) {
-  } */ else if(/arrow|backspace|del/.test(key)) {
+  } else if(/arrow|backspace|del/.test(key)) {
     var pos = top.navigation_frame.getCursor(targ);
     var text = targ.value;
     if(/left|right|backspace|del/.test(key)) {
       if(/left/.test(key)) {
-	text = text.substring((pos-1), pos);
+        text = text.substring((pos-1), pos);
       } else if(/right/.test(key)) {
-	text = text.substring(pos+1, (pos+2));
+        text = text.substring(pos+1, (pos+2));
       } else if(/backspace/.test(key)) {
         text = text.substring((pos-1), pos);
       } else if(/del/.test(key)) {
@@ -442,63 +422,7 @@ function _playkey(key, targ) {
   } else if(key=="enter") {
     return;
   } else {
-    //prefetch(key, true, false);
     top.navigation_frame.prefetch(key, true, false);
-  }
-}
-
-// Plays the sounds for a keypress specifically for a textbox.
-function playKeypress(e) {
-  var stopPropagate = false;
-
-  top.navigation_frame.resetSounds();
-  top.navigation_frame.browseMode = top.navigation_frame.KEYBOARD;
-
-  if(!e) e = window.event;
-
-  var targ;
-  if(e.target) targ = e.target;
-  else if(e.srcElement) targ = e.srcElement;
-
-  var key = top.navigation_frame.WA.Keyboard.getKeyString(e);
-
-  if(/ctrl l/.test(key)) {
-    focusLocation();
-    stopPropagate = true;
-  } /* else if(/ctrl/.test(key)) {
-    docKeyPress(e);
-  } */ else if(/arrow/.test(key)) {
-    var pos = top.navigation_frame.getCursor(targ);
-    var text = targ.value;
-    if(/left|right/.test(key)) {
-      if(/left/.test(key)) {
-	text = text.substring((pos-1), pos);
-      } else if(/right/.test(key)) {
-	text = text.substring(pos, (pos+1));
-      }
-      top.navigation_frame.addSound(text);
-    } else {
-      return;
-    }
-  } else if(key=="enter") {
-    return;
-  } else {
-    var keynum;
-    // Get the keycode
-    if(!e.which) {
-      keynum = e.keyCode;
-    } else if(e.which) {
-      keynum = e.which;
-    }
-    //prefetch(key, true, false);
-    top.navigation_frame.prefetchKeycode(keynum, true);
-  }
-
-  if(stopPropagate) {
-    stopProp(e);
-    return false;
-  } else {
-    return true;
   }
 }
 
@@ -506,12 +430,15 @@ function playKeypress(e) {
 // Performs a number of administrative functions.
 function preVisit(node) {
   if(isFocusable(node)) {
-    if(window.attachEvent) node.attachEvent('onfocus', gotFocus);
-    else if(window.addEventListener) node.addEventListener('focus', gotFocus, false);
+    if(window.attachEvent) {
+      node.attachEvent('onfocus', gotFocus);
+    } else if(window.addEventListener) {
+      node.addEventListener('focus', gotFocus, false);
+    }
   }
 
   if(prefetchStrategy >= 1) {
-  	text = handlenode(node, true);
+  	text = WA.Nodes.handleNode(node, true);
   	if(text && (prefetchStrategy <= 1 || prefetch_curr_index == 0)) {
   	  prefetch_array[prefetch_curr_index].push(text);
   	}
@@ -521,10 +448,10 @@ function preVisit(node) {
     if(node.tagName == "LABEL") {
       var for_id = node.getAttribute('for');
       if(for_id) {
-	    var id_elem = node.ownerDocument.getElementById(for_id);
-	    if(id_elem) {
-	      id_elem.setAttribute('my_label', handleChildNodes(node));
-	    }
+  	    var id_elem = node.ownerDocument.getElementById(for_id);
+  	    if(id_elem) {
+  	      id_elem.setAttribute('my_label', this.handleChildNodes(node));
+  	    }
       }
     }
   } else if(node.nodeType == 3 && !internalNode(node)) {
@@ -562,7 +489,7 @@ function selectChange(key_string, target) {
 	    sindex = (sindex - 1 >= 0) ? sindex - 1 : sindex;
       }
 
-      if(isIE()) {
+      if(WA.Utils.isIE()) {
         target.selectedIndex = sindex;
       }
 
@@ -596,7 +523,7 @@ function newPage() {
   if(newDoc != currentDoc && currentLoc != newLoc) {
     var location_field = document.getElementById('location');
     if(location_field) {
-      recordLine('new page: ' + location_field.value);
+      WA.Utils.recordLine('new page: ' + location_field.value);
       if(/mail\.google\.com\/mail/.test(location_field.value) && !(/ui=?html/.test(location_field.value))) {
       	setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
       }
@@ -618,20 +545,20 @@ function newPage() {
   basePriority = startPriority;
     
   // Deal with key presses elsewhere in document.
-  if(window.attachEvent) currentDoc.attachEvent('onkeydown', function(e) {WA.Keyboard.handleKeyDown(e) });
-  else if(window.addEventListener) currentDoc.addEventListener('keydown', function(e) {WA.Keyboard.handleKeyDown(e) }, false);
+  if(window.attachEvent) currentDoc.attachEvent('onkeydown', function(e){WA.Keyboard.handleKeyDown(e)});
+  else if(window.addEventListener) currentDoc.addEventListener('keydown', function(e) {WA.Keyboard.handleKeyDown(e)}, false);
 
-  if(window.attachEvent) currentDoc.attachEvent('onkeyup', function(e) {WA.Keyboard.handleKeyUp(e) });
-  else if(window.addEventListener) currentDoc.addEventListener('keyup', function(e) {WA.Keyboard.handleKeyUp(e) }, false);
+  if(window.attachEvent) currentDoc.attachEvent('onkeyup', function(e){WA.Keyboard.handleKeyUp(e)});
+  else if(window.addEventListener) currentDoc.addEventListener('keyup', function(e){WA.Keyboard.handleKeyUp(e)}, false);
 
-  if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e) {WA.Keyboard.handleKeyPress(e) });
-  else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e) {WA.Keyboard.handleKeyPress(e) }, false);
+  if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
+  else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
 
-  treeTraverseRecursion(currentNode, preVisit, leafNode, recursion_limit, true);
+  treeTraverseRecursion(currentNode, preVisit, function(node){WA.Nodes.leafNode(node)}, recursion_limit, true);
 
   var start_node = currentDoc.createElement('div');
   start_node.innerHTML = currentDoc.title;
-  if(isIE()) {
+  if(WA.Utils.isIE()) {
     start_node.tabIndex = 0;
    } else {
     start_node.setAttribute('tabindex', 0);
@@ -642,7 +569,7 @@ function newPage() {
 
   var end_node = currentDoc.createElement('div');
   end_node.innerHTML = "End of Page";
-  if(isIE()) {
+  if(WA.Utils.isIE()) {
     end_node.tabIndex = 0;
   } else {
     end_node.setAttribute('tabindex', 0);
@@ -650,27 +577,28 @@ function newPage() {
   end_node.setAttribute('id', 'always_last_node');
   currentDoc.body.appendChild(end_node);
 
-    /*if(window.attachEvent) {
-      start_node.attachEvent('onkeydown', tabStartNode);
-      start_node.attachEvent('onfocus', startNodeFocus);
-      //start_node.attachEvent('onkeypress', suppressKeys);
-      //start_node.attachEvent('onkeyup', suppressKeys);
+  /*
+  if(window.attachEvent) {
+    start_node.attachEvent('onkeydown', tabStartNode);
+    start_node.attachEvent('onfocus', startNodeFocus);
+    //start_node.attachEvent('onkeypress', suppressKeys);
+    //start_node.attachEvent('onkeyup', suppressKeys);
 
-      end_node.attachEvent('onkeydown', tabEndNode);
-      end_node.attachEvent('onkeypress', suppressKeys);
-      end_node.attachEvent('onkeyup', suppressKeys);
-      end_node.attachEvent('onfocus', endNodeFocus);
-    } else if(window.addEventListener) {
-      start_node.addEventListener('keypress', tabStartNode, false);
-      start_node.addEventListener('focus', startNodeFocus, false);
-      //start_node.addEventListener('keydown', suppressKeys, false);
-      //start_node.addEventListener('keyup', suppressKeys, false);
+    end_node.attachEvent('onkeydown', tabEndNode);
+    end_node.attachEvent('onkeypress', suppressKeys);
+    end_node.attachEvent('onkeyup', suppressKeys);
+    end_node.attachEvent('onfocus', endNodeFocus);
+  } else if(window.addEventListener) {
+    start_node.addEventListener('keypress', tabStartNode, false);
+    start_node.addEventListener('focus', startNodeFocus, false);
+    //start_node.addEventListener('keydown', suppressKeys, false);
+    //start_node.addEventListener('keyup', suppressKeys, false);
 
-      end_node.addEventListener('keypress', tabEndNode, false);
-      end_node.addEventListener('keydown', suppressKeys, false);
-      end_node.addEventListener('keyup', suppressKeys, false);
-      end_node.addEventListener('focus', endNodeFocus, false);
-    }*/
+    end_node.addEventListener('keypress', tabEndNode, false);
+    end_node.addEventListener('keydown', suppressKeys, false);
+    end_node.addEventListener('keyup', suppressKeys, false);
+    end_node.addEventListener('focus', endNodeFocus, false);
+  }*/
 
   if(prefetchStrategy > 0) {
     prefetchNext();
@@ -823,14 +751,14 @@ function playNodeSound(node, node_text) {
       //while(node && node.nodeName != "BODY" && node.parentNode.childNodes.length < 2) {
    	  //  node = node.parentNode;
       //}
-      //treeTraverseRecursion(node, addNodeToPrefetch, leafNode, 3, true);
+      //treeTraverseRecursion(node, addNodeToPrefetch, WA.Nodes.leafNode, 3, true);
       //}
   }
 }
 
 // Adds the specified node to the prefetch queue.
 function addNodeToPrefetch(node) {
-  text = handlenode(node, true);
+  text = WA.Nodes.handleNode(node, true);
 
   if(text && /\S/.test(text) && (prefetchStrategy >= 1 || prefetch_curr_index == 0)) {
     addToPrefetchQ(text);
@@ -890,7 +818,7 @@ function gotFocus(e) {
 
 // Play the previous character.
 function prevChar() {
-  var node_text = handlenode(currentNode, true);
+  var node_text = WA.Nodes.handleNode(currentNode, true);
   if(node_text) {
     browseMode = KEYBOARD;
     var curr = getCurrentChar();
@@ -1037,8 +965,8 @@ function matchByFocusFunc(elem) {
 // Matches readable (non-empty) elements.
 function nonEmptyMatchFunc() {
   var func = function(elem) {
-    if(leafElement(elem)) {
-      var text = handlenode(elem, true);
+    if(WA.Nodes.leafElement(elem)) {
+      var text = WA.Nodes.handleNode(elem, true);
       if(/\S/.test(text)) {
 	return true;
       }
@@ -1052,8 +980,8 @@ function nonEmptyMatchFunc() {
 // context:  text to be matched.
 function contentMatchFunc(context) {
   var func = function(elem) {
-    if(leafElement(elem)) {
-      var text = handlenode(elem, true);
+    if(WA.Nodes.leafElement(elem)) {
+      var text = WA.Nodes.handleNode(elem, true);
       var reg = new RegExp(context, "i");
 
       if(reg.test(text)) {
@@ -1070,7 +998,7 @@ function contentMatchFunc(context) {
 // Matches elements that would produce speech if read.
 function matchBySpeaksFunc() {
   var func = function(elem) {
-    var text = handlenode(elem, true);
+    var text = WA.Nodes.handleNode(elem, true);
     if(text && text != "") {
       return true;
     }
@@ -1276,7 +1204,7 @@ function nextNodeNoSound(node, matcher, first, num) {
   }
 
   // Explore children
-  if(!leafNode(node) && node.firstChild) {
+  if(!WA.Nodes.leafNode(node) && node.firstChild) {
     result = nextNodeNoSound(node.firstChild, matcher, false, num+1);
     if(result != null)
       return result;
@@ -1371,7 +1299,7 @@ function internalNode(node) {
 // Finds the previous node that matches the supplied 'matcher'
 // and returns it.
 function prevNodeNoSound(node, matcher, first, num) {
-  // Recursion hack, prevents Javascript from crashing from going over
+  // Prevents Javascript from crashing as a result of going over the
   // 1000-level recursion limit.
   if(first > recursion_limit) {
     return node;
@@ -1379,10 +1307,11 @@ function prevNodeNoSound(node, matcher, first, num) {
 
   var result = null;
 
+  // Some magic to find the appropriate next node.
   if(num > 1 || (first > 4 && !internalNode(node))) {
     num++;
   } else if(first!=0 && !internalNode(node) && !parentMatches(node, matcher)) {
-    var node_text = handlenode(node, true);
+    var node_text = WA.Nodes.handleNode(node, true);
     if((node_text && !(/^\s*$/.test(node_text)))) {
       num++;
     }
@@ -1396,7 +1325,7 @@ function prevNodeNoSound(node, matcher, first, num) {
   // Check if this is the right node
   if(num > 1 && matcher(node)) { // && isVisible(node)) {
     return node;
-    /*var node_text = handlenode(node, true);
+    /*var node_text = WA.Nodes.handleNode(node, true);
     if( node_text != "" ) {
       result = node_text;
       setCurrentNode(node);
@@ -1451,7 +1380,7 @@ function isTagAttribute(node, tag, attrib) {
   var tagmatch = new RegExp("^" + tag, "i");
 
   if(attrib) {
-    return (node.nodeType == 1 && tagmatch.test(node.tagName) && myHasAttribute(node, attrib));
+    return (node.nodeType == 1 && tagmatch.test(node.tagName) && WA.Nodes.hasAttribute(node, attrib));
   } else {
     return (node.nodeType == 1 && tagmatch.test(node.tagName));
   }
@@ -1467,7 +1396,7 @@ function nextNode() {
   var node_text = next_node_info[1];
 
   if(next_node && node_text) {
-    recordLine('playing sound: ' + getXPath(next_node) + ' ' + node_text);
+    WA.Utils.recordLine('playing sound: ' + WA.Utils.getXPath(next_node) + ' ' + node_text);
     lastNode = next_node;
 
     playNodeSound(next_node, node_text);
@@ -1499,10 +1428,10 @@ function _nextNode() {
   debug("nextNode:" + ((currentNode.tagName) ? currentNode.tagName : currentNode));
   visit(currentNode);
 
-  node_text = handlenode(currentNode, true);
+  node_text = WA.Nodes.handleNode(currentNode, true);
   if(node_text) {
-  	
-  	/*recordLine('playing sound: ' + getXPath(currentNode) + ' ' + node_text);
+  	/*
+  	WA.Utils.recordLine('playing sound: ' + WA.Utils.getXPath(currentNode) + ' ' + node_text);
   	
   	lastNode = currentNode;
   	
@@ -1514,7 +1443,7 @@ function _nextNode() {
     spoken_node = currentNode;
   }
 
-  if(currentNode.firstChild && !leafNode(currentNode)) {
+  if(currentNode.firstChild && !WA.Nodes.leafNode(currentNode)) {
     setCurrentNode(dfsNode(currentNode, true));
   } else if(currentNode.nextSibling) {
     setCurrentNode(currentNode.nextSibling);
@@ -1557,7 +1486,7 @@ function prevNode() {
   debug("prevNode");
   visit(currentNode);
 
-  var node_text = handlenode(currentNode, true);
+  var node_text = WA.Nodes.handleNode(currentNode, true);
   if(node_text) {
     setCurrentChar(node_text.length);
     if(browseMode == PREV_CHAR) {
@@ -1586,7 +1515,7 @@ function prevNode() {
 }
 
 function rdfsNode(node, focusMe) {
-  while(node && node.nodeType == 1 && node.lastChild && !leafNode(node)) {
+  while(node && node.nodeType == 1 && node.lastChild && !WA.Nodes.leafNode(node)) {
     if(node.tagName == "SCRIPT" ||
        node.tagName == "STYLE") {
       break;
@@ -1605,7 +1534,7 @@ function dfsNode(node, focusMe) {
     debug( "dfsNode" );
     focusNode(node);
   }
-  if(leafNode(node)) {
+  if(WA.Nodes.leafNode(node)) {
     return node;
   } else {
     return node.firstChild;
@@ -1642,7 +1571,7 @@ function countNumLinks() {
   var cnt = 0;
   var elems = currentDoc.getElementsByTagName('A');
   for(i=elems.length-1; i>=0; i--) {
-    if(myHasAttribute(elems[i], 'href')) {
+    if(WA.Nodes.hasAttribute(elems[i], 'href')) {
       cnt++;
     }
   }
@@ -1669,7 +1598,7 @@ function isFocusable(node) {
       if(!input_type || input_type != 'hidden') {
         return true;
       }    	
-    } else if((node.tagName == "A" && myHasAttribute(node, 'href')) || 
+    } else if((node.tagName == "A" && WA.Nodes.hasAttribute(node, 'href')) || 
         node.tagName == "SELECT" ||
         node.tagName == "TEXTAREA") {
       return true;
