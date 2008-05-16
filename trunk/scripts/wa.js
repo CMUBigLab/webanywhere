@@ -133,14 +133,14 @@ function init_browser() {
   else if(window.addEventListener) document.addEventListener('keyup', suppressKeys, false);
 */
    
-  if(window.attachEvent) document.attachEvent('onkeydown', handleKeyDown);
-  else if(window.addEventListener) document.addEventListener('keydown', handleKeyDown, false);
+  if(window.attachEvent) document.attachEvent('onkeydown', function(e) { WA.Keyboard.handleKeyDown(e) });
+  else if(window.addEventListener) document.addEventListener('keydown', function(e) { WA.Keyboard.handleKeyDown(e) }, false);
 
-  if(window.attachEvent) document.attachEvent('onkeyup', handleKeyUp);
-  else if(window.addEventListener) document.addEventListener('keyup', handleKeyUp, false);
+  if(window.attachEvent) document.attachEvent('onkeyup', function(e) { WA.Keyboard.handleKeyUp(e) });
+  else if(window.addEventListener) document.addEventListener('keyup', function(e) { WA.Keyboard.handleKeyUp(e) }, false);
 
-  if(window.attachEvent) document.attachEvent('onkeypress', handleKeyPress);
-  else if(window.addEventListener) document.addEventListener('keypress', handleKeyPress, false);
+  if(window.attachEvent) document.attachEvent('onkeypress', function(e) { WA.Keyboard.handleKeyPress(e) });
+  else if(window.addEventListener) document.addEventListener('keypress', function(e) { WA.Keyboard.handleKeyPress(e) }, false);
 
   if(soundPlayerLoaded) {
     setupBaseSounds();
@@ -460,7 +460,7 @@ function playKeypress(e) {
   if(e.target) targ = e.target;
   else if(e.srcElement) targ = e.srcElement;
 
-  var key = top.navigation_frame.getKeyString(e);
+  var key = top.navigation_frame.WA.Keyboard.getKeyString(e);
 
   if(/ctrl l/.test(key)) {
     focusLocation();
@@ -502,11 +502,13 @@ function playKeypress(e) {
   }
 }
 
+// Called on each node upon page load.
+// Performs a number of administrative functions.
 function preVisit(node) {
-  /*if(isFocusable(node)) {
+  if(isFocusable(node)) {
     if(window.attachEvent) node.attachEvent('onfocus', gotFocus);
     else if(window.addEventListener) node.addEventListener('focus', gotFocus, false);
-  }*/
+  }
 
   if(prefetchStrategy >= 1) {
   	text = handlenode(node, true);
@@ -546,6 +548,7 @@ function preVisit(node) {
   }
 }
 
+// Event handler for changes to select elements.
 function selectChange(key_string, target) {
   if(/ctrl arrow(up|down)/.test(key_string)) {
     if(/ctrl/.test(key_string)) {
@@ -569,9 +572,7 @@ function selectChange(key_string, target) {
   }
 }
 
-//
 // Called when a new page loads.
-//
 function newPage() {
   browseMode = PAUSED;
 
@@ -617,14 +618,14 @@ function newPage() {
   basePriority = startPriority;
     
   // Deal with key presses elsewhere in document.
-  if(window.attachEvent) currentDoc.attachEvent('onkeydown', handleKeyDown);
-  else if(window.addEventListener) currentDoc.addEventListener('keydown', handleKeyDown, false);
+  if(window.attachEvent) currentDoc.attachEvent('onkeydown', function(e) {WA.Keyboard.handleKeyDown(e) });
+  else if(window.addEventListener) currentDoc.addEventListener('keydown', function(e) {WA.Keyboard.handleKeyDown(e) }, false);
 
-  if(window.attachEvent) currentDoc.attachEvent('onkeyup', handleKeyUp);
-  else if(window.addEventListener) currentDoc.addEventListener('keyup', handleKeyUp, false);
+  if(window.attachEvent) currentDoc.attachEvent('onkeyup', function(e) {WA.Keyboard.handleKeyUp(e) });
+  else if(window.addEventListener) currentDoc.addEventListener('keyup', function(e) {WA.Keyboard.handleKeyUp(e) }, false);
 
-  if(window.attachEvent) currentDoc.attachEvent('onkeypress', handleKeyPress);
-  else if(window.addEventListener) currentDoc.addEventListener('keypress', handleKeyPress, false);
+  if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e) {WA.Keyboard.handleKeyPress(e) });
+  else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e) {WA.Keyboard.handleKeyPress(e) }, false);
 
   treeTraverseRecursion(currentNode, preVisit, leafNode, recursion_limit, true);
 
@@ -688,7 +689,7 @@ function newPage() {
     addSound(currentDoc.title);
   }
 
-  // Speak the number of headings and links on the page
+  // Speak the number of headings and links on the page.
   addSound(countNumHeadings() + " Headings " + countNumLinks() + " Links");
 
   browseMode = READ;
@@ -765,7 +766,7 @@ function proxifyURL(loc, subdomain) {
       loc = top.webanywhere_location + loc;
       loc = loc.replace(top.webanywhere_domain, (subdomain + '.' + top.webanywhere_domain));
     }
-    if(hasConsole) console.debug('in here: ' + subdomain + ' ' + loc + top.webanywhere_domain);
+    //if(hasConsole) console.debug('in here: ' + subdomain + ' ' + loc + top.webanywhere_domain);
   }
 
   return loc;
@@ -857,8 +858,10 @@ function treeTraverseRecursion(node, visitor, isleaf, inv_depth, first) {
   }
 }
 
-// Unused function.  Should probably delete it.
-function gotFocus(e) { 
+// Responds to user-initiated focus events,
+// such as those triggered by the mouse.
+function gotFocus(e) {
+  /*
   var targ;
   if(!e) e = window.event;
   if(e.target) targ = e.target;
@@ -882,7 +885,7 @@ function gotFocus(e) {
   focusedNode = targ;
 
   debug("focus:false");
-  top.navigation_frame.programmaticFocus = false;
+  top.navigation_frame.programmaticFocus = false;*/
 }
 
 // Play the previous character.
@@ -899,9 +902,7 @@ function prevChar() {
       prevNode();
     }
   } else {
-    //addSound('prev node');
     prevNode();
-    //addSound("no character");
   }
 }
 
@@ -909,7 +910,6 @@ function prevChar() {
 function setCurrentNode(node) {
   top.navigation_frame.currentNode = node;
   setCurrentChar(-1);
-  //recordLine('curr to ' + node);
 }
 
 // Sets the character at the current cursor location.
@@ -944,6 +944,7 @@ function isVisible(elem) {
       }
   	}
   }
+
   // Default is that it's visible.
   return true;  
 }
@@ -1011,7 +1012,7 @@ function navTableCell(node, row_offset, col_offset, edge_message) {
 }
 
 // Focusable elements can be matched by the tag names shown here.
-var fucusableElementRegExp = new RegExp("^A|SELECT|TEXTAREA|BUTTON|INPUT");
+var fucusableElementRegExp = /^A|SELECT|TEXTAREA|BUTTON|INPUT/;
 
 // Matches focusable elements.
 function matchByFocusFunc(elem) {
@@ -1066,6 +1067,7 @@ function contentMatchFunc(context) {
   return func;
 }
 
+// Matches elements that would produce speech if read.
 function matchBySpeaksFunc() {
   var func = function(elem) {
     var text = handlenode(elem, true);
@@ -1151,34 +1153,47 @@ function matchByFocus() {
   return matchByFocusFunc;
 }
 
-// Goes to the next node with the given tagName and optional attribute
+// Goes to the next node with the given tagName and optional attribute.
+// tag -    a regular expression that matches the nodeName
+//          of the appropriate type.
+// attrib - an option attribute that needs to be present
+//          in order for a node to match
 function nextNodeTagAttrib(tag, attrib) { 
   var matcher = matchByTag(tag, attrib);
-
-  var description = "results";
-  if(/^h\d?/i.test(tag)) {
-    description = "heading";
-  } else if(/^tr/i.test(tag)) {
-    description = "table rows";
-  } else if(/^input/i.test(tag)) {
-    description = "input elements";
-  } else if(/^table/i.test(tag)) {
-    description = "table";
+  
+  // Switches on the known regular expression patterns.
+  switch(tag.toUpperCase()) {
+    case "H":
+      description = "headings"; break;
+    case "TR":
+      description = "table rows"; break;
+    case "INPUT|SELECT|BUTTON":
+      description = "input elements"; break;
+    case "TABLE":
+      description = "tables"; break;
+    case "P":
+      description = "paragraphs"; break;
+    default:
+      description = "results"; break;
   }
 
   return nextNodeByMatcher(matcher, description);
 }
 
-// Goes to the next node with the given tagName and optional attribute
+// Goes to the next node that is focusable.
+// Used to simulate TAB key press.
 function nextNodeFocus() { 
   var matcher = matchByFocus();
   return nextNodeByMatcher(matcher, "");
 }
 
+// Finds the next node that matches the supplied 'matcher' function.
 function _nextNodeByMatcher(matcher, node) {
   var last_result = null;
   var result = node;
 
+  // Some ugliness to handle Javascript recursion limits, which
+  // could otherwise cause the method to fail on large web pages.
   do {
     last_result = result;
     result = nextNodeNoSound(last_result, matcher, true, 0);
@@ -1186,6 +1201,7 @@ function _nextNodeByMatcher(matcher, node) {
   return result;
 }
 
+// Returns the very next node, regardless of its type.
 function firstNodeNoSound(node) {
   var result = nextNodeNoSound(node, function(elem) { return true; }, true, -1);
   return result;
@@ -1232,9 +1248,8 @@ function nextNodeByMatcher(matcher, description) {
   }
 }
 
-
-
-
+// Finds the next node that matches 'matcher'
+// without queueing it to be spoken.
 function nextNodeNoSound(node, matcher, first, num) {
   var result = "";
 
@@ -1245,17 +1260,12 @@ function nextNodeNoSound(node, matcher, first, num) {
 
   if(num < 0) {
     num = 0;
-  } else if(matcher(node) && isVisible(node)) {
-    //var node_text = handlenode(node, true);
-    //if(node_text != "") {
+  } else if(matcher(node)) { // && isVisible(node)) {
       result = node;
-      //setCurrentNode(node);
-      //setCurrentChar(node_text.length);
       if(browseMode == PLAY_ONE) {
         browseMode = KEYBOARD;
       }
       return result;
-    //}
   }
 
   // Check if we're the body
@@ -1341,16 +1351,16 @@ function prevNodeByMatcher(matcher) {
   }
 }
 
+// Boolean: Does the parent node match the given matcher function?
 function parentMatches(node, matcher) {
   return matcher(node.parentNode);
 }
 
 // Does node only make sense inside parent?
-var internalNodeRegExp = new RegExp("OPTION|SELECT");
 function internalNode(node) {
   var parent = node.parentNode;
   if(parent) {
-  	if(internalNodeRegExp.test(parent.nodeName)) {
+  	if(parent.nodeName == "OPTION" || parent.nodeName == "SELECT") {
       return true;
   	}
   }
@@ -1358,7 +1368,11 @@ function internalNode(node) {
   return false;
 }
 
+// Finds the previous node that matches the supplied 'matcher'
+// and returns it.
 function prevNodeNoSound(node, matcher, first, num) {
+  // Recursion hack, prevents Javascript from crashing from going over
+  // 1000-level recursion limit.
   if(first > recursion_limit) {
     return node;
   }
@@ -1380,7 +1394,7 @@ function prevNodeNoSound(node, matcher, first, num) {
   }
 
   // Check if this is the right node
-  if(num > 1 && matcher(node) && isVisible(node)) {
+  if(num > 1 && matcher(node)) { // && isVisible(node)) {
     return node;
     /*var node_text = handlenode(node, true);
     if( node_text != "" ) {
@@ -1425,23 +1439,22 @@ function prevNodeNoSound(node, matcher, first, num) {
 }
 
 // Returns true if the node is an element with the given tag name and 
-// attribute (optional)
+// attribute (optional).
+// tag - regular expression to be applied to tag names.
+// node - node to be tested.
+// attrib - attribute node is required to have to pass test.
 function isTagAttribute(node, tag, attrib) {
   if(!node || !node.tagName) {
     return false;
   }
 
-  var tag_regex = new RegExp("^" + tag, "i");
+  var tagmatch = new RegExp("^" + tag, "i");
 
-  //  if(attrib)
-  //  return (node.nodeType == 1 &&  node.tagName.substring(tag.length, 0).toLowerCase() == tag.toLowerCase() && myHasAttribute(node, attrib));
-  //else
-  //  return (node.nodeType == 1 && node.tagName.substring(tag.length, 0).toLowerCase() == tag.toLowerCase());
-
-  if(attrib)
-    return (node.nodeType == 1 && tag_regex.test(node.tagName) && myHasAttribute(node, attrib));
-  else
-    return (node.nodeType == 1 && tag_regex.test(node.tagName));
+  if(attrib) {
+    return (node.nodeType == 1 && tagmatch.test(node.tagName) && myHasAttribute(node, attrib));
+  } else {
+    return (node.nodeType == 1 && tagmatch.test(node.tagName));
+  }
 }
 
 //----------------------- END ADVANCE TO TAG ---------------------
@@ -1614,53 +1627,29 @@ function focusNode(node) {
   }
 }
 
-/**
-   Gets called for each element that is visited.
-*/
+// Gets called for each element that is visited.
 function visit(elem) {
   if(isFocusable(elem)) {
-    debug( "visit" );
+    debug("visit");
     focusNode(elem);
   }
   lastNodePlayed = elem;
 }
 
-function visit2(elem) {
-  if(elem.nodeType == 1) {
-    //elem.setAttribute('tabindex', '-1');
-    if(elem.tagName == "A" || elem.tagName == "INPUT") {
-      focusNode(elem);
-    } else if(elem.tagName == "BASE" || elem.tagName == "NOSCRIPT") {
-      nextNode();
-    }
-  }
-  if(elem.nodeType == 3) {
-    if(elem.data.length > 0 &&
-       elem.data.match(/\w/)) {
-      addSound(elem.data);
-    } else {
-      nextNode();
-    }
-  } else if(elem.nodeType == 1 && elem.tagName == "INPUT") {
-    focusNode(elem);
-    addSound("Input: Type " + elem.type);
-  } else {
-    nextNode();
-  }
-  if(isFocusable(elem)) {
-    focusNode(elem);
-  }
-}
-
+// Counts the number of links that have an href, indicating that they're
+// a link and not just an anchor.
 function countNumLinks() {
   var cnt = 0;
   var elems = currentDoc.getElementsByTagName('A');
-  for( i=0; i<elems.length; i++ )
-    if( myHasAttribute( elems[i], 'href') )
+  for(i=elems.length-1; i>=0; i--) {
+    if(myHasAttribute(elems[i], 'href')) {
       cnt++;
-  return cnt; 
+    }
+  }
+  return cnt;
 }
 
+// Counts the number of heading elements.
 function countNumHeadings() {
   var cnt = currentDoc.getElementsByTagName('H1').length;
   cnt += currentDoc.getElementsByTagName('H2').length;
@@ -1671,6 +1660,7 @@ function countNumHeadings() {
   return cnt;
 }
 
+// Boolean: can this node receive focus?
 function isFocusable(node) {
   if(!node) return false;
   if(node.nodeType == 1) {
@@ -1692,28 +1682,25 @@ function isFocusable(node) {
   return false;
 }
 
-/**
-   This function returns the [x, y] position of the supplied object.
-*/
+// This function returns the [x, y] position of the supplied object.
+// This can be slow since it requires tracing the element back to the root.
 function findPos(obj) {
   var curleft = curtop = 0;
   if(obj.offsetParent) {
     curleft = obj.offsetLeft;
     curtop = obj.offsetTop;
-      while (obj = obj.offsetParent) {
-	curleft += obj.offsetLeft;
-	curtop += obj.offsetTop;
-      }
+    while (obj = obj.offsetParent) {
+	  curleft += obj.offsetLeft;
+	  curtop += obj.offsetTop;
+    }
   }
 
   return [curleft,curtop];
 }
 
-/**
-   Returns the first node in the document matching the supplied tag name.
-*/
+// Returns the first node in the document matching the supplied tag name.
 function _firstMatching(tag_name) {
-  if(tag_name == null || tag_name == 'undefined') {
+  if(tag_name == null || typeof tag_name == 'undefined') {
     return null;
   }
 
@@ -1723,11 +1710,4 @@ function _firstMatching(tag_name) {
   }
 
   return null;
-}
-
-// Code for the priority queue for DOM element prefetching.
-var domNodes = new Array();
-function domNode(node, isForward) {
-  this.node = node;
-  this.isForward = isForward;
 }

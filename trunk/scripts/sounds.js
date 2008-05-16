@@ -142,7 +142,7 @@ function addSound(sid) {
   if(splitSoundsByBoundaries) {
     var matches = splitSoundsByBoundary(sid);
     if(matches && matches.length > 0) {
-      for(var match_i=0; match_i<matches.length; match_i++) {
+      for(var match_i=0, ml=matches.length; match_i<ml; match_i++) {
         if(!boundarySplitterRegExp.test(matches[match_i])) {
           _addIndividualSound(matches[match_i]);
         }
@@ -219,10 +219,10 @@ function playWaiting() {
     //alert('notplaying');
     if(browseMode == PLAY_ONE_BACKWARD || browseMode == PLAY_TWO_BACKWARD || browseMode == PREV_CHAR || browseMode == PREV_CHAR_BACKONE) {
       lastPath = 99;
-      //addObservation(prefetchTypes.PREVNODE, lastNode, last_action);
+      //addObservation(prefetchTypes.PREVNODE, lastNode, WA.Keyboard.last_action);
       prevNode(true);
     } else {
-      //addObservation(prefetchTypes.NEXTNODE, lastNode, last_action);
+      //addObservation(prefetchTypes.NEXTNODE, lastNode, WA.Keyboard.last_action);
       nextNode(true);
     }
   } else if(playing) {
@@ -660,7 +660,7 @@ var prefetchRecords = new Object();
 // Adds an array of sounds to the prefetch queue.
 function addArrayToPrefetchQ(sarray) {
   prefetch_array[prefetch_curr_index + 1] = new Array();
-  for(var i=0; i<sarray.length; i++) {
+  for(var i=0, sl=sarray.length; i<sl; i++) {
     var sid = sarray[i];
     //var poor_hash = getSoundID(sid);
     // If changed to !poor_hash would indicate that sounds should not be
@@ -687,7 +687,7 @@ function addToPrefetchQ(sid) {
   if(splitSoundsByBoundaries) {
     var matches = splitSoundsByBoundary(sid);
     if(matches && matches.length > 0) {
-      for(var match_i=0; match_i<matches.length; match_i++) {
+      for(var match_i=0, ml=matches.length; match_i<ml; match_i++) {
         if(!boundarySplitterRegExp.test(matches[match_i])) {
           _addIndividualToPrefetchQ(matches[match_i]);
         }
@@ -877,7 +877,7 @@ function predictNext(currNode, prevAction) {
   if(prefetchObservations[obs_string] != null) {
     var totalObs = prefetchObservations[obs_string][0] +
       prefetchObservations[obs_string].length;
-    for(var i=0; i<possActions.length; i++) {
+    for(var i=0, pal=possActions.length; i<pal; i++) {
       possActions[i] = (prefetchObservations[obs_string][i] + 1)/(totalObs);
     }
   } else {
@@ -902,9 +902,9 @@ function alertPrefetching() {
   	string += i + ": " + prefetchObservations[i].join(", ") + " \n";
   }
   
-  var predictN = predictNext(lastNode, last_action);
+  var predictN = predictNext(lastNode, WA.Keyboard.last_action);
 
-  string += "\n" + lastNode + "  " + last_action;
+  string += "\n" + lastNode + "  " + WA.Keyboard.last_action;
   string += "\n\n" + predictN.join(", ");
 
   alert(string);
@@ -948,12 +948,12 @@ function prefetchNextOnes(node, num) {
 
 // Prediction-based prefetching.
 function prefetchSomething() {
-  var predictions = predictNext(lastNode, last_action);
+  var predictions = predictNext(lastNode, WA.Keyboard.last_action);
 
   var impl = [1, 3, 5, 7];
   var highest = 1;
   var high_val = 0.0;
-  for(var i=0; i<impl.length; i++) {
+  for(var i=0, il=impl.length; i<il; i++) {
     var pred = predictions[impl[i]];
     if(pred > high_val) {
       high_val = pred;
@@ -1048,7 +1048,7 @@ function poorHash(str) {
 
   var hex_tab = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz#*@!";
   var str2 = "";
-  for(var i = 0; i < bin.length; i++) {
+  for(var i=0, bl=bin.length; i<bl; i++) {
     str2 += hex_tab.charAt(bin[i] & 0x3F);
   }
 
@@ -1061,7 +1061,7 @@ function poorHash(str) {
 var lettersNotFetched = ['w','.','h','t','p','f','g','c','i','j','k','l','m','n','o','d','q','r','s','e','u','v','a','x','y','z','b'];
 function prefetchLetters() {
   if(prefetch_array && prefetch_array[0]) {
-    for(i=0; i<lettersNotFetched.length; i++) {
+    for(i=0, lnfl=lettersNotFetched.length; i<lnfl; i++) {
       prefetch_array[0].push(lettersNotFetched[i]);
     }
   }
