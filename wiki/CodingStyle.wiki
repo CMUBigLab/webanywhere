@@ -9,6 +9,8 @@ This document describes the coding style used throughout the WebAnywhere project
 
 The coding style used in this project is a tight style.  For now, I'll illustrate through examples:
 
+==Lines are 80 characters max==
+
 ==Indents should be 2 spaces (not tab)==
 {{{
 if(true) {
@@ -26,7 +28,7 @@ function foobar() {
   }
 }
 }}}
-==Spaces to make things clearer, but no more==
+==Use spaces to make code clearer but don't use more than necessary==
 {{{
 for(var i=0; i<doneYet(myarray.length); i++) {
 ...
