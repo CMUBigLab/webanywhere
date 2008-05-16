@@ -125,7 +125,7 @@ function prepareSound(sid) {
 
 // Returns a unique ID for the text entered.
 function getSoundID(text) {
-  return poorHash(text);
+  return WA.Utils.simpleHash(text);
 }
 
 // Processes a sound by breaking it up according to punctuation,
@@ -933,7 +933,7 @@ function prefetchText(text) {
 // Adds the textual representation of the node to the prefetch queue.
 function prefetchNode(node) {
   if(node) {
-    var text = handlenode(node, true);
+    var text = WA.Nodes.handleNode(node, true);
     addToPrefetchQ(text);
   }
 }
@@ -998,7 +998,7 @@ function prefetchSomething() {
       break;
   }
 
-  //treeTraverseRecursion(next_node, addNodeToPrefetch, leafNode, 3, true);
+  //treeTraverseRecursion(next_node, addNodeToPrefetch, WA.Nodes.leafNode, 3, true);
 
   /*
   console.log(next_node);
@@ -1008,52 +1008,9 @@ function prefetchSomething() {
 
   next_node = nextByTag(next_node, "H");
 
-    var text = handlenode(next_node, true);
+    var text = WA.Nodes.handleNode(next_node, true);
     prefetchText(text);
   }*/
-}
-
-// A simple hash function, not necessarily secure or good, but
-// produces unique strings used as keys in the system.
-function poorHash(str) {
-  if(!str || str.length <= 0) {
-    return 'aaaa0009209384';
-  }
-
-  str = str.replace(/[\n\r]+/, "");
-
-  str = str.replace(/&#(\d)+;/, "p$1");
-
-  var orig_str_num = (str.length > 15) ? 15 : str.length - 1;
-  var orig_piece = (str.length < 15) ? str : str.substring(0, orig_str_num);
-  orig_piece = orig_piece.replace(/[\s]/, '_'); //'
-  orig_piece = orig_piece.replace(/'/, 'gE'); //'
-  orig_piece = orig_piece.replace(/"/, 'gEE'); //'
-  orig_piece = orig_piece.replace(/#/, 'gnE'); //'x
-
-  var bin = Array();
-  var mask = 0xFFF;
-
-  var str_len = str.length;
-
-  for(var i=0; i<16; i++) {
-    bin[i] = str_len + i;
-  }
-
-  for(var i = 0; i < str.length; i++) {
-    var update_val = str.charCodeAt(i)*(i & 0xFF)
-    bin[(i & 0xF)] += update_val;
-    bin[((i << 2) & 0xF)] += update_val;
-  }
-
-  var hex_tab = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz#*@!";
-  var str2 = "";
-  for(var i=0, bl=bin.length; i<bl; i++) {
-    str2 += hex_tab.charAt(bin[i] & 0x3F);
-  }
-
-  var val = orig_piece + str2;
-  return val;
 }
 
 // Initialize the system to prefetch letters and common symbols.

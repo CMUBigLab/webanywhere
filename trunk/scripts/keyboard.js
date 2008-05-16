@@ -58,8 +58,8 @@ WA.Keyboard = {
       target_type = target.tagName;
     }
   
-    recordLine('keypress: ' + key_string + ' ' + source + ' ' + getXPath(target) + ' ' + getXPath(currentNode));
-  
+    WA.Utils.recordLine('keypress: ' + key_string + ' ' + source + ' ' + WA.Utils.getXPath(target) + ' ' + WA.Utils.getXPath(currentNode));
+
     var return_val = false;
   
     var default_case = false;
@@ -290,7 +290,7 @@ WA.Keyboard = {
         this.suppressSelect(e, target, false);    	
       }
   
-      recordLine('return from select: ' + default_case);
+      WA.Utils.recordLine('return from select: ' + default_case);
     }
   
     if(default_case) {
@@ -422,7 +422,7 @@ WA.Keyboard = {
         case 187: key = "equal sign"; break;
         case 188: key = "comma"; break;
         case 189: key = "dash"; break;
-        case 190: key = "period"; break;
+        case 190: key = "dot"; break;
         case 191: key = "forward slash"; break;
         case 192: key = "grave accent"; break;
         case 219: key = "open bracket"; break;
