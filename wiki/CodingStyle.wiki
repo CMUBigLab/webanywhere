@@ -1,4 +1,4 @@
-Description of the coding style that should be used in WebAnywhere project.
+#summary Description of the coding style that should be used in WebAnywhere project.
 
 = Introduction =
 
