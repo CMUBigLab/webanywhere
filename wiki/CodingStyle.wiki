@@ -10,6 +10,8 @@ This document describes the coding style used throughout the WebAnywhere project
 The coding style used in this project is a tight style.  For now, I'll illustrate through examples:
 
 ==Lines are 80 characters max==
+I know, I have a super-wide display too, but keeping lines short improves readability.
+
 
 ==Indents should be 2 spaces (not tab)==
 {{{
