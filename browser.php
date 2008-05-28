@@ -7,6 +7,7 @@
 <script type="text/javascript">
 /* <![CDATA[ */
 
+// Global variables used by WebAnywhere.
 var hasConsole = (typeof console != 'undefined' && typeof console.log != 'undefined');
 top.webanywhere_domain='<?php echo $webanywhere_domain; ?>';
 top.webanywhere_location = String(document.location).replace(/^(https?:\/\/[^\/]*)\/.*$/, '$1');
@@ -19,7 +20,7 @@ top.cross_domain_security = '<?php echo $cross_domain_security; ?>';
 if(hasConsole) console.log(top.sound_url_base + ' ' + top.web_proxy_url);
 /* ]]> */
 </script>
-<script language="Javascript" src="<?php echo $script_path; ?>/keymapping.php"></script>
+<script language="Javascript" src="/<?php echo $script_path; ?>/keymapping.php"></script>
 <?php
 // It's about a million times easier to debug Javascript when your source files
 // haven't been messed with.  Unfortunately, it's also slower and causes the
@@ -29,20 +30,30 @@ if($_REQUEST[embed]!=='true') { ?>
 }
 
 // Array of scripts used by the system.
+// In the future, this may calculate dependencies and only include those
+// scripts which are actually needed.
 $scripts =
   array('/vars.js',
         '/utils/utils.js',
         '/utils/base64.js',
         '/nodes.js',
-        '/wa.js',
-        '/sounds.js',
-        '/keyboard.js');
+        '/sound/sounds.js',
+        '/sound/prefetch.js',
+        '/input/keyboard.js',
+        '/wa.js'
+        );
 
-// Depending on the type of sound player used, include the appropriate file.
+// Depending on the type of sound player used, include the appropriate
+// set of routines for playing sounds.
 if($_REQUEST[embed]==='true') {
-  array_unshift($scripts, '/sound_embed.js');
+  array_unshift($scripts, '/sound/sound_embed.js');
 } else {
-  array_unshift($scripts, '/soundmanager2.js');
+  // Include either the regular or minified soundmanager2.js.
+  if($_REQUEST[debug]==='true') {
+    array_unshift($scripts, '/sound/soundmanager2.js');
+  } else {
+    array_unshift($scripts, '/sound/soundmanager2-mini.js');  
+  }
 }
 
 // Depending on whether we're in debug mode, either include
@@ -64,9 +75,7 @@ if($_REQUEST[debug]==='true') {
 ?>
 
 <style>
-body {
-  font-family: Georgia, "Times New Roman", Times, serif;
-}
+body {font-family: Georgia, "Times New Roman", Times, serif;}
 #input {font-size: 2em;}
 #body {font-family: arial;}
 </style>
@@ -75,7 +84,7 @@ body {
 // Flush what we have so far so the browser can start downloading/processing the scripts.
 flush();
 ?>
-<body onload="focusLocation(); prefetchLetters();" bgcolor="#CCCCFF">
+<body bgcolor="#CCCCFF">
 <div align="center" valign="bottom" style="font-size: 1em;">
 <form onSubmit="javascript:navigate(this);return false;">
 <label for="location">Location</label>: <input type="text" size="50" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>

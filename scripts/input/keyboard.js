@@ -33,6 +33,9 @@ WA.Keyboard = {
   wa_alt_speaks: false,
   wa_shift_speaks: false,
 
+  // CTRL up tracker: true if CTRL could activate on ctrl up.
+  wa_up_tracker: false,
+
   // This is only used if the user is using forms mode.
   formsModeOn: false,
 
@@ -72,37 +75,40 @@ WA.Keyboard = {
     var last_node = currentNode;
   
     switch(key_string) {
-    case 'ctrl': silenceAll(); break;
+    case 'ctrl':
+      silenceAll();
+      this.wa_up_tracker = false;
+      break;
     case 'tab':
       this.suppressKeys(e);
       if(target_id == "location") {
-        focusNavigationElement('location_go');
+        focusBrowserElement('location_go');
       } else if(target_id == 'location_go') {
-        browseMode = KEYBOARD;
+        WA.browseMode = WA.KEYBOARD;
         focusContentElement('always_first_node');
-        resetSounds();
-        browseMode = PLAY_ONE;      
+        WA.Sound.resetSounds();
+        WA.browseMode = WA.PLAY_ONE;      
       } else if(target_id == 'always_last_node') {
-        browseMode = KEYBOARD;
-        resetSounds();
-        browseMode = PLAY_ONE;
+        WA.browseMode = WA.KEYBOARD;
+        WA.Sound.resetSounds();
+        WA.browseMode = WA.PLAY_ONE;
       } else{
-        browseMode = KEYBOARD;
-        resetSounds();
+        WA.browseMode = WA.KEYBOARD;
+        WA.Sound.resetSounds();
         nextNodeFocus();
-        browseMode = PLAY_ONE;
+        WA.browseMode = WA.PLAY_ONE;
       } break;
     case 'shift tab':
       this.suppressKeys(e);
       if(target_id == "location_go" || target_id == "location") {
-        focusNavigationElement('location');
+        focusBrowserElement('location');
       } else if(target_id == 'always_first_node') {
-        focusNavigationElement('location_go');
+        focusBrowserElement('location_go');
       } else {
-        browseMode = KEYBOARD;
-        resetSounds();
+        WA.browseMode = WA.KEYBOARD;
+        WA.Sound.resetSounds();
         prevNodeFocus();
-        browseMode = PLAY_ONE;
+        WA.browseMode = WA.PLAY_ONE;
       }
       break;
     case 'alt leftarrow':
@@ -113,7 +119,7 @@ WA.Keyboard = {
       break;
     case 'ctrl l':
       this.suppressKeys(e);
-      focusNavigationElement('location');
+      focusBrowserElement('location');
       break;
     case 'ctrl tab':
     case 'ctrl shift tab':
@@ -121,150 +127,150 @@ WA.Keyboard = {
       break;
     case 'ctrl r':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
       new_node = nextTableRow(lastNodePlayed);
       if(new_node) {
         setCurrentNode(new_node);
-        browseMode = PLAY_ONE;
+        WA.browseMode = WA.PLAY_ONE;
       } else {
-        broseMode = KEYBOARD;
+        broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl f':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
-      focusNavigationElement('finder_field');
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
+      focusBrowserElement('finder_field');
       finderBarFocus();
       break;
     case 'ctrl d':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
       new_node = nextTableCol(lastNodePlayed);
       if(new_node) {
         setCurrentNode(new_node);
-        browseMode = PLAY_ONE;
+        WA.browseMode = WA.PLAY_ONE;
       } else {
-        broseMode = KEYBOARD;
+        broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl t':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
       new_node = nextNodeTagAttrib("TABLE", null);
       if(new_node) {
-        browseMode = READ;
+        WA.browseMode = WA.READ;
       } else {
-        broseMode = KEYBOARD;
+        broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl shift t':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
       new_node = prevNodeTagAttrib("TABLE", null);
       if(new_node) {
-      browseMode = READ;
+      WA.browseMode = WA.READ;
       } else {
-        browseMode = KEYBOARD;
+        WA.browseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl h':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
       new_node = nextNodeTagAttrib("H", null);
       if(new_node) {
-        browseMode = READ;
+        WA.browseMode = WA.READ;
       } else {
-        broseMode = KEYBOARD;
+        broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl shift h':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
       new_node = prevNodeTagAttrib("H", null);
       if(new_node) {
-        browseMode = READ;
+        WA.browseMode = WA.READ;
       } else {
-        browseMode = KEYBOARD;
+        WA.browseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl shift f5':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
-      if(hasConsole) console.log(getTimingList() + '\n\n' + totalLatency + ' ' + soundsPlayed + ' ' + totalDuration + ' ' + (totalLatency/totalDuration));
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
+      WA.Utils.log(WA.Sound.getTimingList() + '\n\n' + WA.Sound.totalLatency + ' ' + WA.Sound.soundsPlayed + ' ' + totalDuration + ' ' + (WA.Sound.totalLatency/totalDuration));
       break;
     case 'ctrl shift f6':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
-      alertPrefetching();
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
+      WA.Sound.Prefetch.alertPrefetching();
       break;
     case 'ctrl shift f7':
-      timingArray = new Object();
-      if(hasConsole) console.log('reset timing array');
+      WA.Sound.timingArray = new Object();
+      WA.Utils.log('reset timing array');
       break;
     case 'ctrl shift r':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
       new_node = prevTableRow(lastNodePlayed);
       if(new_node) {
         setCurrentNode(new_node);
-        browseMode = PLAY_ONE;
+        WA.browseMode = WA.PLAY_ONE;
       } else {
-        broseMode = KEYBOARD;
+        broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl shift d':
       this.suppressKeys(e);
-      browseMode = KEYBOARD;
-      resetSounds();
+      WA.browseMode = WA.KEYBOARD;
+      WA.Sound.resetSounds();
       new_node = prevTableCol(lastNodePlayed);
       if(new_node) {
         setCurrentNode(new_node);
-        browseMode = PLAY_ONE;
+        WA.browseMode = WA.PLAY_ONE;
       } else {
-        broseMode = KEYBOARD;
+        broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl p':
       this.suppressKeys(e);
-      browseMode = KEYBOARD; resetSounds(); new_node = nextNodeTagAttrib("P", null); browseMode = READ;
+      WA.browseMode = WA.KEYBOARD; WA.Sound.resetSounds(); new_node = nextNodeTagAttrib("P", null); WA.browseMode = WA.READ;
       break;
     case 'ctrl shift p':
       this.suppressKeys(e);
-      browseMode = KEYBOARD; resetSounds(); new_node = prevNodeTagAttrib("P", null); browseMode = READ;
+      WA.browseMode = WA.KEYBOARD; WA.Sound.resetSounds(); new_node = prevNodeTagAttrib("P", null); WA.browseMode = WA.READ;
       break;
     case 'ctrl i':
       this.suppressKeys(e);
-      browseMode = KEYBOARD; resetSounds(); new_node = nextNodeTagAttrib("INPUT|SELECT|BUTTON", null); browseMode = PLAY_ONE;
+      WA.browseMode = WA.KEYBOARD; WA.Sound.resetSounds(); new_node = nextNodeTagAttrib("INPUT|SELECT|BUTTON", null); WA.browseMode = WA.PLAY_ONE;
       break;
     case 'ctrl shift i':
       this.suppressKeys(e);
-      browseMode = KEYBOARD; resetSounds(); new_node = prevNodeTagAttrib("INPUT|SELECT|BUTTON", null); browseMode = PLAY_ONE;
+      WA.browseMode = WA.KEYBOARD; WA.Sound.resetSounds(); new_node = prevNodeTagAttrib("INPUT|SELECT|BUTTON", null); WA.browseMode = WA.PLAY_ONE;
       break;
     case 'ctrl 6':
-      prefetchSomething();
-      if(hasConsole) console.log('done');
+      WA.Sound.Prefetch.prefetchPrediction();
+      WA.Utils.log('done');
       break;
     case 'pagedown':
       this.suppressKeys(e);
-      resetSounds();
+      WA.Sound.resetSounds();
       nextNode(true);
-      browseMode = READ;
+      WA.browseMode = WA.READ;
       break;
     case 'home':
       this.suppressKeys(e);
-      resetSounds();
+      WA.Sound.resetSounds();
       setCurrentNode(currentDoc.body);
-      browseMode = READ;
+      WA.browseMode = WA.READ;
       break;
     case 'ctrl shift r':  // Allow reloads.
     case 'ctrl shift tab':  // Allow switching forward tabs.
@@ -296,12 +302,13 @@ WA.Keyboard = {
     if(default_case) {
       if(key_string == "arrowup" && !select_chosen) {
         this.suppressKeys(e);
-        resetSounds();
+        WA.Sound.resetSounds();
         prevNode();
-        browseMode = PLAY_ONE_BACKWARD;
+        WA.browseMode = WA.PLAY_ONE_BACKWARD;
       } else if(key_string == "arrowdown" && !select_chosen) {
-        this.suppressKeys(e);      resetSounds();
-        browseMode = PLAY_ONE;
+        this.suppressKeys(e);
+        WA.Sound.resetSounds();
+        WA.browseMode = WA.PLAY_ONE;
         nextNode(true);
       } else if(target_type == "INPUT" || target_type == "TEXTAREA") {
         return_val = true;
@@ -316,8 +323,8 @@ WA.Keyboard = {
         goBack();
       } else if(key_string == "spacebar") {
         this.suppressKeys(e);
-        browseMode = KEYBOARD;
-        resetSounds();
+        WA.browseMode = WA.KEYBOARD;
+        WA.Sound.resetSounds();
       } else if(key_string == "enter") {
         // Do nothing.
         return_val = true;
@@ -328,7 +335,7 @@ WA.Keyboard = {
         } else if(source == 'key press') {
         } else if(source == 'key down') {}
   
-        addSound("Invalid key press");
+        WA.Sound.addSound("Invalid key press");
         this.resetKeyboardModifiers();
   
         this.suppressKeys(e);	
@@ -343,15 +350,15 @@ WA.Keyboard = {
     }
   
     // Improves response time, could introduce a race condition, doesn't seem to.
-    setTimeout("playWaiting();", 0);
+    setTimeout("WA.Sound.playWaiting();", 0);
 
     return return_val;
   },
 
   // Records an observation for use by the Markov-model-based prefetcher.
   recordObservation: function(key_string, new_node, old_node) {
-    var action = keyToAction(key_string)
-    addObservation(action, old_node, this.last_action);
+    var action = WA.Sound.Prefetch.keyToAction(key_string)
+    WA.Sound.Prefetch.addObservation(action, old_node, this.last_action);
     this.last_action = action;
   },
 
@@ -452,46 +459,42 @@ WA.Keyboard = {
 
   // Handles the keydown event.
   // Most keys will be passed through
-  // to getKeyString() and then handled by doKeyPresses().
-  // The main exception are the ALT, CTRL, and SHIFT modifiers, which
-  // are recorded here, but have no effect until either another key is pressed,
-  // or the keyup event is recorded (in case of CTRL).
+  // to getKeyString() and then handled by doKeyPress().
+  // The main exceptions are the ALT, CTRL, and SHIFT modifiers, which
+  // are recorded here, but have no effect until either:
+  // (i)  another key is pressed, or
+  // (ii) the keyup event is recorded (in case of CTRL).
   handleKeyDown: function(e) {
     if(!e) e = window.event;
-  
+
     var return_val = true;
-  
+
     var key = this.getKeyString(e);
-  
+
     var target = this.getTarget(e);
 
     var ctrlPressed = false;
     var altPressed = false;
     var shiftPressed = false;
-  
-    if(parseInt(navigator.appVersion)>3) {
-      var evt = ( navigator.appName=="Netscape" || 
-                  navigator.appName=="Microsoft Internet Explorer") ? e : window.event;
-  
-      if(navigator.appName=="Netscape" && parseInt(navigator.appVersion)==4) {
-        var mString =(e.modifiers+32).toString(2).substring(3,6);
-        shiftPressed=(mString.charAt(0)=="1");
-        ctrlPressed =(mString.charAt(1)=="1");
-        altPressed  =(mString.charAt(2)=="1");
-        self.status="modifiers="+e.modifiers+" ("+mString+")";
+
+    var appv = parseInt(navigator.appVersion);
+    if(appv>3) {
+      //var evt = (navigator.appName=="Netscape" || navigator.appName=="Microsoft Internet Explorer") ? e : window.event;
+
+      if(appv!=4 || navigator.appName!="Netscape") {
+        shiftPressed = e.shiftKey;
+        altPressed   = e.altKey;
+        ctrlPressed  = e.ctrlKey;
       } else {
-        shiftPressed=evt.shiftKey;
-        altPressed  =evt.altKey;
-        ctrlPressed =evt.ctrlKey;
-        self.status=""
-  	+  "shiftKey="+shiftPressed
-  	+", altKey="  +altPressed
-  	+", ctrlKey=" +ctrlPressed;
+        var mString  = (e.modifiers+32).toString(2).substring(3,6);
+        shiftPressed = (mString.charAt(0)=="1");
+        ctrlPressed  = (mString.charAt(1)=="1");
+        altPressed   = (mString.charAt(2)=="1");
       }
     }
-  
+
     var string = "";
-  
+
     if((ctrlPressed || this.wa_ctrl_pressed) && key != "ctrl") {
       string += "ctrl ";
     }
@@ -516,13 +519,13 @@ WA.Keyboard = {
       this.wa_shift_pressed = true;
       this.wa_shift_speaks = true;
     }
-  
+
     if(key && key != "") {
       string += key;
     }
-  
+
     key = string.toLowerCase();
-  
+
     if(!key.match(/^((ctrl|alt|shift)\s*)*$/)) {
       if(this.wa_ctrl_pressed) {
         this.wa_ctrl_speaks = false;
@@ -537,15 +540,17 @@ WA.Keyboard = {
       return_val =
         this.doKeyPress(e, target, key, "key down");
     }
-  
+
     return return_val;	
   },
-  
+
   // Returns true for keys that should always be passed through unscathed.
+  // Currently this just the 'enter' key.
+  // TODO:  Have this consider the keys defined by keymapping.php.
   alwaysAllowed: function (key) {
     return /enter/i.test(key);
   },
-  
+
   // Handles the keyup event.
   // Because users can release keys in any order, this can also trigger a key
   // combination.
@@ -563,17 +568,17 @@ WA.Keyboard = {
         return true;
       }
     }
-  
+
     var key = this.getKeyString(e);
-  
+
     if(this.alwaysAllowed(key)) {
     	return true;
     }
-  
+
     var orig_key = key;
-  
+
     var string = "";
-  
+
     if(this.wa_ctrl_pressed && key != "ctrl") {
       string += "ctrl ";
     }
@@ -586,15 +591,15 @@ WA.Keyboard = {
     if(key && key != "") {
       string += key;
     }
-  
+
     key = string.toLowerCase();
-  
+
     // The only keys that speak in keyUp are the control keys -
     // for now, just CTRL, ALT and SHIFT.
     if((this.wa_ctrl_speaks || this.wa_alt_speaks || this.wa_shift_speaks) &&
        key.match(/^((alt|ctrl|shift)\s*)*$/)) {
       var full_key = "";
-  
+
       // Build the key string.
       if(this.wa_ctrl_pressed) {
         this.wa_ctrl_speaks = false;
@@ -608,9 +613,10 @@ WA.Keyboard = {
         this.wa_shift_speaks = false;
         full_key += "shift ";
       }
-      
-      key = full_key.substring(0, full_key.length -1); // Remove last space.
-  
+
+      // Remove ending space that we added in.
+      key = full_key.substring(0, full_key.length-1);
+
       // Reset modifier key that triggered the event.
       switch(orig_key) {
         case "ctrl": this.wa_ctrl_pressed = false; break;
@@ -623,16 +629,16 @@ WA.Keyboard = {
         case "ctrl": this.wa_ctrl_pressed = false; break;
         case "alt": this.wa_alt_pressed = false; break;
         case "shift": this.wa_shift_pressed = false; break;
-      }
+        }
       this.suppressKeys(e);
     }
     if(!return_val) {
       this.suppressKeys(e);
     }
-  
+
     return return_val;
   },
-  
+
   // Handles the keypress event.
   // Currently, this mostly suppresses the event, allowing other handlers to
   // process the event, and preventing the browser from attempting to handle it.
