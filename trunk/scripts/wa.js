@@ -6,7 +6,6 @@
  * etc.
  */
 
-
 // WebAnywhere Operating States.
 var READING_PAGE = 0;
 var LOADING_PAGE = 1;
@@ -40,15 +39,16 @@ var waiting_on_page = "";
 
 var focusedNode = null;
 
-// Is the Firebug console available?
-var hasConsole = (typeof console != 'undefined' && typeof console.log != 'undefined');
-
 // Should the actions of the user be recorded?
 // This is used for user studies and should be kept to 'false' at most times.
 var recordActions = false;
 
 // 0 none, 1 JAWS, 2 Window-Eyes
 var emulationType = 0;
+
+// Counts number of times that updatePlaying() has been called.
+// Something like the clock tick of the system.
+var updatePlayingCount = 0;
 
 // Attach browser onload handler
 if(window.addEventListener) {
@@ -65,36 +65,37 @@ function debug(str) {
   	debug_div.appendChild(document.createTextNode(str));
   }
 }
-// Counts number of times that updatePlaying() has been called.
-// Something like the clock tick of the system.
-var updatePlayingCount = 0;
+
 // Updates the text that is displayed visually as what is currently being
 // played by the system.
 function updatePlaying() {
   var play_div = document.getElementById('playing_div');
   if(play_div) {
-    play_div.innerHTML = (playing!=null) ? playing : "(null)";
+    play_div.innerHTML = (WA.Sound.playing!=null) ? WA.Sound.playing : "(null)";
   }
 
   var sound_div = document.getElementById('sound_div');
 
   if(currentNode && currentNode.nodeType == 1) {
-    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + soundQ.length + " b: " + browseMode + ' focus: ' + focusedNode + ' las: ' + lastPath + ' threads: ' + free_threads + ' ' + (updatePlayingCount++) + ' ' + soundQ + ' val: ' + valPath + ' bMode:' + browseMode;
+    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' val: ' + valPath + ' bMode:' + WA.browseMode;
   } else {
-    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + soundQ.length + " b: " + browseMode + ' focus: ' + focusedNode + ' las: ' + lastPath + ' threads: ' + free_threads + ' ' + (updatePlayingCount++) + ' ' + soundQ + ' val: ' + valPath + ' bMode:' + browseMode;
+    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' val: ' + valPath + ' bMode:' + WA.browseMode;
   }
 }
 
 // Initializes the WebAnywhere browser.  Called when the frameset page loads.
 function init_browser() {
+  focusLocation();
+
+  WA.Sound.Prefetch.prefetchLetters();
+
   browserInit = true;
 
-  prefetch_array = new Array();
-  prefetch_array[0] = new Array();
-  prefetch_curr_index = 0;
+  // Updates the debugging panel.
+  setInterval('updatePlaying()', 150);
 
-  setInterval('updatePlaying()', 50);
-  setInterval('playWaiting()', playWaitingInterval);
+  // Tell the sound system to start looking for sounds waiting to be played.
+  WA.Sound.startPlayWaiting();
 
   var go_button = document.getElementById('location_go');
   var location_field = document.getElementById('location');
@@ -117,14 +118,14 @@ function init_browser() {
   if(window.attachEvent) document.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
   else if(window.addEventListener) document.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
 
-  if(soundPlayerLoaded) {
-    setupBaseSounds();
+  if(WA.Sound.soundPlayerLoaded) {
+    //WA.Sound.setupBaseSounds();
   }
 
   // For Flash, the system waits until the Flash movie has loaded.
   // For embedded sounds, the system can proceed immediately.
-  if(soundMethod == EMBED_SOUND_METHOD) {
-    soundPlayerLoaded = true;
+  if(WA.Sound.soundMethod == WA.Sound.EMBED_SOUND_METHOD) {
+    WA.Sound.soundPlayerLoaded = true;
     newPage();
   }
 }
@@ -139,18 +140,18 @@ function locationFocus(e) {
   else if(e.srcElement) target = e.srcElement;
   if(target.nodeType == 3) target = target.parentNode;
 
-  resetSounds();
+  WA.Sound.resetSounds();
 
-  addSound("Location field text area:");
+  WA.Sound.addSound("Location field text area:");
   if(target.value) {
-    addSound(target.value);
+    WA.Sound.addSound(target.value);
   }
 }
 
 // Called when the finder box receives focus.
 function finderBarFocus() {
-  resetSounds();
-  addSound("Type a string to find in the current page");
+  WA.Sound.resetSounds();
+  WA.Sound.addSound("Type a string to find in the current page");
 }
 
 // Called in response to a keydown event on the browser frame's "GO" button.
@@ -163,7 +164,7 @@ function goKeyDown(e) {
       setCurrentNode(currentDoc.body);
       currentDoc.body.firstChild.focus();
       top.navigation_frame.programmaticFocus = false;
-      browseMode = READ;
+      WA.browseMode = WA.READ;
     }
     stopProp(e);
     return false;
@@ -180,8 +181,8 @@ function goButtonFocus(e) {
     target = target.parentNode;
 
   var text = WA.Nodes.handleNode(target, true);
-  resetSounds();
-  addSound("Go") //text);
+  WA.Sound.resetSounds();
+  WA.Sound.addSound("Go") //text);
 }
 
 // Called when users hit a key when the last node in the page has focus.
@@ -189,7 +190,7 @@ function goButtonFocus(e) {
 function tabEndNode(e) {
   var key = top.navigation_frame.keyString(e);
   if(key == 'tab') {
-    addSound("End of Page.");
+    WA.Sound.addSound("End of Page.");
     stopProp(e);
     return false;
   }
@@ -215,8 +216,8 @@ function tabLocation(e) {
     stopProp(e);
     return false;
   } else if(key == 'shift tab') {
-    resetSounds();
-    addSound( "Start of Page." );
+    WA.Sound.resetSounds();
+    WA.Sound.addSound("Start of Page.");
     stopProp(e);
     return false;
   }
@@ -235,8 +236,8 @@ function focusLocation() {
 // A flexible "focus element" function.
 // Focuses the element with the provided ID in the provided document.
 function focusElement(doc, element_id) {
-  browseMode = PAUSED;
-  resetSounds();
+  WA.browseMode = WA.PAUSED;
+  WA.Sound.resetSounds();
 
   var elem = doc.getElementById(element_id);
   if(elem) {
@@ -249,7 +250,8 @@ function focusElement(doc, element_id) {
   }
 }
 
-function focusNavigationElement(element_id) {
+// Places focus on an element in the browser frame.
+function focusBrowserElement(element_id) {
   var doc = getNavigationDocument();
   focusElement(doc, element_id);  
 }
@@ -283,14 +285,14 @@ function getNavigationDocument() {
 }
 
 function silenceAll() {
-  browseMode = KEYBOARD;
-  resetSounds();
+  WA.browseMode = WA.KEYBOARD;
+  WA.Sound.resetSounds();
 }
 
 // Speak text boxes when they are focused.
 function textBoxFocus(element) {
   //var text = WA.Nodes.handleNode(element, true);
-  //prefetch(text, true, false);  
+  //WA.Sound.playSound(text, true, false);  
 }
 
 function getCursor(myField) {
@@ -331,8 +333,8 @@ function docKeyUpDown(e) {
   var key = keyString(e);
   alert('key: ' + key);
   if(key.matches(/ctrl l/)) {
-    browseMode = KEYBOARD;
-    resetSounds();
+    WA.browseMode = WA.KEYBOARD;
+    WA.Sound.resetSounds();
     stopProp(e);
     return false;
   } else {
@@ -390,8 +392,8 @@ function toUpperKeyCode(k) {
 // Plays a single key press.
 // Determines what to play based on the target element.
 function _playkey(key, targ) {
-  top.navigation_frame.resetSounds();
-  top.navigation_frame.browseMode = top.navigation_frame.KEYBOARD;
+  WA.Sound.resetSounds();
+  WA.browseMode = top.navigation_frame.WA.KEYBOARD;
 
   if(/ctrl l/.test(key)) {
     focusLocation();
@@ -411,14 +413,14 @@ function _playkey(key, targ) {
       if(!text || text=="") {
       	text = "blank";
       }
-      top.navigation_frame.addSound(text);
+      top.navigation_frame.WA.Sound.addSound(text);
     } else {
       return;
     }
   } else if(key=="enter") {
     return;
   } else {
-    top.navigation_frame.prefetch(key, true, false);
+    WA.Sound.playSound(key, false);
   }
 }
 
@@ -433,9 +435,9 @@ function preVisit(node) {
     }
   }
 
-  if(prefetchStrategy >= 1) {
+  if(WA.prefetchStrategy >= 1) {
   	text = WA.Nodes.handleNode(node, true);
-  	if(text && (prefetchStrategy <= 1 || prefetch_curr_index == 0)) {
+  	if(text && (WA.prefetchStrategy <= 1 || prefetch_curr_index == 0)) {
   	  prefetch_array[prefetch_curr_index].push(text);
   	}
   }
@@ -475,8 +477,8 @@ function preVisit(node) {
 function selectChange(key_string, target) {
   if(/ctrl arrow(up|down)/.test(key_string)) {
     if(/ctrl/.test(key_string)) {
-      resetSounds();
-      browseMode = KEYBOARD;
+      WA.Sound.resetSounds();
+      WA.browseMode = WA.KEYBOARD;
 
       var sindex = target.selectedIndex;
       if(/down/.test(key_string)) {
@@ -490,18 +492,19 @@ function selectChange(key_string, target) {
       }
 
       var text_value = target.options[sindex].value;
-      addSound(text_value);
+      WA.Sound.addSound(text_value);
     }
   }
 }
 
 // Called when a new page loads.
 function newPage() {
-  browseMode = PAUSED;
+  WA.browseMode = WA.PAUSED;
 
   var content_frame = top.document.getElementById("content_frame");
   if(content_frame) {
     var src = content_frame.src;
+
     if(src.indexOf(top.webanywhere_url)!=0) {
       var location_field = document.getElementById('location');
       if(/mail\.google\.com\/mail/.test(location_field.value) &&
@@ -527,96 +530,67 @@ function newPage() {
       location_field.value = temp_loc.replace(/[^A-Za-z0-9\s~!@#\$%\^&\*\\.\,:<>\+\{\}(\)\-\?\\\/]/g, "");
     }
 
-  var loc_val = location_field.value;
-  if(loc_val.match(/.*ServiceLogin.*/)) {
-    //alert('matched');
-    var content_doc = top.content_frame.document;
-    var login_form = content_doc.getElementById("gaia_loginform");
+    var loc_val = location_field.value;
+    if(loc_val.match(/.*ServiceLogin.*/)) {
+      //alert('matched');
+      var content_doc = top.content_frame.document;
+      var login_form = content_doc.getElementById("gaia_loginform");
+    }
+  
+    currentDoc = newDoc;
+    setCurrentNode(currentDoc.body);
+    currentLoc = newLoc;
+      
+    // Deal with key presses elsewhere in document.
+    if(window.attachEvent) currentDoc.attachEvent('onkeydown', function(e){WA.Keyboard.handleKeyDown(e)});
+    else if(window.addEventListener) currentDoc.addEventListener('keydown', function(e) {WA.Keyboard.handleKeyDown(e)}, false);
+  
+    if(window.attachEvent) currentDoc.attachEvent('onkeyup', function(e){WA.Keyboard.handleKeyUp(e)});
+    else if(window.addEventListener) currentDoc.addEventListener('keyup', function(e){WA.Keyboard.handleKeyUp(e)}, false);
+  
+    if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
+    else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
+  
+    WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){WA.Nodes.leafNode(node)});
+  
+    var start_node = currentDoc.createElement('div');
+    start_node.innerHTML = currentDoc.title;
+    if(WA.Utils.isIE()) {
+      start_node.tabIndex = 0;
+    } else {
+      start_node.setAttribute('tabindex', 0);
+    }
+    start_node.setAttribute('id', 'always_first_node');
+    currentDoc.body.insertBefore(start_node, currentDoc.body.firstChild);
+    //start_node.focus();
+  
+    var end_node = currentDoc.createElement('div');
+    end_node.innerHTML = "End of Page";
+    if(WA.Utils.isIE()) {
+      end_node.tabIndex = 0;
+    } else {
+      end_node.setAttribute('tabindex', 0);
+    }
+    end_node.setAttribute('id', 'always_last_node');
+    currentDoc.body.appendChild(end_node);
+  
+    if(WA.prefetchStrategy > 0) {
+      WA.Sound.Prefetch.prefetchNext();
+    }
   }
 
-  currentDoc = newDoc;
-  setCurrentNode(currentDoc.body);
-  currentLoc = newLoc;
-
-  basePriority = startPriority;
-    
-  // Deal with key presses elsewhere in document.
-  if(window.attachEvent) currentDoc.attachEvent('onkeydown', function(e){WA.Keyboard.handleKeyDown(e)});
-  else if(window.addEventListener) currentDoc.addEventListener('keydown', function(e) {WA.Keyboard.handleKeyDown(e)}, false);
-
-  if(window.attachEvent) currentDoc.attachEvent('onkeyup', function(e){WA.Keyboard.handleKeyUp(e)});
-  else if(window.addEventListener) currentDoc.addEventListener('keyup', function(e){WA.Keyboard.handleKeyUp(e)}, false);
-
-  if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
-  else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
-
-  WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){WA.Nodes.leafNode(node)});
-
-  var start_node = currentDoc.createElement('div');
-  start_node.innerHTML = currentDoc.title;
-  if(WA.Utils.isIE()) {
-    start_node.tabIndex = 0;
-   } else {
-    start_node.setAttribute('tabindex', 0);
-  }
-  start_node.setAttribute('id', 'always_first_node');
-  currentDoc.body.insertBefore(start_node, currentDoc.body.firstChild);
-  //start_node.focus();
-
-  var end_node = currentDoc.createElement('div');
-  end_node.innerHTML = "End of Page";
-  if(WA.Utils.isIE()) {
-    end_node.tabIndex = 0;
-  } else {
-    end_node.setAttribute('tabindex', 0);
-  }
-  end_node.setAttribute('id', 'always_last_node');
-  currentDoc.body.appendChild(end_node);
-
-  /*
-  if(window.attachEvent) {
-    start_node.attachEvent('onkeydown', tabStartNode);
-    start_node.attachEvent('onfocus', startNodeFocus);
-    //start_node.attachEvent('onkeypress', suppressKeys);
-    //start_node.attachEvent('onkeyup', suppressKeys);
-
-    end_node.attachEvent('onkeydown', tabEndNode);
-    end_node.attachEvent('onkeypress', suppressKeys);
-    end_node.attachEvent('onkeyup', suppressKeys);
-    end_node.attachEvent('onfocus', endNodeFocus);
-  } else if(window.addEventListener) {
-    start_node.addEventListener('keypress', tabStartNode, false);
-    start_node.addEventListener('focus', startNodeFocus, false);
-    //start_node.addEventListener('keydown', suppressKeys, false);
-    //start_node.addEventListener('keyup', suppressKeys, false);
-
-    end_node.addEventListener('keypress', tabEndNode, false);
-    end_node.addEventListener('keydown', suppressKeys, false);
-    end_node.addEventListener('keyup', suppressKeys, false);
-    end_node.addEventListener('focus', endNodeFocus, false);
-  }*/
-
-  if(prefetchStrategy > 0) {
-    prefetchNext();
-  }
-  }
-
-  soundsPlayed = 0;
-  totalLatency = 0;
-  totalDuration = 0;
-
-  resetSounds();
+  WA.Sound.resetSounds();
   playing = null;
 
-  addSound("Page has loaded.");
+  WA.Sound.addSound("Page has loaded.");
   if(currentDoc.title) {
-    addSound(currentDoc.title);
+    WA.Sound.addSound(currentDoc.title);
   }
 
   // Speak the number of headings and links on the page.
-  addSound(countNumHeadings() + " Headings " + countNumLinks() + " Links");
+  WA.Sound.addSound(countNumHeadings() + " Headings " + countNumLinks() + " Links");
 
-  browseMode = READ;
+  WA.browseMode = WA.READ;
 
   var nav_doc = getNavigationDocument();
   var rec = nav_doc.getElementById('recording');
@@ -625,22 +599,56 @@ function newPage() {
     postURL('recorder.php', "submit=submit&recording=" + rec.value);
     rec.value = "";
   }
+
+  WA.Utils.log("finished new page load");
+}
+
+// The XMLHttpRequest object for prefetching.
+var prefetch_req = null;
+
+// Makes an HTTP Post requeste.
+function postURL(url, params) {
+  // branch for native XMLHttpRequest object
+  if(window.XMLHttpRequest) {
+    prefetch_req = new XMLHttpRequest();
+    prefetch_req.onreadystatechange = processReqChange;
+    prefetch_req.open("POST", url, true);
+    //Send the proper header information along with the request
+    prefetch_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    prefetch_req.setRequestHeader("Content-length", params.length);
+    prefetch_req.setRequestHeader("Connection", "close");
+
+    prefetch_req.send(params);
+    // branch for IE/Windows ActiveX version
+  } else if(window.ActiveXObject) {
+    prefetch_req = new ActiveXObject("Microsoft.XMLHTTP");
+    if(prefetch_req) {
+      //Send the proper header information along with the request
+      prefetch_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      prefetch_req.setRequestHeader("Content-length", params.length);
+      prefetch_req.setRequestHeader("Connection", "close");
+
+      prefetch_req.onreadystatechange = processReqChange;
+      prefetch_req.open("POST", url, true);
+      prefetch_req.send(params);
+    }
+  }
 }
 
 // Focuses the first node of the document and resets the reading to start
 // back at the beginning.
 function startNodeFocus(e) {
   if(currentDoc && currentDoc.title) {
-    resetSounds();
-    addSound(currentDoc.title);
+    WA.Sound.resetSounds();
+    WA.Sound.addSound(currentDoc.title);
   }
 }
 
 // Focuses the end node and resets the reading to last node in the document.
 function endNodeFocus(e) {
   if(currentDoc && currentDoc.title) {
-    resetSounds();
-    addSound("End of page");
+    WA.Sound.resetSounds();
+    WA.Sound.addSound("End of page");
   }
 }
 
@@ -660,7 +668,7 @@ function goForward() {
 
 // Called by event handlers for both the location bar and the 'Go' button.
 function navigate(e) {
-  playLoadingSound();
+  WA.Sound.playLoadingSound();
 
   var loc = document.getElementById('location');
   var loc_val = loc.value;
@@ -685,12 +693,12 @@ function proxifyURL(loc, subdomain) {
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
   if(loc.indexOf(top.webanywhere_url) != 0) {
-    loc = top.web_proxy_url.replace(/\$url\$/, WA.Base64.encode64(loc));
+    loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
       loc = loc.replace(top.webanywhere_domain, (subdomain + '.' + top.webanywhere_domain));
     }
-    //if(hasConsole) console.debug('in here: ' + subdomain + ' ' + loc + top.webanywhere_domain);
+    //WA.Utils.log('in here: ' + subdomain + ' ' + loc + top.webanywhere_domain);
   }
 
   return loc;
@@ -717,10 +725,10 @@ function setContentLocation(loc) {
     } else { // Domain is invalid.
     }
   }
-  
+
   loc = proxifyURL(loc, domain_requested);
 
-  if(hasConsole) console.debug('location is ' + loc);
+  WA.Utils.log('location is ' + loc);
 
   // Set new location by setting the src attribute of the content frame.
   // Do not set the location of the frame document because WebAnywhere can
@@ -731,18 +739,17 @@ function setContentLocation(loc) {
 
 // Plays a sound.  Updates any information related to that, such as prefetcher.
 function playNodeSound(node, node_text) {
-  addSound(node_text);
+  WA.Sound.addSound(node_text);
 
   // Update prefetcher with node that will be played.
-  if(prefetchStrategy > 1) {
-    if(prefetchStrategy == 3) {
-      //alert('prefetching something');
-      prefetchSomething();
+  if(WA.prefetchStrategy > 1) {
+    if(WA.prefetchStrategy == 3) {
+      WA.Sound.Prefetch.prefetchPrediction();
     } else {
-      incPrefetchIndex();
-      prefetchNextOnes(currentNode, 3);
+      WA.Sound.Prefetch.incPrefetchIndex();
+      WA.Sound.Prefetch.prefetchNextOnes(currentNode, 3);
     }
-    // else if(prefetchStrategy == 2) {
+    // else if(WA.prefetchStrategy == 2) {
       //alert('prefetching: ' + node_text + ":" + node + ' ' + node.nextSibling);
       //while(node && node.nodeName != "BODY" && node.parentNode.childNodes.length < 2) {
    	  //  node = node.parentNode;
@@ -756,8 +763,8 @@ function playNodeSound(node, node_text) {
 function addNodeToPrefetch(node) {
   text = WA.Nodes.handleNode(node, true);
 
-  if(text && /\S/.test(text) && (prefetchStrategy >= 1 || prefetch_curr_index == 0)) {
-    addToPrefetchQ(text);
+  if(text && /\S/.test(text) && (WA.prefetchStrategy >= 1 || prefetch_curr_index == 0)) {
+    WA.Sound.Prefetch.addToPrefetchQ(text);
   }
 }
 
@@ -769,7 +776,7 @@ function gotFocus(e) {
   if(!e) e = window.event;
   if(e.target) targ = e.target;
   else if(e.srcElement) targ = e.srcElement;
-  if(targ.nodeType == 3) // defeat Safari bug
+  if(targ.nodeType == 3)
     targ = targ.parentNode;
 
   debug( "stat:" + top.navigation_frame.programmaticFocus );
@@ -779,9 +786,9 @@ function gotFocus(e) {
     debug("dnode:" + ((dnode && dnode.tagName) ? dnode.tagName : dnode) );
     var test_div = top.navigation_frame.document.getElementById('test_div');
     test_div.innerHTML = "got focus " + targ.nodeName + ' ' + targ + ' ' + top.navigation_frame.programmaticFocus;
-    top.navigation_frame.resetSounds();
+    top.navigation_frame.WA.Sound.resetSounds();
 
-    browseMode = PLAY_ONE;
+    WA.browseMode = WA.PLAY_ONE;
   } else {
   }
 
@@ -795,13 +802,13 @@ function gotFocus(e) {
 function prevChar() {
   var node_text = WA.Nodes.handleNode(currentNode, true);
   if(node_text) {
-    browseMode = KEYBOARD;
+    WA.browseMode = WA.KEYBOARD;
     var curr = getCurrentChar();
     if(curr > 0 && curr <= node_text.length) {
-      addSound(node_text.substring(curr-1, curr));
+      WA.Sound.addSound(node_text.substring(curr-1, curr));
       setCurrentChar(curr-1);
     } else {
-      browseMode = PREV_CHAR_BACKONE;
+      WA.browseMode = WA.PREV_CHAR_BACKONE;
       prevNode();
     }
   } else {
@@ -906,11 +913,11 @@ function navTableCell(node, row_offset, col_offset, edge_message) {
       }
     }	
   } else {
-  	addSound('Not in a table.');
+  	WA.Sound.addSound('Not in a table.');
   	return null;
   }
 
-  addSound(edge_message);
+  WA.Sound.addSound(edge_message);
   return null;
 }
 
@@ -1024,9 +1031,9 @@ function nextNodeContentFinder() {
   var result = nextNodeContentFind(find_val);
 
   if(result) {
-    browseMode = PLAY_ONE;
+    WA.browseMode = WA.PLAY_ONE;
   } else {
-    browseMode = KEYBOARD;
+    WA.browseMode = WA.KEYBOARD;
   }
 }
 
@@ -1036,9 +1043,9 @@ function prevNodeContentFinder() {
   var result = prevNodeContentFind(find_val);
 
   if(result) {
-    browseMode = PLAY_ONE;
+    WA.browseMode = WA.PLAY_ONE;
   } else {
-    browseMode = KEYBOARD;
+    WA.browseMode = WA.KEYBOARD;
   }
 }
 
@@ -1116,7 +1123,7 @@ function firstNodeNoSound(node) {
 // 2)  a "description" which is a string that describes the type of element
 //     being looked for, which is used to describe to users what was found.
 function nextNodeByMatcher(matcher, description) {
-  if(browseMode == PAUSED) {
+  if(WA.browseMode == WA.PAUSED) {
     return false;
   } else if(!currentNode) {
     if(!currentDoc) {
@@ -1138,7 +1145,7 @@ function nextNodeByMatcher(matcher, description) {
       result_id = result.getAttribute('id');
     }
     if(result_id == 'always_last_node' && description != "") {
-      addSound('no ' + description);
+      WA.Sound.addSound('no ' + description);
       return false;
     } else {
       visit(result);
@@ -1146,7 +1153,7 @@ function nextNodeByMatcher(matcher, description) {
       return true;
     }
   } else if(description != "") {
-    addSound('no ' + description);
+    WA.Sound.addSound('no ' + description);
     return false;
   }
 }
@@ -1165,8 +1172,8 @@ function nextNodeNoSound(node, matcher, first, num) {
     num = 0;
   } else if(matcher(node)) { // && isVisible(node)) {
       result = node;
-      if(browseMode == PLAY_ONE) {
-        browseMode = KEYBOARD;
+      if(WA.browseMode == WA.PLAY_ONE) {
+        WA.browseMode = WA.KEYBOARD;
       }
       return result;
   }
@@ -1197,7 +1204,7 @@ function nextNodeNoSound(node, matcher, first, num) {
     node = node.parentNode;
     if(node.nodeName == "BODY") {
       result = node.lastChild; // "Fell off bottom.";
-      browseMode = KEYBOARD;
+      WA.browseMode = WA.KEYBOARD;
       var last_node = currentDoc.getElementById('always_last_node');
       if(last_node) result = last_node;
 
@@ -1226,7 +1233,7 @@ function prevNodeFocus() {
 
 // Maches the previous node that matches the function matcher.
 function prevNodeByMatcher(matcher) {
-  if(browseMode == PAUSED) {
+  if(WA.browseMode == WA.PAUSED) {
     return;
   } else if(!currentNode) {
     if(!currentDoc) {
@@ -1305,13 +1312,13 @@ function prevNodeNoSound(node, matcher, first, num) {
       result = node_text;
       setCurrentNode(node);
       setCurrentChar(node_text.length);
-      if(browseMode == PREV_CHAR) {
-        browseMode = KEYBOARD;
+      if(WA.browseMode == WA.PREV_CHAR) {
+        WA.browseMode = WA.KEYBOARD;
         prevChar();
-      } else if(browseMode == PREV_CHAR_BACKONE) {
-        browseMode = PREV_CHAR;
-      } else if(browseMode == PLAY_ONE_BACKWARD) {
-	    browseMode = KEYBOARD;
+      } else if(WA.browseMode == WA.PREV_CHAR_BACKONE) {
+        WA.browseMode = WA.PREV_CHAR;
+      } else if(WA.browseMode == WA.PLAY_ONE_BACKWARD) {
+	    WA.browseMode = WA.KEYBOARD;
       }
       return result;
     }*/
@@ -1319,7 +1326,7 @@ function prevNodeNoSound(node, matcher, first, num) {
 
   // Base case: check for body
   if(node.tagName == "BODY") {
-    browseMode = KEYBOARD;
+    WA.browseMode = WA.KEYBOARD;
     return getFirstContent();
   }
 
@@ -1376,8 +1383,8 @@ function nextNode() {
 
     playNodeSound(next_node, node_text);
     setCurrentChar(node_text.length);
-    if(browseMode == PLAY_ONE) {
-      browseMode = KEYBOARD;
+    if(WA.browseMode == WA.PLAY_ONE) {
+      WA.browseMode = WA.KEYBOARD;
     }
   }
 }
@@ -1386,7 +1393,7 @@ function _nextNode() {
   var spoken_node = null; // The node that is advanced to.
   var node_text = null;
 
-  if(browseMode == PAUSED) {
+  if(WA.browseMode == WA.PAUSED) {
     return [null, null];
   } else if(!currentNode) {
     if(!currentDoc) {
@@ -1410,10 +1417,10 @@ function _nextNode() {
   	
   	lastNode = currentNode;
   	
-    addSound(node_text);
+    WA.Sound.addSound(node_text);
     setCurrentChar(node_text.length);
-    if(browseMode == PLAY_ONE) {
-      browseMode = KEYBOARD;
+    if(WA.browseMode == WA.PLAY_ONE) {
+      WA.browseMode = WA.KEYBOARD;
     }*/
     spoken_node = currentNode;
   }
@@ -1441,7 +1448,7 @@ function goBackUp() {
       break;
     }
     if(currentNode.nodeName == "BODY") { // At the last node.
-      browseMode = KEYBOARD;
+      WA.browseMode = WA.KEYBOARD;
       var end_node = null;
       if(currentDoc) {
 	    end_node = currentDoc.getElementById('always_last_node');
@@ -1464,23 +1471,23 @@ function prevNode() {
   var node_text = WA.Nodes.handleNode(currentNode, true);
   if(node_text) {
     setCurrentChar(node_text.length);
-    if(browseMode == PREV_CHAR) {
-      browseMode = KEYBOARD;
+    if(WA.browseMode == WA.PREV_CHAR) {
+      WA.browseMode = WA.KEYBOARD;
       prevChar();
       return;
-    } else if(browseMode == PREV_CHAR_BACKONE) {
-      browseMode = PREV_CHAR;
-    } else if(browseMode != PAUSED) {
-      addSound(node_text);
-      if(browseMode == PLAY_ONE_BACKWARD) {
-        browseMode = KEYBOARD;
+    } else if(WA.browseMode == WA.PREV_CHAR_BACKONE) {
+      WA.browseMode = WA.PREV_CHAR;
+    } else if(WA.browseMode != WA.PAUSED) {
+      WA.Sound.addSound(node_text);
+      if(WA.browseMode == WA.PLAY_ONE_BACKWARD) {
+        WA.browseMode = WA.KEYBOARD;
       }
     }
   }  
 
   if(currentNode.tagName == "BODY") {
-    browseMode = KEYBOARD;
-    addSound("Start of page.");
+    WA.browseMode = WA.KEYBOARD;
+    WA.Sound.addSound("Start of page.");
   } else if(currentNode.previousSibling) {
     setCurrentNode(currentNode.previousSibling);
     setCurrentNode(rdfsNode(currentNode, true));

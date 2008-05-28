@@ -122,33 +122,31 @@ WA.Utils = {
     if(!str || str.length <= 0) {
       return 'aaaa0009209384';
     }
-  
+
     str = str.replace(/[\n\r]+/, "");
-  
+
     str = str.replace(/&#(\d)+;/, "p$1");
-  
-    var orig_str_num = (str.length > 15) ? 15 : str.length - 1;
-    var orig_piece = (str.length < 15) ? str : str.substring(0, orig_str_num);
-    orig_piece = orig_piece.replace(/[\s]/, '_'); //'
-    orig_piece = orig_piece.replace(/'/, 'gE'); //'
-    orig_piece = orig_piece.replace(/"/, 'gEE'); //'
-    orig_piece = orig_piece.replace(/#/, 'gnE'); //'x
-  
+
+    var orig_piece = (str.length < 15) ? str : str.substring(0, 15);
+    orig_piece = orig_piece.replace(/[^a-zA-Z0-9]+/g, '_'); //'
+    //orig_piece = orig_piece.replace(/'/, 'gE'); //'
+    //orig_piece = orig_piece.replace(/"/, 'gEE'); //'
+    //orig_piece = orig_piece.replace(/#/, 'gnE'); //'x
+ 
     var bin = Array();
     var mask = 0xFFF;
-  
+
     var str_len = str.length;
-  
+
     for(var i=0; i<16; i++) {
       bin[i] = str_len + i;
     }
-  
-    for(var i = 0; i < str.length; i++) {
+    for(var i = 0; i < str_len; i++) {
       var update_val = str.charCodeAt(i)*(i & 0xFF)
       bin[(i & 0xF)] += update_val;
       bin[((i << 2) & 0xF)] += update_val;
     }
-  
+
     var hex_tab = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz#*@!";
     var str2 = "";
     for(var i=0, bl=bin.length; i<bl; i++) {
@@ -157,5 +155,8 @@ WA.Utils = {
 
     var val = orig_piece + str2;
     return val;
-  }
+  },
+
+  // Function for logging error messages to the Firebug console when it is available.
+  log: ((typeof console != 'undefined') ? function(str){console.log(str)} : function(str){})
 };

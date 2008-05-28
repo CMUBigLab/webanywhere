@@ -51,7 +51,14 @@ Pressing SHIFT in combination with them, searches backward from the current curs
 <li><b>Page Down</b> - read continuously from the current position.</li>
 <li><b>Home</b> - read continuously, starting over from the beginning of the page.</li>
 </ul>
+
+<h2>News</h2>
+<p>
+We are quickly adding new features that will improve the usefulness of WebAnywhere and make it suitable for everyday use by anyone.
+Please check back over the coming weeks and months for exciting improvements.
+</p>
 </div>
+
 <!--
 <h2>Login</h2>
 <p>
