@@ -613,6 +613,7 @@ function postURL(url, params) {
     prefetch_req = new XMLHttpRequest();
     prefetch_req.onreadystatechange = processReqChange;
     prefetch_req.open("POST", url, true);
+
     //Send the proper header information along with the request
     prefetch_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     prefetch_req.setRequestHeader("Content-length", params.length);

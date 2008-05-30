@@ -48,5 +48,5 @@
     // 1 degrades ungracefully.
     // 2 should offer the best performance for now.
     // 3 is a bit unstable.
-    prefetchStrategy: 0
+    prefetchStrategy: 1
   };
