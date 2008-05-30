@@ -109,7 +109,7 @@ WA.Sound.Prefetch = {
     return this.domQ[1];
   },
 
-  // Gets called to prefetch the things in the queue.
+  // Gets called to prefetch strings waiting in the queue.
   prefetchNext: function() {
     switch(WA.prefetchStrategy) {
       case -1:
@@ -121,12 +121,16 @@ WA.Sound.Prefetch = {
       case 0:
         break;
       // For all of the prefetch stratgies,
-      // we just retrieve elements form the queue.
+      // we just retrieve elements from the queue.
       case 1:
       case 2:
       case 3:
         var text_to_fetch = this.getFromPrefetchQ();
         if(text_to_fetch) {
+          // A little hack to give the speech being played more bandwidth.
+          // TODO:  Make this more systematic.
+          if(browseMode == WA.READ && Math.rand() > 0.7)
+            setTimeout("WA.Sound.Prefetch.prefetchNExt();", 250);
           if(/\S/.test(text_to_fetch)) {
             var pred = this.prefetchText(text_to_fetch);
             if(!pred) setTimeout("WA.Sound.Prefetch.prefetchNext();", 0);
@@ -462,7 +466,7 @@ WA.Sound.Prefetch = {
 
   // Initialize the system to prefetch letters and common symbols.
   // Letters are ordered according to a guess of their popularity in the web context.
-  lettersNotFetched: ['w','.','h','t','p','/','g','o','e','l','b','f','c','i','j','k','m','n','d','q','r','s','u','v','a','x','y','z'],
+  lettersNotFetched: ['w','.','h','t','p','/','g','o','e','l','b','f','c','i','j','k','m','n','d','q','r','s','u','v','a','x','y','z','go'],
 
   // Prefetches the letters, so that when the user begins typing,
   // they do not experience as much latency in echoing.
