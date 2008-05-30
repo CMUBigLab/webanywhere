@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php
+session_start();
+//require 'min/web/config.php';
+?>
 <?php include('config.php'); ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
@@ -21,6 +24,8 @@ if(hasConsole) console.log(top.sound_url_base + ' ' + top.web_proxy_url);
 /* ]]> */
 </script>
 <script language="Javascript" src="/<?php echo $script_path; ?>/keymapping.php"></script>
+
+
 <?php
 // It's about a million times easier to debug Javascript when your source files
 // haven't been messed with.  Unfortunately, it's also slower and causes the
@@ -33,7 +38,8 @@ if($_REQUEST[embed]!=='true') { ?>
 // In the future, this may calculate dependencies and only include those
 // scripts which are actually needed.
 $scripts =
-  array('/vars.js',
+  array(
+        '/vars.js',
         '/utils/utils.js',
         '/utils/base64.js',
         '/nodes.js',
@@ -49,11 +55,11 @@ if($_REQUEST[embed]==='true') {
   array_unshift($scripts, '/sound/sound_embed.js');
 } else {
   // Include either the regular or minified soundmanager2.js.
-  if($_REQUEST[debug]==='true') {
+  //if($_REQUEST[debug]==='true') {
     array_unshift($scripts, '/sound/soundmanager2.js');
-  } else {
-    array_unshift($scripts, '/sound/soundmanager2-mini.js');  
-  }
+  //} else {
+  //  array_unshift($scripts, '/sound/soundmanager2-mini.js');  
+  //}
 }
 
 // Depending on whether we're in debug mode, either include
@@ -66,11 +72,14 @@ if($_REQUEST[debug]==='true') {
   // Output script tags individually.
   echo $start . implode($end . "\n" . $start, $scripts) . $end . "\n";
 } else {
+  //$jsBuild = new Minify_Build($scripts);
+
   echo '<script language="Javascript" src="';
   echo $min_script_path . '/scripts.php?files=';
 
   // Concatenate the individual scripts used into one long string.
   echo $script_path . implode(',' . $script_path, $scripts) . '"></script>';
+  //+><script type="text/javascript" src="<+php echo $jsBuild->uri('m.php/js'); +>"></script><+php
 }
 ?>
 
