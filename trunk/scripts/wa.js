@@ -693,15 +693,13 @@ function navigate(e) {
 function proxifyURL(loc, subdomain) {
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
-  if(loc.indexOf(top.webanywhere_url) != 0) {
+  if(loc.indexOf('http') == 0 && (loc.indexOf(top.webanywhere_domain) > 8)) {
     loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
       loc = loc.replace(top.webanywhere_domain, (subdomain + '.' + top.webanywhere_domain));
     }
-    //WA.Utils.log('in here: ' + subdomain + ' ' + loc + top.webanywhere_domain);
   }
-
   return loc;
 }
 
