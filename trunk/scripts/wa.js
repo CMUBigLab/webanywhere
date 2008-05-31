@@ -437,8 +437,8 @@ function preVisit(node) {
 
   if(WA.prefetchStrategy >= 1) {
   	text = WA.Nodes.handleNode(node, true);
-  	if(text && (WA.prefetchStrategy <= 1 || prefetch_curr_index == 0)) {
-  	  prefetch_array[prefetch_curr_index].push(text);
+  	if(text && (WA.prefetchStrategy <= 1 || WA.Sound.Prefetch.prefetch_curr_index == 0)) {
+  	  prefetch_array[WA.Sound.Prefetch.prefetch_curr_index].push(text);
   	}
   }
 
@@ -575,7 +575,7 @@ function newPage() {
     currentDoc.body.appendChild(end_node);
   
     if(WA.prefetchStrategy > 0) {
-      WA.Sound.Prefetch.prefetchNext();
+      setTimeout("WA.Sound.Prefetch.prefetchNext();", 0);
     }
   }
 
@@ -764,7 +764,7 @@ function playNodeSound(node, node_text) {
 function addNodeToPrefetch(node) {
   text = WA.Nodes.handleNode(node, true);
 
-  if(text && /\S/.test(text) && (WA.prefetchStrategy >= 1 || prefetch_curr_index == 0)) {
+  if(text && /\S/.test(text) && (WA.prefetchStrategy >= 1 || WA.Sound.Prefetch.prefetch_curr_index == 0)) {
     WA.Sound.Prefetch.addToPrefetchQ(text);
   }
 }

@@ -56,7 +56,7 @@ function SoundManager(smURL,smID) {
   this._appendSuccess = false;
   this._didInit = false;
   this._disabled = false;
-  this._hasConsole = (typeof console != 'undefined' && typeof console.log != 'undefined');
+  this._hasConsole = false; //(typeof console != 'undefined' && typeof console.log != 'undefined');
   this._debugLevels = !self.isSafari?['debug','info','warn','error']:['log','log','log','log'];
 
   // --- public methods ---
