@@ -158,5 +158,5 @@ WA.Utils = {
   },
 
   // Function for logging error messages to the Firebug console when it is available.
-  log: ((typeof console != 'undefined') ? function(str){console.log(str)} : function(str){})
+  log: function(str) {} //((console && typeof console != 'undefined' && typeof console.log != 'undefined') ? function(str){console.log(str)} : function(str){})
 };

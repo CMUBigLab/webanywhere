@@ -391,11 +391,11 @@ WA.Sound = {
           onload: function() {WA.Sound._onSoundLoad(this)},
           onplay: function() {
     	      valPath += this.sID;
-    	      this.soundsPlayed++;
+    	      WA.Sound.soundsPlayed++;
           },
           whileplaying: function() {
             if(this.timingArray[this.sID].end == null) {
-              this.soundsPlayed++;
+              WA.Sound.soundsPlayed++;
               this.timingArray[this.sID].end = new Date();
               this.whileplaying = null;
             }
@@ -442,7 +442,7 @@ WA.Sound = {
       },
       whileplaying: function() {
         if(this.timingArray[this.sID].end == null) {
-          this.soundsPlayed++;
+          WA.Sound.soundsPlayed++;
           this.timingArray[this.sID].end = new Date();
           this.whileplaying = null;
         }

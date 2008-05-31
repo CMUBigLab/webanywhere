@@ -129,8 +129,8 @@ WA.Sound.Prefetch = {
         if(text_to_fetch) {
           // A little hack to give the speech being played more bandwidth.
           // TODO:  Make this more systematic.
-          if(browseMode == WA.READ && Math.rand() > 0.7)
-            setTimeout("WA.Sound.Prefetch.prefetchNExt();", 250);
+          if(WA.browseMode == WA.READ && Math.random() > 0.7)
+            setTimeout("WA.Sound.Prefetch.prefetchNext();", 250);
           if(/\S/.test(text_to_fetch)) {
             var pred = this.prefetchText(text_to_fetch);
             if(!pred) setTimeout("WA.Sound.Prefetch.prefetchNext();", 0);
@@ -160,7 +160,7 @@ WA.Sound.Prefetch = {
 
   // Adds an array of sounds to the prefetch queue.
   addArrayToPrefetchQ: function(sarray) {
-    this.prefetch_array[prefetch_curr_index + 1] = new Array();
+    this.prefetch_array[this.prefetch_curr_index + 1] = new Array();
     for(var i=0, sl=sarray.length; i<sl; i++) {
       var sid = sarray[i];
       //var poor_hash = getSoundID(sid);
@@ -169,18 +169,18 @@ WA.Sound.Prefetch = {
       // keep track of this, considering prefetching from the cache requires
       // little overhead and sounds can be evicted from the browser cache.
       if(true) { //!poor_hash) {
-        this.prefetch_array[prefetch_curr_index + 1].push(sid);
+        this.prefetch_array[this.prefetch_curr_index + 1].push(sid);
       } else {
         //alert('sid ' + sid + ' already fetched.');
       }
     }
-    prefetch_curr_index++;
+    this.prefetch_curr_index++;
   },
 
   // Move to another prefetch row.
   incPrefetchIndex: function() {
-    prefetch_curr_index++;
-    this.prefetch_array[prefetch_curr_index] = new Array();
+    this.prefetch_curr_index++;
+    this.prefetch_array[this.prefetch_curr_index] = new Array();
   },
 
   // Adds the sid (sound ID) to the prefetch queue.
@@ -202,20 +202,20 @@ WA.Sound.Prefetch = {
   // Adds the sid (sound ID) to the prefetch queue.
   _addIndividualToPrefetchQ: function(sid) {
     sid = this.Sound.prepareSound(sid);
-    this.prefetch_array[prefetch_curr_index].push(sid);
+    this.prefetch_array[this.prefetch_curr_index].push(sid);
   },
 
   // Returns the next sound to be prefetched from the queue.
   getFromPrefetchQ: function() {
     var sid = null;
-    if(this.prefetch_array && this.prefetch_array[prefetch_curr_index].length < 1
-      && prefetch_curr_index > 0) {
-      WA.Utils.log('moving from queue: ' + prefetch_curr_index + ' to ' + (prefetch_curr_index-1));
-      prefetch_curr_index--;
+    if(this.prefetch_array && this.prefetch_array[this.prefetch_curr_index].length < 1
+      && this.prefetch_curr_index > 0) {
+      WA.Utils.log('moving from queue: ' + this.prefetch_curr_index + ' to ' + (this.prefetch_curr_index-1));
+      this.prefetch_curr_index--;
       sid = this.getFromPrefetchQ();
     } else {
-      WA.Utils.log('fetching from: ' + prefetch_curr_index);
-      sid = this.prefetch_array[prefetch_curr_index].shift();
+      WA.Utils.log('fetching from: ' + this.prefetch_curr_index);
+      sid = this.prefetch_array[this.prefetch_curr_index].shift();
     }
   
     return sid;
@@ -228,55 +228,55 @@ WA.Sound.Prefetch = {
   // This also lets us know how long the sound is, ideally.
   prefetchSound: function(url, text, playdone) {
     // Try to reuse the prefetch_req object is possible.
-    if(!prefetch_req) {
+    if(true) { //!WA.Sound.Prefetch.prefetch_req) {
       // Branch for native XMLHttpRequest object
       if(window.XMLHttpRequest) {
-        prefetch_req = new XMLHttpRequest();
+        WA.Sound.Prefetch.prefetch_req = new XMLHttpRequest();
         // branch for IE/Windows ActiveX version
       } else if(window.ActiveXObject) {
-        prefetch_req = new ActiveXObject("Microsoft.XMLHTTP");
+        WA.Sound.Prefetch.prefetch_req = new ActiveXObject("Microsoft.XMLHTTP");
       }
     }
   
-    prefetch_req.text = text;
-    prefetch_req.sid = WA.Sound.getSoundID(text);
-    prefetch_req.playdone = playdone;
+    WA.Sound.Prefetch.prefetch_req.text = text;
+    WA.Sound.Prefetch.prefetch_req.sid = WA.Sound.getSoundID(text);
+    WA.Sound.Prefetch.prefetch_req.playdone = playdone;
   
     // Setup the request and the make the request.
-    prefetch_req.onreadystatechange = this.processReqChangePrefetchSound;
-    prefetch_req.open("GET", url, true);
-    prefetch_req.send(null);
+    WA.Sound.Prefetch.prefetch_req.onreadystatechange = WA.Sound.Prefetch.processReqChangePrefetchSound;
+    WA.Sound.Prefetch.prefetch_req.open("GET", url, true);
+    WA.Sound.Prefetch.prefetch_req.send(null);
   },
 
   // Handle onreadystatechange event of httpreq object.
   processReqChangePrefetchSound: function() {
-    if(prefetch_req.readyState == 4) {
-      if(prefetch_req.status == 200) {      
-        var soundLength = prefetch_req.getResponseHeader('sound-length');
+    if(WA.Sound.Prefetch.prefetch_req.readyState == 4) {
+      if(WA.Sound.Prefetch.prefetch_req.status == 200) {      
+        var soundLength = WA.Sound.Prefetch.prefetch_req.getResponseHeader('sound-length');
         if(soundLength) {  // Not all TTS have lengths.
-          WA.Utils.log('got sound ' + prefetch_req.text + ' ' + soundLength);
-          this.prefetchRecords[prefetch_req.sid].soundlength = soundLength;
+          WA.Utils.log('got sound ' + WA.Sound.Prefetch.prefetch_req.text + ' ' + soundLength);
+          WA.Sound.Prefetch.prefetchRecords[WA.Sound.Prefetch.prefetch_req.sid].soundlength = soundLength;
         } else {
           // This TTS doesn't support the length header.
         }
-        var contentLength = prefetch_req.getResponseHeader('content-length');
+        var contentLength = WA.Sound.Prefetch.prefetch_req.getResponseHeader('content-length');
         if(contentLength) {  // Not all TTS have lengths.
-          WA.Utils.log('got sound ' + prefetch_req.text + ' ' + contentLength);
-          thi.prefetchRecords[prefetch_req.sid].contentlength = contentLength;
+          WA.Utils.log('got sound ' + WA.Sound.Prefetch.prefetch_req.text + ' ' + contentLength);
+          WA.Sound.Prefetch.prefetchRecords[WA.Sound.Prefetch.prefetch_req.sid].contentlength = contentLength;
         } else {
           // This TTS doesn't support the length header.
         }
   
-        if(prefetch_req.playdone) {
+        if(WA.Sound.Prefetch.prefetch_req.playdone) {
           WA.Utils.log("playing after supposed fetching");
-          this.Sound.playSOund(prefetch_req.text, false);
+          this.Sound.playSOund(WA.Sound.Prefetch.prefetch_req.text, false);
         }
   
         //prefetch_req = null;    
       } else {}
   
       // Requests that the next sound be prefetched, assuming there is one.
-      this.prefetchNext();
+      WA.Sound.Prefetch.prefetchNext();
     }
   },
 
@@ -387,7 +387,7 @@ WA.Sound.Prefetch = {
     if(!this.prefetchRecords[sid]) {
       this.prefetchRecords[sid] = new Object();
       this.prefetchRecords[sid].soundlength = -1;
-      numPrefetched++;
+      this.numPrefetched++;
       this.prefetchSound(url, text, false);
       return true;
     } else {
