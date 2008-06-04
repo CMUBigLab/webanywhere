@@ -25,8 +25,8 @@
 // Include the global WebAnywhere configuration files.
 include('../config.php');
 
-error_reporting(E_ALL);
-ini_set('display_errors','On');
+//error_reporting(E_ALL);
+//ini_set('display_errors','On');
 
 //
 // CONFIGURABLE OPTIONS
@@ -469,7 +469,7 @@ if($limit_request_rate) {
       $select_query = "SELECT count FROM day_log WHERE ip=$ip AND time=date_trunc('day', now())";
       $select_result = pg_query($link, $select_query) or die (' insert failed: ' . pg_last_error());
       if($row = pg_fetch_array($select_result, null, PGSQL_ASSOC)) {
-        if(isset($row[count]) && $row[count] < 20000) {
+        if(isset($row['count']) && $row['count'] < 20000) {
           $update_query = "UPDATE day_log SET count=count+1 WHERE time=date_trunc('day', now()) AND ip=$ip";
           $update_result = pg_query($link, $update_query) or die (' insert failed: ' . pg_last_error());
         } else {
@@ -483,7 +483,7 @@ if($limit_request_rate) {
       $select_query = "SELECT count FROM minute_log WHERE ip=$ip AND time=date_trunc('minute', now())";
       $select_result = pg_query($link, $select_query) or die (' insert failed: ' . pg_last_error());
       if($row = pg_fetch_array($select_result, null, PGSQL_ASSOC)) {
-        if(isset($row[count]) && $row[count] < 135) {
+        if(isset($row['count']) && $row['count'] < 135) {
           $update_query = "UPDATE minute_log SET count=count+1 WHERE time=date_trunc('minute', now()) AND ip=$ip";
           $update_result = pg_query($link, $update_query) or die (' insert failed: ' . pg_last_error());
         } else {
