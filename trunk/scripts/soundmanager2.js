@@ -177,6 +177,7 @@ function SoundManager(smURL,smID) {
   };
 
   this.stopAll = function() {
+  	alert('stopping all');
     self._writeDebug('soundManager.stopAll()',1);
     for (var oSound in self.sounds) {
       if (self.sounds[oSound] instanceof SMSound) self.sounds[oSound].stop(); // apply only to sound objects

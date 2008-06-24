@@ -358,21 +358,21 @@ WA.Nodes = {
   // inv_depth keeps track of the depth of the recursion.
   // first is a boolean value indicating whether this is the first iteration.
   _treeTraverseRecursion: function(node, visitor, isleaf, depth) {
-    if(depth < this.recursion_limit) {
+    if(depth > this.recursion_limit) {
       return;
     }
   
-    if(depth!=0 && node) {
+    if(depth!=this.recursion_limit && node) {
       visitor(node);
     }
-  
-    if(!isleaf || !isleaf(node)) {
+
+    if((typeof isleaf != 'function') || !isleaf(node)) {
       if(node.firstChild) {
         this._treeTraverseRecursion(node.firstChild, visitor, isleaf, depth+1);
       }
     }
 
-    if(node.nextSibling) {    
+    if(node.nextSibling) {
       this._treeTraverseRecursion(node.nextSibling, visitor, isleaf, depth+1);
     }
   },

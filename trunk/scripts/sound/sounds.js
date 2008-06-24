@@ -160,7 +160,15 @@ WA.Sound = {
   },
 
   startPlayWaiting: function() {
-    setInterval(function(){WA.Sound.playWaiting()}, this.playWaitingInterval);
+  	var self = this;
+
+	// Wait for the sound player to be loaded.
+	if(!top.soundPlayerLoaded) {
+		setTimeout(function() {self.startPlayWaiting();}, 50);
+	} else {
+      // Sound players is loaded, so start playing the sounds.
+      setInterval(function(){self.playWaiting()}, this.playWaitingInterval);
+	}
   },
 
   //  Main function called that actually plays sounds when it's supposed to.
@@ -214,11 +222,12 @@ WA.Sound = {
   },
 
   // Play the sound.
-  // TODO:  This is not actually used for prefetching anymore...should change its name.
   playSound: function(string, bm) {
     var playdone = true;
     string = this.prepareSound(string);
     url = this.urlForString(string);
+
+	WA.Utils.log('url: ' + url);
 
     switch(this.soundMethod) {
       case this.FLASH_SOUND_METHOD: this._prefetchFlash(string, url, playdone, bm); break;
@@ -277,7 +286,7 @@ WA.Sound = {
   // Is the current sid being played right now?
   isPlaying: function(sid) {
     sid = this.prepareSound(sid);
-  
+
     switch(this.soundMethod) {
       case 1: return this._isPlayingFlash(sid);
       case 2: return this._isPlayingEmbed(sid);
@@ -356,7 +365,7 @@ WA.Sound = {
     if(!this.soundPlayerLoaded) {
       return;
     }
-  
+
     var orig_string = string;
   
     string = this.getSoundID(string);
@@ -384,9 +393,9 @@ WA.Sound = {
         this.free_threads--;
         soundManager.createSound({
           id: string,
-    	    url: url,
+    	  url: url,
           autoLoad: true,
-    	    stream: playdone,
+    	  stream: playdone,
           autoPlay: playdone,
           onload: function() {WA.Sound._onSoundLoad(this)},
           onplay: function() {
@@ -400,14 +409,14 @@ WA.Sound = {
               this.whileplaying = null;
             }
           },
-  	      onfinish: function(){_onsoundfinish()},
+  	      onfinish: function(){WA.Sound._onSoundFinish()},
           volume: 75
         });
       }
     } else if(sound.readyState == 3) {
       WA.Utils.log('sound exists: ' + sound);
       this.lastPath = 15;
-      sound.onjustbeforefinish = function(){WA.Sound._onsoundfinish()};
+      sound.onjustbeforefinish = function(){WA.Sound._onSoundFinish()};
       var duration = (WA.Sound.Prefetch.prefetchRecords[string] && WA.Sound.Prefetch.prefetchRecords[string].soundlength) ? WA.Sound.Prefetch.prefetchRecords[string].soundlength : this.timingArray[string].length; 
       WA.Utils.log('finished sound: ' + this.timingArray[string].playStart.getTime() + ' ' + duration + ' ' + this.timingArray[string].orig_string);
       sound.play();
@@ -453,7 +462,7 @@ WA.Sound = {
   },
 
   
-  _onsoundfinish: function(sound) {
+  _onSoundFinish: function(sound) {
     if(sound && sound.duration) {
       this.timingArray[sound.sID].length = sound.duration;
       WA.Utils.log('finished sound: ' + this.timingArray[string].playStart.getTime() + ' ' + sound.duration + ' ' + this.timingArray[string].orig_string);
@@ -514,9 +523,12 @@ WA.Sound = {
 
         // soundManager 2 should be ready to use/call at this point.
         WA.Sound.soundPlayerLoaded = true;
+        top.soundPlayerLoaded = true;
 
         // Call newPage to process the newly-loaded page.
-        newPage();
+        if(top.pageLoaded) {
+          newPage();
+        }
 
         if(browserInit) {
           WA.Sound.setupBaseSounds();

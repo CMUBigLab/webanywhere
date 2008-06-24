@@ -74,18 +74,15 @@ WA.Sound.Embed = {
   // Creates the object to hold new sounds.
   _sounds: new Object(),
 
-  processReqChange: function() {
-    // only if req shows "complete"
+  /*processReqChange: function() {
     if(req.readyState == 4) {
-      // only if "OK"
       if(req.status == 200) {
-        alert("Sound is "+
-        req.getResponseHeader("Sound-length") + " milliseconds long.");
-      } else {
-        //alert("There was a problem retrieving the XML data:\n" + req.statusText);
-      }
+        alert("Sound is " +
+              req.getResponseHeader("Sound-length") +
+              " milliseconds long.");
+      } else {}
     }
-  },
+  },(*/
   
     // Plays a sound using an embedded sound player.
   _prefetchEmbed: function(string, url, playdone, bm) {

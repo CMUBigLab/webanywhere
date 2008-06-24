@@ -30,7 +30,7 @@
     PREV_CHAR: 7,
     PREV_CHAR_BACKONE: 8,
 
-    // Set the initial browseMode to KEYBOARD.
+    // Set the initial browseMode to READ.
     browseMode: this.READ,
 
     // Should WebAnywhere run in site-specific mode?
@@ -48,5 +48,8 @@
     // 1 degrades ungracefully.
     // 2 should offer the best performance for now.
     // 3 is a bit unstable.
-    prefetchStrategy: 1
+    prefetchStrategy: 1,
+
+    // Times loaded.
+    timesLoaded: 0
   };

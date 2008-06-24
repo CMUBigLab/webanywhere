@@ -46,6 +46,6 @@ $cross_domain_security = false;
 
 // Database information for functionality that requires it.
 // Currently, this is primarily the IP-based limiting of requests.
-$db_user = '';
-$db_password = '';
+$db_user = 'jbigham';
+$db_password = 'jeffman82';
 ?>

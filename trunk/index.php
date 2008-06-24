@@ -42,7 +42,6 @@ function focus_webanywhere() {
   returning = false;
 }
 function blur_webanywhere() {
-  //alert('webanywhere has been blurred!');
   //window.navigation_frame.prefetch("Another window has tried to replace the focus of Web Anywhere.  If the system is not responding, please try hitting alt-tab to return to this window.", true, false);
   //window.navigation_frame.focus();
   returning = true;
@@ -54,7 +53,7 @@ function unload_webanywhere() {
 var pageLoaded = false;
 function newPage() {
   pageLoaded = true;
-  if(navLoaded) {
+  if(top.soundPlayerLoaded) {
     window.navigation_frame.newPage();
   }
 }

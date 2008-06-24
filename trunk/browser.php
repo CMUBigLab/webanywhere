@@ -13,6 +13,7 @@ session_start();
 // Global variables used by WebAnywhere.
 var hasConsole = (typeof console != 'undefined' && typeof console.log != 'undefined');
 top.webanywhere_domain='<?php echo $webanywhere_domain; ?>';
+
 top.webanywhere_location = String(document.location).replace(/^(https?:\/\/[^\/]*)\/.*$/, '$1');
 top.webanywhere_url=top.webanywhere_location+'<?php echo $root_path; ?>';
 
@@ -101,8 +102,8 @@ flush();
 </form>
 <form>
 <input type="text" name="finder_field" id="finder_field" />
-<label for="finder"/><input name="find_button" type="submit" value="Find Next" onclick='nextNodeContentFinder(this); return false;'/></label>
-<label for="finder"/><input name="find_button" type="submit" value="Find Previous" onclick='prevNodeContentFinder(this); return false;'/></label>
+<input id="find_next_button" name="find_next_button" type="submit" value="Find Next" onclick='nextNodeContentFinder(this); return false;'/>
+<input id="find_previous_button" name="find_previous_button" type="submit" value="Find Previous" onclick='prevNodeContentFinder(this); return false;'/>
 </form>
 </div>
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: display;"'; } else { echo 'style="visibility: hidden"'; } ?>>Playing: <span id="playing_div"></span> Features: <span id="sound_div"></span></div>
