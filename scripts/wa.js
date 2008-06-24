@@ -66,8 +66,8 @@ function debug(str) {
   }
 }
 
-// Updates the text that is displayed visually as what is currently being
-// played by the system.
+// Updates the text that is displayed visually.
+// Useful for debugging.
 function updatePlaying() {
   var play_div = document.getElementById('playing_div');
   if(play_div) {
@@ -92,10 +92,11 @@ function init_browser() {
   browserInit = true;
 
   // Updates the debugging panel.
-  setInterval('updatePlaying()', 150);
+  setInterval('updatePlaying()', 200);
 
-  // Tell the sound system to start looking for sounds waiting to be played.
-  WA.Sound.startPlayWaiting();
+  // Horrible hack for resetting the keyboard events.
+  // TODO:  Figure out how to fix this.
+  setInterval(function() {WA.Keyboard.resetKeyboardModifiers();}, 60000);
 
   var go_button = document.getElementById('location_go');
   var location_field = document.getElementById('location');
@@ -118,16 +119,21 @@ function init_browser() {
   if(window.attachEvent) document.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
   else if(window.addEventListener) document.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
 
-  if(WA.Sound.soundPlayerLoaded) {
+  //if(WA.Sound.soundPlayerLoaded) {
     //WA.Sound.setupBaseSounds();
-  }
+  //}
 
   // For Flash, the system waits until the Flash movie has loaded.
   // For embedded sounds, the system can proceed immediately.
   if(WA.Sound.soundMethod == WA.Sound.EMBED_SOUND_METHOD) {
     WA.Sound.soundPlayerLoaded = true;
+    top.soundPlayerLoaded = true;
+
     newPage();
   }
+  
+  // Time for the system to start looking for sounds to play.
+  WA.Sound.startPlayWaiting();
 }
 
 // Called when the location bar gains focus.
@@ -182,7 +188,7 @@ function goButtonFocus(e) {
 
   var text = WA.Nodes.handleNode(target, true);
   WA.Sound.resetSounds();
-  WA.Sound.addSound("Go") //text);
+  WA.Sound.addSound("Go");
 }
 
 // Called when users hit a key when the last node in the page has focus.
@@ -256,26 +262,37 @@ function focusBrowserElement(element_id) {
   focusElement(doc, element_id);  
 }
 
+// Sets focus to the content element with the specified id.
+// @param element_id  The id of the element to which focus will be set.
 function focusContentElement(element_id) {
   var doc = getContentDocument();
   focusElement(doc, element_id);  
 }
 
+// Returns the content document.
 function getContentDocument() {
   return top.content_frame.document;
 }
 
+// Returns the first node of the web page.
 function getFirstContent() {
   var doc = getContentDocument();
   var first = doc.getElementById('always_first_node');
-  if(!first && doc.body && doc.body.firstChild) { first = doc.body.firstChild; }
+  if(!first && doc.body && doc.body.firstChild) {
+    first = doc.body.firstChild;
+  }
+
   return first;
 }
 
+// Returns the last node of the web page.
 function getLastContent() {
   var doc = getContentDocument();
   var last = doc.getElementById('always_last_node');
-  if(!last && doc.body && doc.body.lastChild) { last = doc.body.lastChild; }
+  if(!last && doc.body && doc.body.lastChild) {
+    last = doc.body.lastChild;
+  }
+
   return last;
 }
 
@@ -436,21 +453,28 @@ function preVisit(node) {
   }
 
   if(WA.prefetchStrategy >= 1) {
-  	text = WA.Nodes.handleNode(node, true);
-  	if(text && (WA.prefetchStrategy <= 1 || WA.Sound.Prefetch.prefetch_curr_index == 0)) {
-  	  prefetch_array[WA.Sound.Prefetch.prefetch_curr_index].push(text);
+  	var text = WA.Nodes.handleNode(node, true);
+  	if(text && (WA.prefetchStrategy <= 1 ||
+  	    WA.Sound.Prefetch.prefetch_curr_index == 0)) {
+  	  WA.Sound.Prefetch.prefetch_array[WA.Sound.Prefetch.prefetch_curr_index].push(text);
   	}
   }
 
   if(node.nodeType == 1) {
-    if(node.tagName == "LABEL") {
-      var for_id = node.getAttribute('for');
-      if(for_id) {
-  	    var id_elem = node.ownerDocument.getElementById(for_id);
-  	    if(id_elem) {
-  	      id_elem.setAttribute('my_label', WA.Nodes.handleChildNodes(node));
-  	    }
-      }
+  	switch(node.tagName) {
+      case "LABEL":
+        var for_id = node.getAttribute('for');
+        if(for_id) {
+          var id_elem = node.ownerDocument.getElementById(for_id);
+  	      if(id_elem) {
+  	        id_elem.setAttribute('my_label', WA.Nodes.handleChildNodes(node));
+  	      }
+        }
+        break;
+      case "FORM":
+        // Prevent login pop-ups.
+        node.setAttribute('autocomplete', 'off');
+        break;
     }
   } else if(node.nodeType == 3 && !internalNode(node)) {
     var node_text = node.data;
@@ -511,7 +535,8 @@ function newPage() {
           !(/ui=?html/i.test(location_field.value))) {
         setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
       } else {}
-    } else if(/starting_url=.*/.test(src)) {} // Eventually will enable users to specify starting page.
+    }
+    // else if(/starting_url=.*$/.test(src)) {} // Eventually will enable users to specify starting page.
   }
 
   var newDoc = top.content_frame.document;
@@ -531,7 +556,7 @@ function newPage() {
     }
 
     var loc_val = location_field.value;
-    if(loc_val.match(/.*ServiceLogin.*/)) {
+    if(loc_val.match(/.*ServiceLogin.*.?/)) {
       //alert('matched');
       var content_doc = top.content_frame.document;
       var login_form = content_doc.getElementById("gaia_loginform");
@@ -550,19 +575,21 @@ function newPage() {
   
     if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
     else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
-  
-    WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){WA.Nodes.leafNode(node)});
-  
+
+    if(WA.prefetchStrategy > 0) {
+      WA.Sound.Prefetch.resetPrefetchArray();
+      WA.Sound.Prefetch.incPrefetchIndex();
+    }
+    WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){return WA.Nodes.leafNode(node);});
+
     var start_node = currentDoc.createElement('div');
     start_node.innerHTML = currentDoc.title;
     if(WA.Utils.isIE()) {
       start_node.tabIndex = 0;
-    } else {
-      start_node.setAttribute('tabindex', 0);
     }
+    start_node.setAttribute('tabindex', 0);
     start_node.setAttribute('id', 'always_first_node');
     currentDoc.body.insertBefore(start_node, currentDoc.body.firstChild);
-    //start_node.focus();
   
     var end_node = currentDoc.createElement('div');
     end_node.innerHTML = "End of Page";
@@ -573,22 +600,30 @@ function newPage() {
     }
     end_node.setAttribute('id', 'always_last_node');
     currentDoc.body.appendChild(end_node);
-  
+
     if(WA.prefetchStrategy > 0) {
-      setTimeout("WA.Sound.Prefetch.prefetchNext();", 0);
+      setTimeout("WA.Sound.Prefetch.prefetchNext();", 0); //function() {WA.Sound.Prefetch.prefetchNext();}, 0);
     }
   }
 
   WA.Sound.resetSounds();
   playing = null;
 
-  WA.Sound.addSound("Page has loaded.");
-  if(currentDoc.title) {
-    WA.Sound.addSound(currentDoc.title);
+  // Normally, say that a page has loaded and announce its title.
+  if(WA.timesLoaded > 0) {
+    WA.Sound.addSound("Page has loaded.");
+    //if(currentDoc.title) {
+    //  WA.Sound.addSound(currentDoc.title);
+    //}
+  } else {
+  	// Handle the first load specially.
+  	WA.Sound.addSound("WebAnywhere has loaded");
   }
 
+
   // Speak the number of headings and links on the page.
-  WA.Sound.addSound(countNumHeadings() + " Headings " + countNumLinks() + " Links");
+  WA.Sound.addSound(countNumHeadings(currentDoc) + " Headings " +
+  						countNumLinks(currentDoc) + " Links");
 
   WA.browseMode = WA.READ;
 
@@ -596,44 +631,15 @@ function newPage() {
   var rec = nav_doc.getElementById('recording');
 
   if(rec && !(/debug/.test(top.document.location))) {
-    postURL('recorder.php', "submit=submit&recording=" + rec.value);
+    WA.Utils.postURL('recorder.php',
+                     'submit=submit&recording=' + rec.value,
+                     function(){});
     rec.value = "";
   }
 
+  WA.timesLoaded++;
+
   WA.Utils.log("finished new page load");
-}
-
-// The XMLHttpRequest object for prefetching.
-var prefetch_req = null;
-
-// Makes an HTTP Post requeste.
-function postURL(url, params) {
-  // branch for native XMLHttpRequest object
-  if(window.XMLHttpRequest) {
-    prefetch_req = new XMLHttpRequest();
-    prefetch_req.onreadystatechange = processReqChange;
-    prefetch_req.open("POST", url, true);
-
-    //Send the proper header information along with the request
-    prefetch_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    prefetch_req.setRequestHeader("Content-length", params.length);
-    prefetch_req.setRequestHeader("Connection", "close");
-
-    prefetch_req.send(params);
-    // branch for IE/Windows ActiveX version
-  } else if(window.ActiveXObject) {
-    prefetch_req = new ActiveXObject("Microsoft.XMLHTTP");
-    if(prefetch_req) {
-      //Send the proper header information along with the request
-      prefetch_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      prefetch_req.setRequestHeader("Content-length", params.length);
-      prefetch_req.setRequestHeader("Connection", "close");
-
-      prefetch_req.onreadystatechange = processReqChange;
-      prefetch_req.open("POST", url, true);
-      prefetch_req.send(params);
-    }
-  }
 }
 
 // Focuses the first node of the document and resets the reading to start
@@ -1548,9 +1554,9 @@ function visit(elem) {
 
 // Counts the number of links that have an href, indicating that they're
 // a link and not just an anchor.
-function countNumLinks() {
+function countNumLinks(doc) {
   var cnt = 0;
-  var elems = currentDoc.getElementsByTagName('A');
+  var elems = doc.getElementsByTagName('A');
   for(i=elems.length-1; i>=0; i--) {
     if(WA.Nodes.hasAttribute(elems[i], 'href')) {
       cnt++;
@@ -1560,13 +1566,13 @@ function countNumLinks() {
 }
 
 // Counts the number of heading elements.
-function countNumHeadings() {
-  var cnt = currentDoc.getElementsByTagName('H1').length;
-  cnt += currentDoc.getElementsByTagName('H2').length;
-  cnt += currentDoc.getElementsByTagName('H3').length;
-  cnt += currentDoc.getElementsByTagName('H4').length;
-  cnt += currentDoc.getElementsByTagName('H5').length;
-  cnt += currentDoc.getElementsByTagName('H6').length;
+function countNumHeadings(doc) {
+  var cnt = doc.getElementsByTagName('H1').length;
+  cnt += doc.getElementsByTagName('H2').length;
+  cnt += doc.getElementsByTagName('H3').length;
+  cnt += doc.getElementsByTagName('H4').length;
+  cnt += doc.getElementsByTagName('H5').length;
+  cnt += doc.getElementsByTagName('H6').length;
   return cnt;
 }
 

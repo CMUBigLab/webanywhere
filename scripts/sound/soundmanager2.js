@@ -18,7 +18,7 @@ function SoundManager(smURL,smID) {
   this.debugMode = false;           // enable debugging output (div#soundmanager-debug, OR console if available + configured)
   this.useConsole = false;          // use firebug/safari console.log()-type debug console if available
   this.consoleOnly = false;        // if console is being used, do not create/write to #soundmanager-debug
-  this.nullURL = 'data/null.mp3';  // path to "null" (empty) MP3 file, used to unload sounds
+  this.nullURL = 'sounds/null.mp3';  // path to "null" (empty) MP3 file, used to unload sounds
 
   this.defaultOptions = {
     'autoLoad': false,             // enable automatic loading (otherwise .load() will be called on demand with .play(), the latter being nicer on bandwidth - if you want to .load yourself, you also can)

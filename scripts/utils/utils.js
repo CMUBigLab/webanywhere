@@ -33,6 +33,49 @@ WA.Utils = {
     }
   },
 
+  /**
+   * Calls the supplied function on each document
+   * and subdocument (frame, iframe).
+   * 
+   * @param doc Root document.
+   * @param func Function to call on each document.
+   */
+  callForEachDoc: function(win, func) {
+    for(var i=0; i < win.frames.length; i++) {
+      func(win.frames[i].document);
+	}
+  },
+
+  /**
+   * Makes a POST HTTP request to the provided url, sending the provided parameters.
+   * 
+   * @param url URL to POST to.
+   * @param params Parametercs to POST.
+   * @param cb Callback for the onreadystatechange event.
+   */
+  postURL: function(url, params, cb) {
+    var prefetch_req = null;
+
+    // Find native XMLHttpRequest object.
+    if(window.XMLHttpRequest) {
+      prefetch_req = new XMLHttpRequest();
+    } else if(window.ActiveXObject) {
+      prefetch_req = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    // Setup callback and open the connection.
+    prefetch_req.onreadystatechange = cb;
+    prefetch_req.open("POST", url, true);
+
+    //Send the proper header information along with the request.
+    prefetch_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    prefetch_req.setRequestHeader("Content-length", params.length);
+    prefetch_req.setRequestHeader("Connection", "close");
+
+    // Make the request.
+    prefetch_req.send(params);
+  },
+
   // Returns an XPATH for the specified node, starting with its document element
   // as root.
   getXPath: function(node) {
@@ -117,31 +160,35 @@ WA.Utils = {
   },
 
   // A long but simple hash function, not necessarily secure or 'good', but
-  // it produces unique strings for use as keys in the system.
+  // it produces unique strings to use as keys in the system that don't
+  // contain any of the characters disallowed by Sound Manager 2.
   simpleHash: function(str) {
-    if(!str || str.length <= 0) {
-      return 'aaaa0009209384';
+    // If string is null or undefined, return null string hash.
+    if(str == null) {
+      return 'nullhash';
     }
 
-    str = str.replace(/[\n\r]+/, "");
+    // Next, branch based on the type of string.
+    var type = String(typeof str);
+    if(type == 'undefined') {
+      return 'undefinedhash';
+    }
+    if(type != 'string') {
+      str = String(str);
+	}
 
-    str = str.replace(/&#(\d)+;/, "p$1");
+    // If the string is empty, return the empty string hash.
+    if(str.length <= 0) {
+      return 'emptystring';
+    }
 
-    var orig_piece = (str.length < 15) ? str : str.substring(0, 15);
-    orig_piece = orig_piece.replace(/[^a-zA-Z0-9]+/g, '_'); //'
-    //orig_piece = orig_piece.replace(/'/, 'gE'); //'
-    //orig_piece = orig_piece.replace(/"/, 'gEE'); //'
-    //orig_piece = orig_piece.replace(/#/, 'gnE'); //'x
- 
-    var bin = Array();
-    var mask = 0xFFF;
-
+    var bin = Array(16);
     var str_len = str.length;
 
     for(var i=0; i<16; i++) {
       bin[i] = str_len + i;
     }
-    for(var i = 0; i < str_len; i++) {
+    for(var i=0; i<str_len; i++) {
       var update_val = str.charCodeAt(i)*(i & 0xFF)
       bin[(i & 0xF)] += update_val;
       bin[((i << 2) & 0xF)] += update_val;
@@ -153,10 +200,18 @@ WA.Utils = {
       str2 += hex_tab.charAt(bin[i] & 0x3F);
     }
 
-    var val = orig_piece + str2;
+	// Prepare the final string.
+    var val = str.substring(0, 15) + str2;
+    val = val.replace(/&#(\d)+;/g, "p$1");
+    val = val.replace(/[^a-zA-Z0-9]+/g, '');
+
     return val;
   },
 
   // Function for logging error messages to the Firebug console when it is available.
-  log: function(str) {} //((console && typeof console != 'undefined' && typeof console.log != 'undefined') ? function(str){console.log(str)} : function(str){})
+  log: function(str) {
+  	if(typeof console != 'undefined' && typeof console.log != 'undefined') {
+  		console.log(str);
+  	}
+  }
 };

@@ -731,5 +731,9 @@ WA.Keyboard = {
     this.wa_ctrl_speaks = false;
     this.wa_alt_speaks = false;
     this.wa_shift_speaks = false;
+
+    this.wa_up_tracker = false;
+
+    this.formsModeOn = false;
   }
 };

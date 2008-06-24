@@ -17,8 +17,12 @@ if(!isset($_REQUEST['submit'])) {
 <?php } ?>
 
 <div style="width: 50%; margin: auto;">
+
 <h1>WebAnywhere</h1>
+
+<p>
 The system is initialized and is ready to use.
+</p>
 <h2>Introduction</h2>
 <p>
 <a href="http://webinsight.cs.washington.edu/projects/webanywhere/">WebAnywhere</a>
