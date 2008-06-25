@@ -120,7 +120,7 @@ WA.Sound.Prefetch = {
         break;
       case 0:
         break;
-      // For all of the prefetch stratgies,
+      // For all of the prefetch strategies,
       // we just retrieve elements from the queue.*/
       case 1:
       case 2:
@@ -130,17 +130,17 @@ WA.Sound.Prefetch = {
           // A little hack to give the speech being played more bandwidth.
           // TODO:  Make this more systematic.
           if(WA.playing != null && 
-              WA.browseMode == WA.READ && Math.random() > 0.7) {
-            setTimeout("WA.Sound.Prefetch.prefetchNext();", 250);
+              WA.browseMode == WA.READ && Math.random() > 0.5) {
+            setTimeout("WA.Sound.Prefetch.prefetchNext();", 550);
           } else if(/\S/.test(text_to_fetch)) {
             var pred = this.prefetchText(text_to_fetch);
-            if(!pred) setTimeout("WA.Sound.Prefetch.prefetchNext();", 0);
+            if(!pred) setTimeout("WA.Sound.Prefetch.prefetchNext();", 200);
           } else {
             setTimeout("WA.Sound.Prefetch.prefetchNext();", 200);
           }
         } else {
           // Nothing in the prefetch queue.  Wait longer before trying again.
-          setTimeout("WA.Sound.Prefetch.prefetchNext();", 1000);
+          setTimeout("WA.Sound.Prefetch.prefetchNext();", 200);
         }
         break;
       default: // Do nothing.
@@ -156,9 +156,18 @@ WA.Sound.Prefetch = {
   prefetch_curr_index: 0,
 
   resetPrefetchArray: function() {
-    for(var i=this.prefetch_curr_index; i > 0; i--) {
-      this.prefetch_array[i] = new Array();
-    }
+  	if(this.prefetch_curr_index <= this.prefetch_array.length) {
+      for(var i=this.prefetch_curr_index-1; i>0; i--) {
+        this.prefetch_array[i] = new Array();
+      }
+  	}
+  },
+
+  // The timeout that fetches elements from the prefetch queue.
+  prefetchTimeout: null,
+  restartPrefetchTimeout: function() {
+  	clearTimeout(this.prefetchTimeout);
+    this.prefetchTimeout = setTimeout("WA.Sound.Prefetch.prefetchNext()", 0);
   },
 
   // Record of what has been previously prefetched by the system
@@ -277,14 +286,14 @@ WA.Sound.Prefetch = {
   
         if(playdone) {
           WA.Utils.log("playing after supposed fetching");
-          this.Sound.playSOund(text, false);
+          this.Sound.playSound(text, false);
         }
   
         //prefetch_req = null;    
       } else {}
   
       // Requests that the next sound be prefetched, assuming there is one.
-      WA.Sound.Prefetch.prefetchNext();
+      setTimeout(function() {WA.Sound.Prefetch.prefetchNext();}, 0);
     }
   },
 
@@ -426,7 +435,7 @@ WA.Sound.Prefetch = {
     var url = this.Sound.urlForString(string);
     var sid = WA.Sound.getSoundID(text);
 
-    if(!this.prefetchRecords[sid]) {
+    if(typeof this.prefetchRecords[sid] == 'undefined') {
       this.prefetchRecords[sid] = new Object();
       this.prefetchRecords[sid].soundlength = -1;
       this.numPrefetched++;

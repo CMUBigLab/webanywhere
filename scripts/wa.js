@@ -87,8 +87,6 @@ function updatePlaying() {
 function init_browser() {
   focusLocation();
 
-  WA.Sound.Prefetch.prefetchLetters();
-
   browserInit = true;
 
   // Updates the debugging panel.
@@ -119,10 +117,6 @@ function init_browser() {
   if(window.attachEvent) document.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
   else if(window.addEventListener) document.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
 
-  //if(WA.Sound.soundPlayerLoaded) {
-    //WA.Sound.setupBaseSounds();
-  //}
-
   // For Flash, the system waits until the Flash movie has loaded.
   // For embedded sounds, the system can proceed immediately.
   if(WA.Sound.soundMethod == WA.Sound.EMBED_SOUND_METHOD) {
@@ -134,6 +128,9 @@ function init_browser() {
   
   // Time for the system to start looking for sounds to play.
   WA.Sound.startPlayWaiting();
+
+  // Prefetch the letters.
+  WA.Sound.Prefetch.prefetchLetters();
 }
 
 // Called when the location bar gains focus.
@@ -544,7 +541,10 @@ function newPage() {
 
   valPath += "|";
 
-  if(newDoc != currentDoc && currentLoc != newLoc) {
+  // Sometimes we get multiple loads from the same page.
+  var startNode = newDoc.getElementById('id');
+
+  if(newDoc != currentDoc && (!startNode ||currentLoc != newLoc)) {
     var location_field = document.getElementById('location');
     if(location_field) {
       WA.Utils.recordLine('new page: ' + location_field.value);
@@ -576,6 +576,7 @@ function newPage() {
     if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
     else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
 
+	// Preprocess the page, including adding to the list of nodes to be prefetched.
     if(WA.prefetchStrategy > 0) {
       WA.Sound.Prefetch.resetPrefetchArray();
       WA.Sound.Prefetch.incPrefetchIndex();
@@ -602,7 +603,7 @@ function newPage() {
     currentDoc.body.appendChild(end_node);
 
     if(WA.prefetchStrategy > 0) {
-      setTimeout("WA.Sound.Prefetch.prefetchNext();", 0); //function() {WA.Sound.Prefetch.prefetchNext();}, 0);
+		WA.Sound.Prefetch.restartPrefetchTimeout();
     }
   }
 
@@ -612,6 +613,8 @@ function newPage() {
   // Normally, say that a page has loaded and announce its title.
   if(WA.timesLoaded > 0) {
     WA.Sound.addSound("Page has loaded.");
+	// Used to announce the title, but now it's inserted into
+	// the beginning of the page so it's read anyway.
     //if(currentDoc.title) {
     //  WA.Sound.addSound(currentDoc.title);
     //}
@@ -622,10 +625,12 @@ function newPage() {
 
 
   // Speak the number of headings and links on the page.
-  WA.Sound.addSound(countNumHeadings(currentDoc) + " Headings " +
-  						countNumLinks(currentDoc) + " Links");
+  var nheadings = countNumHeadings(currentDoc);
+  var nlinks = countNumLinks(currentDoc);
+  WA.Sound.addSound(nheadings + " Headings " + nlinks + " Links");
 
   WA.browseMode = WA.READ;
+
 
   var nav_doc = getNavigationDocument();
   var rec = nav_doc.getElementById('recording');
@@ -693,19 +698,22 @@ function navigate(e) {
   setContentLocation(loc_val);
 }
 
+var sameDomainRegExp = new RegExp("^(https?://)?" + top.webanywhere_url);
 
 // Makes URL come from same domain as WebAnywhere using the web proxy.
 // The subdomain (if supplied) is tacked on to the front.
 function proxifyURL(loc, subdomain) {
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
-  if(loc.indexOf('http') == 0 && (loc.indexOf(top.webanywhere_domain) > 8)) {
+  if(!sameDomainRegExp.test(loc)) {
     loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
-      loc = loc.replace(top.webanywhere_domain, (subdomain + '.' + top.webanywhere_domain));
+      loc = loc.replace(top.webanywhere_domain,
+      			(subdomain + '.' + top.webanywhere_domain));
     }
   }
+
   return loc;
 }
 
