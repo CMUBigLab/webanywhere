@@ -227,7 +227,7 @@ WA.Sound = {
     string = this.prepareSound(string);
     url = this.urlForString(string);
 
-	WA.Utils.log('url: ' + url);
+	//WA.Utils.log('url: ' + url);
 
     switch(this.soundMethod) {
       case this.FLASH_SOUND_METHOD: this._prefetchFlash(string, url, playdone, bm); break;
@@ -528,10 +528,6 @@ WA.Sound = {
         // Call newPage to process the newly-loaded page.
         if(top.pageLoaded) {
           newPage();
-        }
-
-        if(browserInit) {
-          WA.Sound.setupBaseSounds();
         }
       }
     

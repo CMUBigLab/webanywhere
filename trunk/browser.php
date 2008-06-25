@@ -14,7 +14,8 @@ session_start();
 var hasConsole = (typeof console != 'undefined' && typeof console.log != 'undefined');
 top.webanywhere_domain='<?php echo $webanywhere_domain; ?>';
 
-top.webanywhere_location = String(document.location).replace(/^(https?:\/\/[^\/]*)\/.*$/, '$1');
+top.webanywhere_location =
+  String(document.location).replace(/^(https?:\/\/[^\/]*)\/.*$/, '$1');
 top.webanywhere_url=top.webanywhere_location+'<?php echo $root_path; ?>';
 
 top.sound_url_base='<?php echo $sound_url_base; ?>';
