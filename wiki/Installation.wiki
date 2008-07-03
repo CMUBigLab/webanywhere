@@ -8,17 +8,18 @@
 = Details =
 ==Installing Apache Webserver==
 
-# Download & Install Apache Webserver (also called Apache http server *[http://httpd.apache.org/download.cgi]
-# Install PHP and make sure it is applied to the Webserver
-*[http://www.php.net/downloads.php]
-*[http://www.expertsrt.com/tutorials/Matt/install-apache.html]
+  # Download & Install Apache Webserver (also called Apache http server  
+  * [http://httpd.apache.org/download.cgi]
+  # Install PHP and make sure it is applied to the Webserver
+  * [http://www.php.net/downloads.php]
+  * [http://www.expertsrt.com/tutorials/Matt/install-apache.html]
 ==Downloading the Code==
 
- # Install svn on the computer and checkout the code from this site.
- * Tortoise svn is recommended for windows machines
+  # Install svn on the computer and checkout the code from this site.
+  * Tortoise svn is recommended for windows machines
 
 ==Setting Up Webanywhere in Apache==
 
- # Move the downloaded WebAnywhere code into the ?? folder where Apache gets the information to host.
- # Adjust the config.php file with the following adjustments: ... 
- # Directing your internet browser to: ??? should now go the WebAnywhere hosted on your computer.
+  # Move the downloaded WebAnywhere code into the ?? folder where Apache gets the information to host.
+  # Adjust the config.php file with the following adjustments: ... 
+  # Directing your internet browser to: ??? should now go the WebAnywhere hosted on your computer.
