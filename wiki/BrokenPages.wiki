@@ -5,3 +5,4 @@
   * http://www.npr.org
   * http://nytimes.com
   * http://login.live.com
+  * http://www.woodheat.org
