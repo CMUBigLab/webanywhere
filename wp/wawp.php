@@ -25,8 +25,8 @@
 // Include the global WebAnywhere configuration files.
 include('../config.php');
 
-//error_reporting(E_ALL);
-//ini_set('display_errors','On');
+error_reporting(E_ALL);
+ini_set('display_errors','On');
 
 //
 // CONFIGURABLE OPTIONS
@@ -49,7 +49,7 @@ $_flags             = array
                         'accept_cookies'  => 1,
                         'show_images'     => 1,
                         'show_referer'    => 1,
-                        'rotate13'        => 0,
+                       'rotate13'        => 0,
                         'base64_encode'   => 1,
                         'strip_meta'      => 1,
                         'strip_title'     => 0,
@@ -265,7 +265,9 @@ function proxify_script($script) {
   // A common technique used by web sites to ensure that their pages are in the
   // top-most window is to set the location of top window.  This helps to make
   // sure that WebAnywhere is at the top.
-  $script = preg_replace('#top\\.#is', 'top.content_frame.', $script);
+  echo "HEELLLOOO!"; //$script;
+  $script = preg_replace('#\\.[^=\s]*location\s*=\s*[\'"]?[^\'"]+[\'"]?#is', 'top.content_frame.', $script);
+//location\s+=\s+['"][^'"]+['"]#is', 'top.content_frame.', $script);
 
   return $script;
 }
@@ -453,8 +455,9 @@ There was a problem with your request, please try it again, or email <a href="ma
 //
 // IP-Based Throttle-Check
 //
-$link = null;
-if($limit_request_rate) {
+$wp_dir_escaped = str_replace("/", "\/", $wp_dir);
+$address_pattern = "/^https?:\/\/" . $webanywhere_domain . "(?!" . $wp_dir_escaped . ")/";
+if($limit_request_rate && !preg_match($address_pattern, $_url)) {
   if(isset($_SERVER['REMOTE_ADDR'])) {
     $ipArr = explode('.',$_SERVER['REMOTE_ADDR']);
     $ip = $ipArr[0] * 0x1000000
@@ -462,42 +465,140 @@ if($limit_request_rate) {
           + $ipArr[2] * 0x100
           + $ipArr[3];
 
-    $link =
-      pg_pconnect("host=localhost dbname=webanywhere user=$db_user password=$db_password") or die ('2Connect to db failed: ' . pg_last_error());
+    // Get or create our new database.
+    $dbh = new PDO("sqlite:" . $sql_lite_filename);
 
-    if($link) {
-      $select_query = "SELECT count FROM day_log WHERE ip=$ip AND time=date_trunc('day', now())";
-      $select_result = pg_query($link, $select_query) or die (' insert failed: ' . pg_last_error());
-      if($row = pg_fetch_array($select_result, null, PGSQL_ASSOC)) {
-        if(isset($row['count']) && $row['count'] < 20000) {
-          $update_query = "UPDATE day_log SET count=count+1 WHERE time=date_trunc('day', now()) AND ip=$ip";
-          $update_result = pg_query($link, $update_query) or die (' insert failed: ' . pg_last_error());
-        } else {
-	      show_overlimit();
-        }
+    if($dbh) {
+      $array = getdate();
+      $seconds = $array[0];
+      $minutes = (int) ($array[0] / 60);
+      $day = (int) ($minutes / 1440);
+
+      $dbh->exec('CREATE TABLE IF NOT EXISTS urls (id INTEGER, url TEXT UNIQUE, PRIMARY KEY (id));');
+      $dbh->exec('CREATE TABLE IF NOT EXISTS accesses (id INTEGER, url_id INTEGER, time INT NOT NULL, ip INTEGER, PRIMARY KEY (id));');
+      $dbh->exec('CREATE TABLE IF NOT EXISTS accesses_minute (id INTEGER, count INTEGER, time INTEGER NOT NULL, ip INTEGER, PRIMARY KEY (id));');
+      $dbh->exec('CREATE TABLE IF NOT EXISTS accesses_day (id INTEGER, count INTEGER, time INTEGER NOT NULL, ip INTEGER, PRIMARY KEY (id));');
+
+      $dbh->exec('CREATE INDEX IF NOT EXISTS minute_accesses_index ON accesses_minute(time, ip)');
+      $dbh->exec('CREATE INDEX IF NOT EXISTS day_accesses_index ON accesses_day(time, ip)');
+
+
+      //
+      // Prepare all the queries we'll need in advance, so time spent in the transaction is minimized.
+      //
+
+      // Begin the Transaction.  Transactions make this speedier.
+
+      // Find the ID of the URL being retrieved.
+      $stmt = $dbh->prepare('SELECT id FROM urls WHERE url = ?');
+      $stmt->bindValue(1, $_url);
+
+      // Insert a new URL into the database.
+      $url_insert = $dbh->prepare('INSERT INTO urls(id, url) VALUES(NULL, ?)');
+      $url_insert->bindValue(1, $_url);
+
+      // Record the current access to the database.
+      $access_stmt = $dbh->prepare('INSERT INTO accesses(id, url_id, time, ip) VALUES(NULL, ?, ?, ?)');
+      $access_stmt->bindValue(2, $seconds);
+      $access_stmt->bindValue(3, $ip);
+
+      // Get the current count for this IP and minute.
+      $am_stmt = $dbh->prepare('SELECT count FROM accesses_minute WHERE ip = ? AND time = ?');
+      $am_stmt->bindValue(1, $ip);
+      $am_stmt->bindValue(2, $minutes);
+
+      // Insert a count of 1 for this IP and minute.
+      $am_insert = $dbh->prepare('INSERT INTO accesses_minute (id, count, time, ip) VALUES(NULL, 1, ?, ?)');
+      $am_insert->bindValue(1, $minutes);
+      $am_insert->bindValue(2, $ip);
+
+      // Update the count for this IP and minute.
+      $am_update = $dbh->prepare('UPDATE accesses_minute SET count = ? WHERE time = ? AND ip = ?');
+      $am_update->bindValue(2, $minutes);
+      $am_update->bindValue(3, $ip);
+
+      // Get the count for this IP and day.
+      $ad_stmt = $dbh->prepare('SELECT count FROM accesses_day WHERE ip = ? AND time = ?');
+      $ad_stmt->bindValue(1, $ip);
+      $ad_stmt->bindValue(2, $day);
+
+      // Insert a count for this IP and day.
+      $ad_insert = $dbh->prepare('INSERT INTO accesses_day (id, count, time, ip) VALUES(NULL, 1, ?, ?)');
+      $ad_insert->bindValue(1, $day);
+      $ad_insert->bindValue(2, $ip);
+
+      // Update the count for this IP and day.
+      $ad_update = $dbh->prepare('UPDATE accesses_day SET count = ? WHERE time = ? AND ip = ?');
+      $ad_update->bindValue(2, $day);
+      $ad_update->bindValue(3, $ip);
+
+      // Get the id of the URL.
+      $url_id = 0;
+
+      // Find the URL id.
+      $dbh->beginTransaction();
+      $stmt->execute();
+
+      // Get/create the ID of the URL being retrieved.
+      $url_row = $stmt->fetch();
+      $stmt->closeCursor();
+
+      if(!$url_row) {
+        $url_insert->execute();
+        $url_insert->closeCursor();
+        $url_id = $dbh->lastInsertId();
       } else {
-        $insert_query = "INSERT INTO day_log (ip, count) VALUES($ip, 1)";
-        $insert_result = pg_query($link, $insert_query) or die (' insert failed: ' . pg_last_error());
+        $url_id = $url_row[0];
       }
 
-      $select_query = "SELECT count FROM minute_log WHERE ip=$ip AND time=date_trunc('minute', now())";
-      $select_result = pg_query($link, $select_query) or die (' insert failed: ' . pg_last_error());
-      if($row = pg_fetch_array($select_result, null, PGSQL_ASSOC)) {
-        if(isset($row['count']) && $row['count'] < 135) {
-          $update_query = "UPDATE minute_log SET count=count+1 WHERE time=date_trunc('minute', now()) AND ip=$ip";
-          $update_result = pg_query($link, $update_query) or die (' insert failed: ' . pg_last_error());
-        } else {
-	      show_overlimit();
-        }
+      // Record this access.
+      $access_stmt->bindValue(1, $url_id);
+      $access_stmt->execute();
+      $access_stmt->closeCursor();
+
+      // Check the per-minute rate of accesses.
+      $am_stmt->execute();
+      $am_row = $am_stmt->fetch();
+      $am_stmt->closeCursor();
+      if(!$am_row) {
+        $am_insert->execute();
+        $am_insert->closeCursor();
       } else {
-        $insert_query = "INSERT INTO minute_log (ip, count) VALUES($ip, 1)";
-        $insert_result = pg_query($link, $insert_query) or die (' insert failed: ' . pg_last_error());
+        $count = $am_row['count'];
+        if($count < $limit_rate_minute) {
+          $am_update->bindValue(1, $count + 1);
+          $am_update->execute();
+          $am_update->closeCursor();
+        } else {
+          $dbh->commit();
+          show_overlimit();
+        }
       }
 
-      $insert_query = "INSERT INTO access_log (ip, url) VALUES($ip, '" . pg_escape_string($_url) . "')";
-      $insert_result = pg_query($link, $insert_query) or die ('insert into access log failed: ' . pg_last_error());
-    } else {
-      show_overlimit();
+      // Check the per-day rate of accesses.
+      $ad_stmt->execute();
+      $ad_row = $ad_stmt->fetch();
+      $ad_stmt->closeCursor();
+      if(!$ad_row) {
+        $ad_insert->execute();
+        $ad_insert->closeCursor();
+      } else {
+        $count = $ad_row['count'];
+        if($count < $limit_rate_day) {
+          $ad_update->bindValue(1, $count + 1);
+          $ad_update->execute();
+          $ad_update->closeCursor();
+        } else {
+          $dbh->commit();
+          show_overlimit();
+        }
+      }
+
+      // End the transaction.
+      $dbh->commit();
+
+      // Free the database object.
+      $dbh = null;
     }
   } else {
     show_overlimit();
@@ -824,23 +925,13 @@ if($_content_type == 'text/css') {
   $_response_body = proxify_css($_response_body);
 } else {
   // Modifiable requests count more.
-  if(isset($_SERVER['REMOTE_ADDR'])) {
-    $ipArr = explode('.',$_SERVER['REMOTE_ADDR']);
-    $ip = $ipArr[0] * 0x1000000
-      + $ipArr[1] * 0x10000
-      + $ipArr[2] * 0x100
-      + $ipArr[3];
-
-    if($limit_request_rate === true) {
-      if(!$link) {
-        $link =
-	      pg_pconnect("host=localhost dbname=webanywhere user=$db_user password=$db_password") or die ('2Connect to db failed: ' . pg_last_error());
-      }
-
-      if($link) {
-        $update_query = "UPDATE day_log SET count=count+18 WHERE time=date_trunc('day', now()) AND ip=$ip";
-        $update_result = pg_query($link, $update_query) or die (' insert failed: ' . pg_last_error());
-      }
+  if($limit_request_rate === true) {
+    if(isset($_SERVER['REMOTE_ADDR'])) {
+      $ipArr = explode('.',$_SERVER['REMOTE_ADDR']);
+      $ip = $ipArr[0] * 0x1000000
+        + $ipArr[1] * 0x10000
+        + $ipArr[2] * 0x100
+        + $ipArr[3];
     }
   }
 
@@ -848,7 +939,9 @@ if($_content_type == 'text/css') {
 
   // Rewrite some Javascript that can cause WebAnywhere to lose focus.
   $_response_body = preg_replace('#top\\.#is', 'top.content_frame.', $_response_body);
-  $_response_body = preg_replace('#location\s*=#is', 'top.content_frame.location=', $_response_body);
+  $_response_body = preg_replace('#(document\\.)?location=([\'"]?[^\'";]+[\'"]?)#is', 'top.content_frame.location=proxifyURL($2)', $_response_body);
+
+
 
   // The text to speech engine doesn't like a lot of these specially-formatted characters.
   // Here we try to replace them with their more friendly ASCII alternatives.
