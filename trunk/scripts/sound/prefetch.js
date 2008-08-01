@@ -519,7 +519,7 @@ WA.Sound.Prefetch = {
 
   // Initialize the system to prefetch letters and common symbols.
   // Letters are ordered according to a guess of their popularity in the web context.
-  lettersNotFetched: ['w','.','h','t','p','/','g','o','e','l','b','f','c','i','j','k','m','n','d','q','r','s','u','v','a','x','y','z','go'],
+  lettersNotFetched: ['w','.','h','t','p','/','g','o','e','l','b','f','c','i','j','k','m','n','d','q','r','s','u','v','a','x','y','z','go','star','end of page','submit button'],
 
   // Prefetches the letters, so that when the user begins typing,
   // they do not experience as much latency in echoing.

@@ -576,7 +576,14 @@ function newPage() {
     if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
     else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
 
-	// Preprocess the page, including adding to the list of nodes to be prefetched.
+    var desc_butt = currentDoc.getElementById('webanywhere-audio-description');
+    if(desc_butt) {
+      var playDesc = function(e) {WA.Sound._prefetchFlash('webanywhere_audio_description', 'http://webanywhere.cs.washington.edu/webanywhere-description.mp3', true, true);};
+        if(window.attachEvent) currentDoc.attachEvent('onclick', playDesc);
+        else if(window.addEventListener) currentDoc.addEventListener('click', playDesc, false);
+    }
+
+    // Preprocess the page, including adding to the list of nodes to be prefetched.
     if(WA.prefetchStrategy > 0) {
       WA.Sound.Prefetch.resetPrefetchArray();
       WA.Sound.Prefetch.incPrefetchIndex();
@@ -603,7 +610,7 @@ function newPage() {
     currentDoc.body.appendChild(end_node);
 
     if(WA.prefetchStrategy > 0) {
-		WA.Sound.Prefetch.restartPrefetchTimeout();
+      WA.Sound.Prefetch.restartPrefetchTimeout();
     }
   }
 
@@ -623,14 +630,14 @@ function newPage() {
   	WA.Sound.addSound("WebAnywhere has loaded");
   }
 
-
   // Speak the number of headings and links on the page.
   var nheadings = countNumHeadings(currentDoc);
   var nlinks = countNumLinks(currentDoc);
-  WA.Sound.addSound(nheadings + " Headings " + nlinks + " Links");
+  var head = nheadings + ((nheadings > 1) ? "Headings" : "Heading");
+  var link = nlinks + ((nlinks > 1) ? "Links" : "Link");
+  WA.Sound.addSound(head + " " + link);
 
-  WA.browseMode = WA.READ;
-
+  setTimeout(function() {WA.browseMode = WA.READ;}, 50);
 
   var nav_doc = getNavigationDocument();
   var rec = nav_doc.getElementById('recording');
@@ -702,10 +709,11 @@ var sameDomainRegExp = new RegExp("^(https?://)?" + top.webanywhere_url);
 
 // Makes URL come from same domain as WebAnywhere using the web proxy.
 // The subdomain (if supplied) is tacked on to the front.
-function proxifyURL(loc, subdomain) {
+function proxifyURL(loc, subdomain, rewrite) {
+  var rewriteForSure = (typeof rewrite != 'undefined') && rewrite;
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
-  if(!sameDomainRegExp.test(loc)) {
+  if(rewriteForSure || !sameDomainRegExp.test(loc)) {
     loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
