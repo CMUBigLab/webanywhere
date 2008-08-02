@@ -13,10 +13,18 @@
   # Install PHP and make sure it is applied to the Webserver
     * [http://www.php.net/downloads.php]
     * [http://www.expertsrt.com/tutorials/Matt/install-apache.html]
-==Downloading the Code==
 
+==Installing PHP==
+
+  # Required modules:
+    * OpenSSL
+    * PDO
+    * PSQLite
+
+
+==Downloading the Code==
   # Install svn on the computer and checkout the code from this site.
-    * Tortoise svn is recommended for windows machines
+    * TortoiseSVN is recommended for windows machines
 
 ==Setting Up Webanywhere in Apache==
 
