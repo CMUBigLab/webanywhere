@@ -7,7 +7,7 @@ $admin_email = 'admin@yourdoamin.org';
 // The domain where WebAnywhere is located.
 // Among other things, this enables the system to check if content has been loaded in its frame
 // that the system cannot read due to cross-site scripting concerns.
-$webanywhere_domain = 'webanywhere.cs.washington.edu';
+$webanywhere_domain = 'localhost';
 
 // The relative path to WebAnywhere on the web server.
 $root_path = '/wa';
