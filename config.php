@@ -9,9 +9,6 @@ $admin_email = 'admin@yourdoamin.org';
 // that the system cannot read due to cross-site scripting concerns.
 $webanywhere_domain = 'webanywhere.cs.washington.edu';
 
-// The base path of WebAnywhere, without the preceeding slash.
-$root_base = 'wa';
-
 // The relative path to WebAnywhere on the web server.
 $root_path = '/wa';
 
@@ -19,14 +16,11 @@ $root_path = '/wa';
 $min_script_path = $root_path . '/min';
 
 // The path to the scripts directory.
-$script_path = $root_base . '/scripts';
-
-// Web Proxy Directory.
-$wp_dir = '/wp';
+$script_path = $root_path . '/scripts';
 
 // The path to the web proxy.
 // $url$ will be replaced with the URL Escaped URL to fetch.
-$wp_path = $root_path . $wp_dir . '/wawp.php?q=$url$';
+$wp_path = $root_path . '/wp/wawp.php?q=$url$';
 
 // The URL from which sounds should be retrieved.
 // $text$ will be replaced with the URL Escaped text to fetch.
@@ -35,7 +29,7 @@ $sound_url_base = 'http://webanywhere.cs.washington.edu/cgi-bin/getsound.pl?text
 // Sound file that gets played when waiting for something - page to load, etc.
 $wait_sound = '/wa/sounds/blinker.mp3';
 
-// Filename to use as SQLite database.
+// Filename to use as SQLite database:  should not be accessible from the web.
 $sql_lite_filename = "C:/webanywhere-accesses.sdb";
 
 // To prevent malicious users from abusing the web proxy that is part of WebAnywhere,
