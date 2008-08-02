@@ -25,7 +25,7 @@ top.cross_domain_security = '<?php echo $cross_domain_security; ?>';
 if(hasConsole) console.log(top.sound_url_base + ' ' + top.web_proxy_url);
 /* ]]> */
 </script>
-<script language="Javascript" src="/<?php echo $script_path; ?>/keymapping.php"></script>
+<script language="Javascript" src="<?php echo $script_path; ?>/keymapping.php"></script>
 
 
 <?php
@@ -68,7 +68,7 @@ if($_REQUEST[embed]==='true') {
 // each script separately (better for debugging), or
 // combined script using the script minimizer.
 if($_REQUEST[debug]==='true') {
-  $start = '<script language="Javascript" src="/' . $script_path;
+  $start = '<script language="Javascript" src="' . $script_path;
   $end = '"></script>';
   
   // Output script tags individually.

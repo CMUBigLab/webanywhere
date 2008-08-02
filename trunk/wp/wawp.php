@@ -22,11 +22,11 @@
    +------------------------------------------------------------------------------+
 */
 
-// Include the global WebAnywhere configuration files.
+// Include the global WebAnywhere configuration file.
 include('../config.php');
 
-error_reporting(E_ALL);
-ini_set('display_errors','On');
+//error_reporting(E_ALL);
+//ini_set('display_errors','On');
 
 //
 // CONFIGURABLE OPTIONS
@@ -455,8 +455,8 @@ There was a problem with your request, please try it again, or email <a href="ma
 //
 // IP-Based Throttle-Check
 //
-$wp_dir_escaped = str_replace("/", "\/", $wp_dir);
-$address_pattern = "/^https?:\/\/" . $webanywhere_domain . "(?!" . $wp_dir_escaped . ")/";
+$wp_path_escaped = str_replace("/", "\/", $wp_path);
+$address_pattern = "/^https?:\/\/" . $webanywhere_domain . "(?!" . $wp_path_escaped . ")/";
 if($limit_request_rate && !preg_match($address_pattern, $_url)) {
   if(isset($_SERVER['REMOTE_ADDR'])) {
     $ipArr = explode('.',$_SERVER['REMOTE_ADDR']);

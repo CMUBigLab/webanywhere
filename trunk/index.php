@@ -75,7 +75,9 @@ if(isset($_REQUEST['embed'])) {
 if(strlen($arguments) > 0) {
   $arguments = '?' . $arguments;
 }
-$start_url = (isset($_REQUEST['starting_url']) ? str_replace('$url$', base64_encode($_REQUEST['starting_url']), $wp_path) : $root_path . $wp_dir . "/wawp.php?q=aHR0cDovL3dlYmluc2lnaHQuY3Mud2FzaGluZ3Rvbi5lZHUvd2EvY29udGVudC5waHA=");
+
+$start_url = (isset($_REQUEST['starting_url']) ? base64_encode($_REQUEST['starting_url']) : 'aHR0cDovL3dlYmluc2lnaHQuY3Mud2FzaGluZ3Rvbi5lZHUvd2EvY29udGVudC5waHA=');
+$start_url = str_replace('$url', $start_url, $wp_path);
 ?>
 <FRAMESET ROWS="15%, *" BORDER="0">
      <FRAME SRC="browser.php<?php echo $arguments; ?>" id="navigation_frame" NAME="navigation_frame" onLoad="navigationLoad()" SCROLLING="NO">
