@@ -30,7 +30,7 @@
 	$sound_url_base = 'http://webanywhere.cs.washington.edu/cgi-bin/getsound.pl?text=$text$&cache=1&mtts=1';
 
     // The URL that will load in WebAnywhere by default.
-    $default_content_url = 'http://www.google.com';
+    $default_content_url = 'http://webanywhere.cs.washington.edu/content.php';
 
 	// Sound file that gets played when waiting for something - page to load, etc.
 	$wait_sound = '/wa/sounds/blinker.mp3';

@@ -160,16 +160,9 @@ function newPage() {
       if(/mail\.google\.com\/mail/.test(location_field.value) && !(/ui=?html/.test(location_field.value))) {
         setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
       }
-      var temp_loc = location_field.value;
-      location_field.value = temp_loc.replace(/[^A-Za-z0-9\s~!@#\$%\^&\*\\.\,:<>\+\{\}(\)\-\?\\\/]/g, "");
 
-      //if(/q=/.test(newLoc)) {
-        WA.Utils.log('orig: ' + newLoc + '\n');
-        var enc_url = newLoc.replace(/^[^\?]+\?[^=]+=([^\&]+).*$/, '$1');
-        location_field.value = WA.Utils.Base64.decode64(unescape(enc_url.replace(/%253D/g, '=')));
-        WA.Utils.log('orig: ' + unescape(enc_url) + ' ' + WA.Utils.Base64.decode64(unescape(enc_url)) + '\n');
-
-      //}
+      var enc_url = newLoc.replace(/^[^\?]+\?[^=]+=([^\&]+).*$/, '$1');
+      location_field.value = WA.Utils.Base64.decode64(unescape(enc_url.replace(/%253D/g, '=')));
     }
 
     // Update the current nodes.

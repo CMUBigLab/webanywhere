@@ -43,7 +43,7 @@ WA.Extensions.VisualSpotlighter = function() {
 
     // Label any nodes associated with this one, specifically nodes
     // that serve as this node's label.
-    if(node.hasAttribute('assoc_id')) {
+    if(WA.Nodes.hasAttribute(node, 'assoc_id')) {
     	var assocNode = node.ownerDocument.getElementById(node.getAttribute('assoc_id'));
     	this._processNode(assocNode);
     }

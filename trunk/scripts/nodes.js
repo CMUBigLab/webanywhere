@@ -73,7 +73,7 @@ WA.Nodes = {
     // In this case we should be able to use the 'specified' property of the
     // attribute to see if it is provided, but this has not proven reliable,
     // particulary for 
-    if(node.attributes && !node.attributes[attrib]) {
+    if(node.attributes && !(attrib in node.attributes)) {
       return false;
     }
 
