@@ -2,30 +2,64 @@
  * utils.js
  * 
  * Some useful functions dealing with string manipulation, time, debugging,
- * xpaths, and DOM manipulation.
+ * xpaths, DOM manipulation, and visualization.
  * 
  */
 
 WA.Utils = {
-  // Removes spaces from the beginning/end of a string argument.
+  /**
+   * Removes spaces from the beginning/end of a string argument.
+   * @param stringToTrim String that should have whitespace stripped from its
+   *        start and end.
+   * @return String with whitespace removed.
+   */
   trim: function(stringToTrim) {
     return stringToTrim.replace(/^\s+|\s+$/g,"");
   },
 
-  // Returns a reference to the textarea used for recording messages.
+  /**
+   * Count the number of times the supplied regular expression is found in the
+   * supplied string.
+   * @param str String in which to count.
+   * @param substr Regular expression to count.
+   * @return Integer Count of times that the substring appears in the string.
+   */
+  countSubRE: function(str, substr) {
+  	return str.length - str.replace(new RegExp(substr, 'i'), '').length;
+  },
+
+  /**
+   * Count the number of words in the supplied string.
+   * @param str String to count the number of words in.
+   * @return Integer  Number of words in str.
+   */
+  countWords: function(str) {
+  	return (this.trim(str).split(/\s+/).length);
+  },
+
+  /**
+   * Returns a reference to the textarea used for recording messages.
+   * @return Reference to textarea used for recording messages.
+   */
   getRecordingTextarea: function() {
     var doc = getNavigationDocument();
     var rta = doc.getElementById('recording');
     return rta;
   },
 
-  // Returns the current time.
+  /**
+   * Returns the current time.
+   * @return The current time.
+   */
   getTime: function() {
     var d = new Date();
     return d.valueOf();
   },
 
-  // Add the text of the parameter line to the recording textarea.
+  /**
+   * Add the text of the parameter line to the recording textarea.
+   * @param line String to record in the recording text area.
+   */
   recordLine: function(line) {
     if(recordActions) {
       var rta = this.getRecordingTextarea();
@@ -43,7 +77,7 @@ WA.Utils = {
   callForEachDoc: function(win, func) {
     for(var i=0; i < win.frames.length; i++) {
       func(win.frames[i].document);
-	}
+    }
   },
 
   /**
@@ -76,8 +110,12 @@ WA.Utils = {
     prefetch_req.send(params);
   },
 
-  // Returns an XPATH for the specified node, starting with its document element
-  // as root.
+  /** 
+   * Returns an XPATH for the specified node, starting with its document element
+   * as root.
+   * @param node DOM element to create the XPATH for.
+   * @return A string of the XPATH that was created.
+   */
   getXPath: function(node) {
    if(!node) {
    	return "(none)";
@@ -153,15 +191,22 @@ WA.Utils = {
    return xpath;
   },
 
-  // Boolean function.
-  // Returns true if the user is using IE and false otherwise.
+  /**
+   * Simple test of whether the user's browser is IE.
+   * This could be improved...
+   */
   isIE: function() {
     return (navigator.appName == "Microsoft Internet Explorer");
   },
 
-  // A long but simple hash function, not necessarily secure or 'good', but
-  // it produces unique strings to use as keys in the system that don't
-  // contain any of the characters disallowed by Sound Manager 2.
+  
+  /**
+   * A long but simple hash function that produces unique strings
+   * to use as keys in the system that don't contain characters
+   * disallowed in sound names by Sound Manager 2.
+   * @param str String to calculate the hash of.
+   * @return String of hash.
+   */
   simpleHash: function(str) {
     // If string is null or undefined, return null string hash.
     if(str == null) {
@@ -175,7 +220,7 @@ WA.Utils = {
     }
     if(type != 'string') {
       str = String(str);
-	}
+    }
 
     // If the string is empty, return the empty string hash.
     if(str.length <= 0) {
@@ -200,7 +245,7 @@ WA.Utils = {
       str2 += hex_tab.charAt(bin[i] & 0x3F);
     }
 
-	// Prepare the final string.
+    // Prepare the final string.
     var val = str.substring(0, 15) + str2;
     val = val.replace(/&#(\d)+;/g, "p$1");
     val = val.replace(/[^a-zA-Z0-9]+/g, '');
@@ -208,7 +253,72 @@ WA.Utils = {
     return val;
   },
 
-  // Function for logging error messages to the Firebug console when it is available.
+
+	/**
+	 * This function returns the [x, y] position of the supplied object.
+	 * This can be slow since it requires tracing the element back to the root.
+	 * @param obj DOM element for which the position should be calculated.
+	 * @return [x,y] position of the supplied element.
+	 */
+	findPos: function(obj) {
+	  var curleft = curtop = 0;
+	  if(obj.offsetParent) {
+	    curleft = obj.offsetLeft;
+	    curtop = obj.offsetTop;
+	    while (obj = obj.offsetParent) {
+	      curleft += obj.offsetLeft;
+	      curtop += obj.offsetTop;
+	    }
+	  }
+	
+	  return [curleft,curtop];
+	},
+
+  /**
+   * Return the height/width of the visible portion of the supplied window.
+   * @param Window.
+   * @return [width, height]
+   */
+  contentWidthHeight: function(win) {
+		if(self.innerWidth != undefined) {
+		  return [win.innerWidth, win.innerHeight];
+    } else {
+  		var docelem = win.document.documentElement;
+  		return [docelem.clientWidth, docelem.clientHeight];
+		}
+  },
+
+  /**
+   * getScrollOffset
+   * Gets the scroll offset of the browser.
+   * @param win Window Element to get the scroll offset of.
+   * return [scrollX, scrollY]
+   */
+  getScrollOffset: function(win) {
+  	if(win.scrollY != undefined) {
+  		return [win.scrollX, win.scrollY];
+  	} else if(win.document.documentElement.scrollTop) {
+  		var delem = win.document.documentElement;
+      return [delem.scrollLeft, delem.scrollTop];
+  	} else {
+  		return [0, 0];
+  	}
+  },
+
+  /**
+   * Addds the specified listener function to the target node.
+   * @param target Node
+   * @param func Listener function to add.
+   */
+  setListener: function(target, evt, func) {
+	  if(window.attachEvent) target.attachEvent('on' + evt, func);
+	  else if(window.addEventListener) target.addEventListener(evt, func, false);  	
+  },
+
+  /**
+   * Function for logging error messages to the Firebug console when it is available.
+   * @param str String to log to the console.
+   */
   log: function(str) {
   	if(typeof console != 'undefined' && typeof console.log != 'undefined') {
   		console.log(str);

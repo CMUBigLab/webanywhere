@@ -6,4 +6,6 @@
  * type.
  */
 
-WA.Navigation.Matchers
+WA.Navigation.Matchers = {
+  
+};

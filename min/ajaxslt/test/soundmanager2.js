@@ -214,12 +214,10 @@ function SoundManager(smURL,smID) {
     // window.onload() equivalent for SM2, ready to create sounds etc.
     // this is a stub - you can override this in your own external script, eg. soundManager.onload = function() {}
     soundManager._writeDebug('<em>Warning</em>: soundManager.onload() is undefined.',2);
-	alert('loaded!');
   }
 
   this.onerror = function() {
     // stub for user handler, called when SM2 fails to load/init
-	alert('here!');
   }
 
   // --- "private" methods ---

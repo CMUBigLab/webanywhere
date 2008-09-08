@@ -1,0 +1,15 @@
+Instructions for a fresh install of WebAnywhere.
+
+Requirements:
+Apache 2.0+
+PHP 5.0+
+
+Extract WebAnywhere into the folder of your choice.  Default is /wa off of your root domain, (i.e. http://localhost/wa/).
+
+Edit config.php in root directory.  Default should work if installed in /wa.
+
+Browse to your installation of WebAnywhere.
+
+Useful Information:
+Debugging URL:
+.../index.php?debug=true

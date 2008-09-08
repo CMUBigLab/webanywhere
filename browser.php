@@ -7,26 +7,12 @@ session_start();
 <html>
 <head>
 <title>WebAnywhere Browser Frame</title>
-<script type="text/javascript">
-/* <![CDATA[ */
-
-// Global variables used by WebAnywhere.
-var hasConsole = (typeof console != 'undefined' && typeof console.log != 'undefined');
-top.webanywhere_domain='<?php echo $webanywhere_domain; ?>';
-
-top.webanywhere_location =
-  String(document.location).replace(/^(https?:\/\/[^\/]*)\/.*$/, '$1');
-top.webanywhere_url=top.webanywhere_location+'<?php echo $root_path; ?>';
-
-top.sound_url_base='<?php echo $sound_url_base; ?>';
-top.web_proxy_url='<?php echo $wp_path; ?>';
-top.cross_domain_security = '<?php echo $cross_domain_security; ?>';
-
-if(hasConsole) console.log(top.sound_url_base + ' ' + top.web_proxy_url);
-/* ]]> */
-</script>
-<script language="Javascript" src="<?php echo $script_path; ?>/keymapping.php"></script>
-
+<script type="text/javascript" src="<?php
+echo $script_path;
+?>/js-config.php"></script>
+<script type="text/javascript" src="<?php
+echo $script_path;
+?>/keymapping.php"></script>
 
 <?php
 // It's about a million times easier to debug Javascript when your source files
@@ -46,9 +32,13 @@ $scripts =
         '/utils/base64.js',
         '/nodes.js',
         '/sound/sounds.js',
+        '/startup/standalone.js',
         '/sound/prefetch.js',
         '/input/keyboard.js',
-        '/wa.js'
+        '/interface/interface.js',
+        '/extensions/extensions.js',
+        '/wa.js',
+        '/startup/start.js'
         );
 
 // Depending on the type of sound player used, include the appropriate
@@ -56,19 +46,25 @@ $scripts =
 if($_REQUEST[embed]==='true') {
   array_unshift($scripts, '/sound/sound_embed.js');
 } else {
-  // Include either the regular or minified soundmanager2.js.
-  //if($_REQUEST[debug]==='true') {
-    array_unshift($scripts, '/sound/soundmanager2.js');
-  //} else {
-  //  array_unshift($scripts, '/sound/soundmanager2-mini.js');  
-  //}
+  array_unshift($scripts, '/sound/soundmanager2.js');
+}
+
+// Add in any system-defined extensions.
+foreach($extensions as $extension_path) {
+  array_push($scripts, $extension_path);
+}
+
+// Optionally include Firebug Lite.
+if($_REQUEST[firebug]==='true') {
+  echo '<script type="text/javascript" src="' . $script_path .
+    '/utils/firebug-lite.js"></script>';
 }
 
 // Depending on whether we're in debug mode, either include
 // each script separately (better for debugging), or
 // combined script using the script minimizer.
 if($_REQUEST[debug]==='true') {
-  $start = '<script language="Javascript" src="' . $script_path;
+  $start = '<script type="text/javascript" src="' . $script_path;
   $end = '"></script>';
   
   // Output script tags individually.
@@ -76,29 +72,29 @@ if($_REQUEST[debug]==='true') {
 } else {
   //$jsBuild = new Minify_Build($scripts);
 
-  echo '<script language="Javascript" src="';
+  echo '<script type="text/javascript" src="';
   echo $min_script_path . '/scripts.php?files=';
 
   // Concatenate the individual scripts used into one long string.
   echo $script_path . implode(',' . $script_path, $scripts) . '"></script>';
-  //+><script type="text/javascript" src="<+php echo $jsBuild->uri('m.php/js'); +>"></script><+php
 }
 ?>
 
 <style>
-body {font-family: Georgia, "Times New Roman", Times, serif;}
-#input {font-size: 2em;}
-#body {font-family: arial;}
+  body {font-family: Georgia, "Times New Roman", Times, serif;}
+  #input {font-size: 2em;}
+  #body {font-family: arial;}
 </style>
 </head>
 <?php
-// Flush what we have so far so the browser can start downloading/processing the scripts.
-flush();
+  // Flush what we have so far so the browser can start downloading/processing the scripts.
+  flush();
 ?>
 <body bgcolor="#CCCCFF">
 <div align="center" valign="bottom" style="font-size: 1em;">
 <form onSubmit="javascript:navigate(this);return false;">
-<label for="location">Location</label>: <input type="text" size="50" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>
+<label for="location">Location</label>:
+<input type="text" size="50" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>
 <input name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
 </form>
 <form>
@@ -108,7 +104,9 @@ flush();
 </form>
 </div>
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: display;"'; } else { echo 'style="visibility: hidden"'; } ?>>Playing: <span id="playing_div"></span> Features: <span id="sound_div"></span></div>
-<div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: hidden;"'; } else { echo 'style="visibility: hidden"'; }?>><span id="test_div"></span></div>
+<div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: hidden;"'; } else { echo 'style="visibility: hidden"'; }?>>
+<span id="test_div"></span>
+</div>
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: hidden;"'; } else { echo 'style="visibility: hidden"'; }?>><span id="debug_div"></span></div>
 <?php if($_REQUEST[debug]==='true') { ?>
 <p>
