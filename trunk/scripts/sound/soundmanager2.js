@@ -698,7 +698,11 @@ function SMSound(oSM,oOptions) {
 
 }
 
-var soundManager = new SoundManager();
+//var soundManager = new SoundManager();
+
+// Initialize soundManager2.
+var soundManager =
+  new SoundManager(top.script_home + '/components/soundmanager2.swf');
 
 // attach onload handler
 if(window.addEventListener) {

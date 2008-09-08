@@ -43,12 +43,19 @@ WA.Keyboard = {
   // Used for predictive prefetching.
   last_action: null,
 
-  // Handle key events.
-  // The monster global key event handler.
-  // Uses parameters specifying keys pressed that are created
-  // by the event handlers below.
+  /**
+   * Handle key events.
+   * The monster global key event handler.
+   * Uses parameters specifying keys pressed that are created
+   * by the event handlers below.
+   * @param e Original event.
+   * @param target Target element of the event.
+   * @param key_string Sting representation of the keyboard event.
+   * @param source String: key down, key up, key press.
+   * @return Boolean Indicates whether event should be blocked.
+   */
   doKeyPress: function (e, target, key_string, source) {
-    if(!browserInit) {
+    if(!WA.browserInit) {
     	this.suppressKeys(e);
     	return false;
     }
@@ -345,6 +352,7 @@ WA.Keyboard = {
     // Should move to separate Markov prediction object.
     this.recordObservation(key_string, new_node, lastNode);
   
+    // Update our record of the last node to be played.
     if(new_node != null) {
     	lastNode = new_node;
     }

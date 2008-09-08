@@ -1,25 +1,17 @@
 /*
- * wa.js  -  main WebAnywhere script
+ * Main WebAnywhere script.
+ * /scripts/wa.js
  * 
  * This script provides the main functionality for reading through a web page,
  * skipping through a web page, handling new page loads, capturing user input,
  * etc.
  */
 
-// WebAnywhere Operating States.
-var READING_PAGE = 0;
-var LOADING_PAGE = 1;
-var IN_BROWSER = 2;
-
-// The current state of WebAnywhere.
-// Start with IN_BROWSER.
-var operating_state = IN_BROWSER;
-
 // Information about the document that the system is currently reading.
 var currentLoc = null;
 var currentDoc = null;
 
-// The current reading "caret."
+// The current reading position (caret).
 var currentNode = null;
 var currentWord = 0;
 var currentChar = 0;
@@ -27,16 +19,16 @@ var currentChar = 0;
 // The last node to be played by the system.
 var lastNodePlayed = null;
 
-// Keeps track of whehter a programmatic focus was requested.
+// Keeps track of whether a programmatic focus was requested.
 var programmaticFocus = false;
 
+// Records whether a textbox has the current focus.
 var textBoxFocused = false;
 
-var browserInit = false;
-var init = 0;
-
+// Boolean used to set if we're waiting on a page to load.
 var waiting_on_page = "";
 
+// Node last focused.
 var focusedNode = null;
 
 // Should the actions of the user be recorded?
@@ -50,24 +42,9 @@ var emulationType = 0;
 // Something like the clock tick of the system.
 var updatePlayingCount = 0;
 
-// Attach browser onload handler
-if(window.addEventListener) {
-  window.addEventListener('load', init_browser, false);
-} else if(window.attachEvent) {
-  window.attachEvent('onload', init_browser);
-}
-
-// Writes a string to the debug div, which is a location in the browser frame
-// where debug messages are written.
-function debug(str) {
-  var debug_div = document.getElementById('debug_div');
-  if(debug_div) {
-  	debug_div.appendChild(document.createTextNode(str));
-  }
-}
-
-// Updates the text that is displayed visually.
-// Useful for debugging.
+/**
+ * Updates the information DIVs (used primarily for debugging).
+ */
 function updatePlaying() {
   var play_div = document.getElementById('playing_div');
   if(play_div) {
@@ -75,47 +52,64 @@ function updatePlaying() {
   }
 
   var sound_div = document.getElementById('sound_div');
-
-  if(currentNode && currentNode.nodeType == 1) {
-    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' val: ' + valPath + ' bMode:' + WA.browseMode;
-  } else {
-    sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' val: ' + valPath + ' bMode:' + WA.browseMode;
+  if(sound_div) {
+	  if(currentNode && currentNode.nodeType == 1) {
+	    sound_div.innerHTML = "curr: " +
+        (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' bMode:' + WA.browseMode;
+	  } else {
+	    sound_div.innerHTML = "curr: " +
+        (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' bMode:' + WA.browseMode;
+	  }
   }
 }
 
-// Initializes the WebAnywhere browser.  Called when the frameset page loads.
+/**
+ * Initializes the WebAnywhere browser.
+ * Called when the frameset page loads.
+ */
 function init_browser() {
-  focusLocation();
+	// Start by focusing the location bar.
+  WA.Interface.focusLocation();
 
-  browserInit = true;
+  // Mark the browser as having been initialized.
+  WA.browserInit = true;
 
   // Updates the debugging panel.
   setInterval('updatePlaying()', 200);
 
-  // Horrible hack for resetting the keyboard events.
-  // TODO:  Figure out how to fix this.
-  setInterval(function() {WA.Keyboard.resetKeyboardModifiers();}, 60000);
+  // Hack for resetting the keyboard events, currently once every 45 seconds.
+  // TODO:  Figure out what the underlying problem is that makes this necessary.
+  setInterval(function() {WA.Keyboard.resetKeyboardModifiers();}, 45000);
 
-  var go_button = document.getElementById('location_go');
+  // Event listeners for the location bar.
   var location_field = document.getElementById('location');
 
-  if(window.attachEvent) location_field.attachEvent('onfocus', locationFocus);
-  else if(window.addEventListener) location_field.addEventListener('focus', locationFocus, false);
+  if(location_field) {
+	  if(window.attachEvent) location_field.attachEvent('onfocus', locationFocus);
+	  else if(window.addEventListener) location_field.addEventListener('focus', locationFocus, false);
+	
+	  if(window.attachEvent) location_field.attachEvent('onblur', function() { getScriptWindow().textBoxFocused = false; });
+	  else if(window.addEventListener) location_field.addEventListener('blur', function() { getScriptWindow().textBoxFocused = false; }, false);
+  }
 
-  if(window.attachEvent) location_field.attachEvent('onblur', function() { top.navigation_frame.textBoxFocused = false; });
-  else if(window.addEventListener) location_field.addEventListener('blur', function() { top.navigation_frame.textBoxFocused = false; }, false);
+  // Event listeners for the GO button.
+  var go_button = document.getElementById('location_go');
+  if(go_button) {
+	  if(window.attachEvent) go_button.attachEvent('onfocus', goButtonFocus);
+	  else if(window.addEventListener) go_button.addEventListener('focus', goButtonFocus, false);
+  }
 
-  if(window.attachEvent) go_button.attachEvent('onfocus', goButtonFocus);
-  else if(window.addEventListener) go_button.addEventListener('focus', goButtonFocus, false);
-   
-  if(window.attachEvent) document.attachEvent('onkeydown', function(e){WA.Keyboard.handleKeyDown(e)});
-  else if(window.addEventListener) document.addEventListener('keydown', function(e){WA.Keyboard.handleKeyDown(e)}, false);
+  // Window-level key event handlers.
+  // Event handlers also attached in newPage to catch events
+  // when content is focused.
+  if(window.attachEvent) document.attachEvent('onkeydown', handleKeyDown);
+  else if(window.addEventListener) document.addEventListener('keydown', handleKeyDown, false);
 
-  if(window.attachEvent) document.attachEvent('onkeyup', function(e){WA.Keyboard.handleKeyUp(e)});
-  else if(window.addEventListener) document.addEventListener('keyup', function(e){WA.Keyboard.handleKeyUp(e)}, false);
+  if(window.attachEvent) document.attachEvent('onkeyup', handleKeyUp);
+  else if(window.addEventListener) document.addEventListener('keyup', handleKeyUp, false);
 
-  if(window.attachEvent) document.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
-  else if(window.addEventListener) document.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
+  if(window.attachEvent) document.attachEvent('onkeypress', handleKeyPress);
+  else if(window.addEventListener) document.addEventListener('keypress', handleKeyPress, false);
 
   // For Flash, the system waits until the Flash movie has loaded.
   // For embedded sounds, the system can proceed immediately.
@@ -125,7 +119,7 @@ function init_browser() {
 
     newPage();
   }
-  
+
   // Time for the system to start looking for sounds to play.
   WA.Sound.startPlayWaiting();
 
@@ -133,9 +127,182 @@ function init_browser() {
   WA.Sound.Prefetch.prefetchLetters();
 }
 
+/**
+ * Called when a new page loads.
+ * Adds event handlers, pre-processes content when appropriate.
+ */
+function newPage() {
+  WA.browseMode = WA.PAUSED;
+
+  var content_frame = top.document.getElementById("content_frame");
+  if(content_frame) {
+    var src = content_frame.src;
+
+    if(src.indexOf(top.webanywhere_url)!=0) {
+      var location_field = document.getElementById('location');
+      if(/mail\.google\.com\/mail/.test(location_field.value) &&
+          !(/ui=?html/i.test(location_field.value))) {
+        setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
+      } else {}
+    }
+  }
+
+  var newDoc = getContentDocument();
+  var newLoc = String(newDoc.location);  // Document URL.
+
+  // Sometimes we get multiple loads from the same page.
+  var startNode = newDoc.getElementById('id');
+
+  if(newDoc != currentDoc && (!startNode ||currentLoc != newLoc)) {
+    var location_field = document.getElementById('location');
+    if(location_field) {
+      WA.Utils.recordLine('new page: ' + location_field.value);
+      if(/mail\.google\.com\/mail/.test(location_field.value) && !(/ui=?html/.test(location_field.value))) {
+        setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
+      }
+      var temp_loc = location_field.value;
+      location_field.value = temp_loc.replace(/[^A-Za-z0-9\s~!@#\$%\^&\*\\.\,:<>\+\{\}(\)\-\?\\\/]/g, "");
+
+      //if(/q=/.test(newLoc)) {
+        WA.Utils.log('orig: ' + newLoc + '\n');
+        var enc_url = newLoc.replace(/^[^\?]+\?[^=]+=([^\&]+).*$/, '$1');
+        location_field.value = WA.Utils.Base64.decode64(unescape(enc_url.replace(/%253D/g, '=')));
+        WA.Utils.log('orig: ' + unescape(enc_url) + ' ' + WA.Utils.Base64.decode64(unescape(enc_url)) + '\n');
+
+      //}
+    }
+
+    // Update the current nodes.
+    currentDoc = newDoc;
+    setCurrentNode(currentDoc.body);
+    currentLoc = newLoc;
+      
+    // Capture key presses.
+    if(window.attachEvent) currentDoc.attachEvent('onkeydown', handleKeyDown);
+    else if(window.addEventListener) currentDoc.addEventListener('keydown', handleKeyDown, false);
+  
+    if(window.attachEvent) currentDoc.attachEvent('onkeyup', handleKeyUp);
+    else if(window.addEventListener) currentDoc.addEventListener('keyup', handleKeyUp, false);
+  
+    if(window.attachEvent) currentDoc.attachEvent('onkeypress', handleKeyPress);
+    else if(window.addEventListener) currentDoc.addEventListener('keypress', handleKeyPress, false);
+
+    // Special case for our WebAnywhere audio description button.
+    var desc_butt = currentDoc.getElementById('webanywhere-audio-description');
+    if(desc_butt) {
+      var playDesc =
+        function(e) {WA.Sound._prefetchFlash('webanywhere_audio_description',
+          'http://webanywhere.cs.washington.edu/webanywhere-description.mp3',
+          true, true);};
+
+      // Check to see if we should play the WebAnywhere description.
+      if(window.attachEvent)
+        desc_butt.attachEvent('onclick', playDesc);
+      else if(window.addEventListener)
+        desc_butt.addEventListener('click', playDesc, false);
+    }
+
+    // Reset the prefetching queue.
+    if(WA.prefetchStrategy > 0) {
+      WA.Sound.Prefetch.resetPrefetchArray();
+      WA.Sound.Prefetch.incPrefetchIndex();
+    }
+
+    // Preprocess the page, including adding to the list of nodes
+    // to be prefetched, and other preprocessing steps.
+    WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){return WA.Nodes.leafNode(node);});
+
+    // Run any extensions that request to be run once per document.
+    WA.Extensions.runOncePerDocument(currentDoc);
+
+    // Create an artificial focusable start element containg the page title.
+    var start_node = currentDoc.createElement('div');
+    start_node.innerHTML = currentDoc.title;
+    if(start_node.tabIndex) { // IE.
+      start_node.tabIndex = 0;
+    }
+    start_node.setAttribute('tabindex', 0);
+    start_node.setAttribute('id', 'always_first_node');
+    currentDoc.body.insertBefore(start_node, currentDoc.body.firstChild);
+  
+    // Create an artificial focusable end element.
+    var end_node = currentDoc.createElement('div');
+    end_node.innerHTML = "End of Page";
+    if(end_node.tabIndex) { // IE.
+      end_node.tabIndex = 0;
+    }
+    end_node.setAttribute('tabindex', 0);
+    end_node.setAttribute('id', 'always_last_node');
+    currentDoc.body.appendChild(end_node);
+
+    // Begin prefetching.
+    if(WA.prefetchStrategy > 0) {
+      WA.Sound.Prefetch.restartPrefetchTimeout();
+    }
+  }
+
+  // Reset the keyboard modifiers, in case we missed the release of one
+  // while page was loading.
+  WA.Keyboard.resetKeyboardModifiers();
+
+  // Reinitialize sound player.
+  WA.Sound.resetSounds();
+  playing = null;
+
+  // Normally, say that a page has loaded and announce its title.
+  if(WA.timesLoaded > 0) {
+    WA.Sound.addSound(WA.pageLoadedSound);
+  } else {
+    // Handle the first load specially.
+    WA.Sound.addSound(WA.initSound);
+  }
+
+  // Speak the number of headings and links on the page.
+  var nheadings = countNumHeadings(currentDoc);
+  var nlinks = countNumLinks(currentDoc);
+  var head = nheadings + ' ' + ((nheadings > 1) ? "Headings" : "Heading");
+  var link = nlinks + ' ' + ((nlinks > 1) ? "Links" : "Link");
+  WA.Sound.addSound(head + ' ' + link);
+
+  // Reset extensions.
+  WA.Extensions.resetExtensions();
+
+  // Set our browsing mode to READ after a short delay.
+  setTimeout(function() {WA.browseMode = WA.READ;}, 50);
+
+  // Get and submit recorder if we're in debug mode.
+  var rec = getNavigationDocument().getElementById('recording');
+  if(rec && !(/debug/.test(top.document.location))) {
+    WA.Utils.postURL('recorder.php',
+                     'submit=submit&recording=' + rec.value,
+                     function(){});
+    rec.value = "";
+  }
+
+  // Count number of pages loaded.
+  WA.timesLoaded++;
+
+  WA.Utils.log("finished new page load");
+}
+
+/**
+ * Wrappers for key event handlers that handle namespace issues.
+ * @param Event
+ */
+function handleKeyDown(e) {
+	WA.Keyboard.handleKeyDown(e);
+}
+function handleKeyUp(e) {
+  WA.Keyboard.handleKeyUp(e);
+}
+function handleKeyPress(e) {
+  WA.Keyboard.handleKeyPress(e);
+}
+
+
 // Called when the location bar gains focus.
 function locationFocus(e) {
-  top.navigation_frame.textBoxFocused = true;
+  getScriptWindow().textBoxFocused = true;
 
   var target;
   if(!e) e = window.event;
@@ -157,23 +324,6 @@ function finderBarFocus() {
   WA.Sound.addSound("Type a string to find in the current page");
 }
 
-// Called in response to a keydown event on the browser frame's "GO" button.
-function goKeyDown(e) {
-  var key = top.navigation_frame.keyString(e);
-  if(key == 'tab') {
-    if(currentDoc.body) {
-      top.navigation_frame.programmaticFocus = true;
-      debug("goKeyDown:true");
-      setCurrentNode(currentDoc.body);
-      currentDoc.body.firstChild.focus();
-      top.navigation_frame.programmaticFocus = false;
-      WA.browseMode = WA.READ;
-    }
-    stopProp(e);
-    return false;
-  }
-}
-
 // Called in response to the focus event on the browser frame's "GO" button.
 function goButtonFocus(e) {
   var target;
@@ -191,7 +341,7 @@ function goButtonFocus(e) {
 // Called when users hit a key when the last node in the page has focus.
 // Current responds to the "tab" combination.
 function tabEndNode(e) {
-  var key = top.navigation_frame.keyString(e);
+  var key = getNavigationDocument().keyString(e);
   if(key == 'tab') {
     WA.Sound.addSound("End of Page.");
     stopProp(e);
@@ -202,10 +352,10 @@ function tabEndNode(e) {
 // Called when users hit a key when the first node in the page is focused.
 // Current responds to the "shift tab" combination.
 function tabStartNode(e) {
-  var key = top.navigation_frame.keyString(e);
+  var key = getNavigationDocument().keyString(e);
   if(key == 'shift tab') {
     var go_butt =
-      top.navigation_frame.document.getElementById('location_go');
+      getNavigationDocument().getElementById('location_go');
     go_butt.focus();
     stopProp(e);
     return false;
@@ -214,7 +364,7 @@ function tabStartNode(e) {
 
 // Called when the user hits the TAB key from the location bar.
 function tabLocation(e) {
-  var key = top.navigation_frame.keyString(e);
+  var key = getNavigationDocument().keyString(e);
   if(key == 'ctrl l') {
     stopProp(e);
     return false;
@@ -223,16 +373,6 @@ function tabLocation(e) {
     WA.Sound.addSound("Start of Page.");
     stopProp(e);
     return false;
-  }
-}
-
-// Focuses the location bar.
-function focusLocation() {
-  var location_field = document.getElementById('location');
-  if(location_field) {
-    location_field.blur();
-    location_field.focus();
-    location_field.select();
   }
 }
 
@@ -266,12 +406,31 @@ function focusContentElement(element_id) {
   focusElement(doc, element_id);  
 }
 
-// Returns the content document.
+/**
+ * Returns the content document.
+ * @return document Content document.
+ */
 function getContentDocument() {
-  return top.content_frame.document;
+  return getContentWindow().document;
 }
 
-// Returns the first node of the web page.
+/**
+ * getContentWindow
+ * Returns the content window.
+ * @return window Content window.
+ */
+function getContentWindow() {
+  if(typeof top.content_frame != 'undefined') {
+    return top.content_frame;
+  } else {
+    return top;
+  }	
+}
+
+/**
+ * Returns the first node of the web page.
+ * @return HTMLElement Returns the first node of the current content document.
+ */
 function getFirstContent() {
   var doc = getContentDocument();
   var first = doc.getElementById('always_first_node');
@@ -282,7 +441,10 @@ function getFirstContent() {
   return first;
 }
 
-// Returns the last node of the web page.
+/**
+ * Returns the last node of the web page.
+ * @return DOMElement Last node on the content page.
+ */
 function getLastContent() {
   var doc = getContentDocument();
   var last = doc.getElementById('always_last_node');
@@ -293,22 +455,45 @@ function getLastContent() {
   return last;
 }
 
-// Gets the document element of the Navigation element.
+/**
+ * Gets the document element of the Navigation element.
+ * @return docElement Document element of the navigation frame.
+ */
 function getNavigationDocument() {
-  return top.navigation_frame.document;
+	if("navigation_frame" in top) {
+    return top.navigation_frame.document;
+	} else {
+		return top.document;
+	}
 }
 
+/**
+ * Returns the window where the code is kept.
+ * In WebAnywhere browser, mode this means the navigation frame.
+ * In site-specific mode, this means the main window.
+ * @return window
+ */
+function getScriptWindow() {
+  	if("navigation_frame" in top) {
+  		return top.navigation_frame;
+  	} else {
+  		return top;
+  	}
+}
+
+/**
+ * Silence the system and stop automatic forward progression.
+ */
 function silenceAll() {
   WA.browseMode = WA.KEYBOARD;
   WA.Sound.resetSounds();
 }
 
-// Speak text boxes when they are focused.
-function textBoxFocus(element) {
-  //var text = WA.Nodes.handleNode(element, true);
-  //WA.Sound.playSound(text, true, false);  
-}
-
+/**
+ * Returns the current position of the cursor in the specified field.
+ * @param myField Field in which to determine the cursor position.
+ * @return Integer Cursor position, or negative error value.
+ */
 function getCursor(myField) {
   if(!myField) {
     return -3;
@@ -342,77 +527,25 @@ function stopProp(e) {
   return false;
 }
 
-function docKeyUpDown(e) {
-  //alert('keystring: ' + keyString);
-  var key = keyString(e);
-  alert('key: ' + key);
-  if(key.matches(/ctrl l/)) {
-    WA.browseMode = WA.KEYBOARD;
-    WA.Sound.resetSounds();
-    stopProp(e);
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function docKeyPress(e) {
-  var targ;
-  if(!e) e = window.event;
-  if(e.target) targ = e.target;
-  else if(e.srcElement) targ = e.srcElement;
-  if(targ.nodeType == 3) // defeat Safari bug
-    targ = targ.parentNode;
-
-  var key = top.navigation_frame.keyString(e);
-
-  if(targ.nodeName == "SELECT" &&
-     /ctrl.*arrow(up|down)/.test(key)) {
-    return;
-  }
-
-  if(top.navigation_frame.textBoxFocused) {
-    if(/\s|tab|enter|home|arrowleft|arrowright/.test(key)) {
-      return;
-    }
-  }
-
-  top.navigation_frame._docKeyPress(key, targ, e);
-}
-
-
 var refocusedSelect = null;
 function refocusSelect() {
-  top.navigation_frame.programmaticFocus = true;
-  debug("refocusedSelect:true");
+  getScriptWindow().programmaticFocus = true;
   refocusedSelect.focus();
 }
 
-
-// Returns true if we have a sound for this keycode and false otherwise
-function isValidKey(k) {
-  if(k >= 32 && k <= 126)
-    return true;
-  return false;
-}
-
-// Converts a keycode to the uppercase version of the keycode
-function toUpperKeyCode(k) {
-  if(k > 96 && k < 123)
-    return k-32;
-  return k;
-}
-
-// Plays a single key press.
-// Determines what to play based on the target element.
+/** Plays a single key press.
+ * Determines what to play based on the target element.
+ * @param key String representation of the key combination that was pressed.
+ * @param targ Target element of the key event.
+ */
 function _playkey(key, targ) {
   WA.Sound.resetSounds();
-  WA.browseMode = top.navigation_frame.WA.KEYBOARD;
+  WA.browseMode = getScriptWindow().WA.KEYBOARD;
 
   if(/ctrl l/.test(key)) {
     focusLocation();
   } else if(/arrow|backspace|del/.test(key)) {
-    var pos = top.navigation_frame.getCursor(targ);
+    var pos = getScriptWindow().getCursor(targ);
     var text = targ.value;
     if(/left|right|backspace|del/.test(key)) {
       if(/left/.test(key)) {
@@ -427,28 +560,22 @@ function _playkey(key, targ) {
       if(!text || text=="") {
       	text = "blank";
       }
-      top.navigation_frame.WA.Sound.addSound(text);
-    } else {
-      return;
+      getScriptWindow().WA.Sound.addSound(text);
     }
   } else if(key=="enter") {
-    return;
   } else {
     WA.Sound.playSound(key, false);
   }
 }
 
-// Called on each node upon page load.
-// Performs a number of administrative functions.
+/**
+ * preVisit
+ * Called on each node upon page load.
+ * Performs a number of administrative functions.
+ * @param node Node to pre-visit.
+ **/
 function preVisit(node) {
-  if(isFocusable(node)) {
-    if(window.attachEvent) {
-      node.attachEvent('onfocus', gotFocus);
-    } else if(window.addEventListener) {
-      node.addEventListener('focus', gotFocus, false);
-    }
-  }
-
+  // Add the text for each node to the prefetching queueu.
   if(WA.prefetchStrategy >= 1) {
   	var text = WA.Nodes.handleNode(node, true);
   	if(text && (WA.prefetchStrategy <= 1 ||
@@ -457,44 +584,15 @@ function preVisit(node) {
   	}
   }
 
-  if(node.nodeType == 1) {
-  	switch(node.tagName) {
-      case "LABEL":
-        var for_id = node.getAttribute('for');
-        if(for_id) {
-          var id_elem = node.ownerDocument.getElementById(for_id);
-  	      if(id_elem) {
-  	        id_elem.setAttribute('my_label', WA.Nodes.handleChildNodes(node));
-  	      }
-        }
-        break;
-      case "FORM":
-        // Prevent login pop-ups.
-        node.setAttribute('autocomplete', 'off');
-        break;
-    }
-  } else if(node.nodeType == 3 && !internalNode(node)) {
-    var node_text = node.data;
-    if(node_text && node_text.length > 0 && /[\.\?\!,]\s/.test(node_text)) {
-      var matches = node_text.match(/[^\.\?\!,]{20,}[\.\?\!,]?\s*/g);
-      if(matches) {
-        var node_before = null;
-        var doc = node.ownerDocument;
-        for(var i=matches.length-1; i>=0; i--) {
-          var curr_node = doc.createTextNode(matches[i]);
-      	  if(node_before==null) {
-      	    if(node.parentNode) node.parentNode.replaceChild(curr_node, node);
-      	  } else {
-            if(node_before.parentNode) node_before.parentNode.insertBefore(curr_node, node_before);
-          }
-      	  node_before = curr_node;
-        }
-      }
-    }
-  }
+  // Perform other optional preprocessing steps.
+  WA.Extensions.preprocessNode(node);
 }
 
-// Event handler for changes to select elements.
+/**
+ * Event handler for changes to select elements.
+ * @param key_string String generated by the key event handler.
+ * @param target Selection Element.
+ */
 function selectChange(key_string, target) {
   if(/ctrl arrow(up|down)/.test(key_string)) {
     if(/ctrl/.test(key_string)) {
@@ -503,9 +601,9 @@ function selectChange(key_string, target) {
 
       var sindex = target.selectedIndex;
       if(/down/.test(key_string)) {
-	    sindex = (sindex + 1 < target.options.length) ? sindex + 1 : sindex;
+      sindex = (sindex + 1 < target.options.length) ? sindex + 1 : sindex;
       } else if(/up/.test(key_string)) {
-	    sindex = (sindex - 1 >= 0) ? sindex - 1 : sindex;
+      sindex = (sindex - 1 >= 0) ? sindex - 1 : sindex;
       }
 
       if(WA.Utils.isIE()) {
@@ -516,142 +614,6 @@ function selectChange(key_string, target) {
       WA.Sound.addSound(text_value);
     }
   }
-}
-
-// Called when a new page loads.
-function newPage() {
-  WA.browseMode = WA.PAUSED;
-
-  var content_frame = top.document.getElementById("content_frame");
-  if(content_frame) {
-    var src = content_frame.src;
-
-    if(src.indexOf(top.webanywhere_url)!=0) {
-      var location_field = document.getElementById('location');
-      if(/mail\.google\.com\/mail/.test(location_field.value) &&
-          !(/ui=?html/i.test(location_field.value))) {
-        setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
-      } else {}
-    }
-    // else if(/starting_url=.*$/.test(src)) {} // Eventually will enable users to specify starting page.
-  }
-
-  var newDoc = top.content_frame.document;
-  var newLoc = String(top.content_frame.document.location);  // Document URL.
-
-  valPath += "|";
-
-  // Sometimes we get multiple loads from the same page.
-  var startNode = newDoc.getElementById('id');
-
-  if(newDoc != currentDoc && (!startNode ||currentLoc != newLoc)) {
-    var location_field = document.getElementById('location');
-    if(location_field) {
-      WA.Utils.recordLine('new page: ' + location_field.value);
-      if(/mail\.google\.com\/mail/.test(location_field.value) && !(/ui=?html/.test(location_field.value))) {
-      	setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
-      }
-      var temp_loc = location_field.value;
-      location_field.value = temp_loc.replace(/[^A-Za-z0-9\s~!@#\$%\^&\*\\.\,:<>\+\{\}(\)\-\?\\\/]/g, "");
-    }
-
-    var loc_val = location_field.value;
-    if(loc_val.match(/.*ServiceLogin.*.?/)) {
-      //alert('matched');
-      var content_doc = top.content_frame.document;
-      var login_form = content_doc.getElementById("gaia_loginform");
-    }
-  
-    currentDoc = newDoc;
-    setCurrentNode(currentDoc.body);
-    currentLoc = newLoc;
-      
-    // Deal with key presses elsewhere in document.
-    if(window.attachEvent) currentDoc.attachEvent('onkeydown', function(e){WA.Keyboard.handleKeyDown(e)});
-    else if(window.addEventListener) currentDoc.addEventListener('keydown', function(e) {WA.Keyboard.handleKeyDown(e)}, false);
-  
-    if(window.attachEvent) currentDoc.attachEvent('onkeyup', function(e){WA.Keyboard.handleKeyUp(e)});
-    else if(window.addEventListener) currentDoc.addEventListener('keyup', function(e){WA.Keyboard.handleKeyUp(e)}, false);
-  
-    if(window.attachEvent) currentDoc.attachEvent('onkeypress', function(e){WA.Keyboard.handleKeyPress(e)});
-    else if(window.addEventListener) currentDoc.addEventListener('keypress', function(e){WA.Keyboard.handleKeyPress(e)}, false);
-
-    var desc_butt = currentDoc.getElementById('webanywhere-audio-description');
-    if(desc_butt) {
-      var playDesc = function(e) {WA.Sound._prefetchFlash('webanywhere_audio_description', 'http://webanywhere.cs.washington.edu/webanywhere-description.mp3', true, true);};
-        if(window.attachEvent) currentDoc.attachEvent('onclick', playDesc);
-        else if(window.addEventListener) currentDoc.addEventListener('click', playDesc, false);
-    }
-
-    // Preprocess the page, including adding to the list of nodes to be prefetched.
-    if(WA.prefetchStrategy > 0) {
-      WA.Sound.Prefetch.resetPrefetchArray();
-      WA.Sound.Prefetch.incPrefetchIndex();
-    }
-    WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){return WA.Nodes.leafNode(node);});
-
-    var start_node = currentDoc.createElement('div');
-    start_node.innerHTML = currentDoc.title;
-    if(WA.Utils.isIE()) {
-      start_node.tabIndex = 0;
-    }
-    start_node.setAttribute('tabindex', 0);
-    start_node.setAttribute('id', 'always_first_node');
-    currentDoc.body.insertBefore(start_node, currentDoc.body.firstChild);
-  
-    var end_node = currentDoc.createElement('div');
-    end_node.innerHTML = "End of Page";
-    if(WA.Utils.isIE()) {
-      end_node.tabIndex = 0;
-    } else {
-      end_node.setAttribute('tabindex', 0);
-    }
-    end_node.setAttribute('id', 'always_last_node');
-    currentDoc.body.appendChild(end_node);
-
-    if(WA.prefetchStrategy > 0) {
-      WA.Sound.Prefetch.restartPrefetchTimeout();
-    }
-  }
-
-  WA.Sound.resetSounds();
-  playing = null;
-
-  // Normally, say that a page has loaded and announce its title.
-  if(WA.timesLoaded > 0) {
-    WA.Sound.addSound("Page has loaded.");
-	// Used to announce the title, but now it's inserted into
-	// the beginning of the page so it's read anyway.
-    //if(currentDoc.title) {
-    //  WA.Sound.addSound(currentDoc.title);
-    //}
-  } else {
-  	// Handle the first load specially.
-  	WA.Sound.addSound("WebAnywhere has loaded");
-  }
-
-  // Speak the number of headings and links on the page.
-  var nheadings = countNumHeadings(currentDoc);
-  var nlinks = countNumLinks(currentDoc);
-  var head = nheadings + ((nheadings > 1) ? "Headings" : "Heading");
-  var link = nlinks + ((nlinks > 1) ? "Links" : "Link");
-  WA.Sound.addSound(head + " " + link);
-
-  setTimeout(function() {WA.browseMode = WA.READ;}, 50);
-
-  var nav_doc = getNavigationDocument();
-  var rec = nav_doc.getElementById('recording');
-
-  if(rec && !(/debug/.test(top.document.location))) {
-    WA.Utils.postURL('recorder.php',
-                     'submit=submit&recording=' + rec.value,
-                     function(){});
-    rec.value = "";
-  }
-
-  WA.timesLoaded++;
-
-  WA.Utils.log("finished new page load");
 }
 
 // Focuses the first node of the document and resets the reading to start
@@ -673,15 +635,17 @@ function endNodeFocus(e) {
 
 // Goes back one step in the history.
 function goBack() {
-  if(top.content_frame.history.back) {
-  	top.content_frame.history.back();
+  var contentDoc = getContentDocument();
+  if(contentDoc.history.back) {
+  	contentDoc.history.back();
   }
 }
 
 // Goes forward one step in the history.
 function goForward() {
-  if(top.content_frame.history.forward) {
-  	top.content_frame.history.forward();
+  var contentDoc = getContentDocument();
+  if(contentDoc.history.forward) {
+  	contentDoc.history.forward();
   }
 }
 
@@ -725,13 +689,7 @@ function proxifyURL(loc, subdomain, rewrite) {
   return loc;
 }
 
-// Initialize the sound_url_base to appear to come from same location as WebAnywhere.
-// This is only needed for prefetching using XmlHttpRequest.
-//function setSoundBase() {
-//  top.sound_url_base = proxifyURL(top.sound_url_base);
-//  console.log('setting: ' + top.sound_url_base);
-//}
-
+// Regular expression used to separate out pieces of the URL.
 var domainRegExp = /^(https?:\/\/)?([^\/]+\.[^\/]+[^\/]*)/;
 
 // Called to set the location of content frame.
@@ -754,8 +712,11 @@ function setContentLocation(loc) {
   // Set new location by setting the src attribute of the content frame.
   // Do not set the location of the frame document because WebAnywhere can
   // lose control of this because of redirects, etc.
+  var contentDoc = getContentDocument();
   var content_frame = top.document.getElementById('content_frame');
-  content_frame.setAttribute('src', loc);
+  if(content_frame != null) {
+    content_frame.setAttribute('src', loc);
+  }
 }
 
 // Plays a sound.  Updates any information related to that, such as prefetcher.
@@ -800,14 +761,12 @@ function gotFocus(e) {
   if(targ.nodeType == 3)
     targ = targ.parentNode;
 
-  debug( "stat:" + top.navigation_frame.programmaticFocus );
-  if( !top.navigation_frame.programmaticFocus ) {
-    var dnode = top.navigation_frame.dfsNode(targ, false);
-    top.navigation_frame.setCurrentNode(dnode);
-    debug("dnode:" + ((dnode && dnode.tagName) ? dnode.tagName : dnode) );
-    var test_div = top.navigation_frame.document.getElementById('test_div');
-    test_div.innerHTML = "got focus " + targ.nodeName + ' ' + targ + ' ' + top.navigation_frame.programmaticFocus;
-    top.navigation_frame.WA.Sound.resetSounds();
+  if( !getScriptWindow().programmaticFocus ) {
+    var dnode = getScriptWindow().dfsNode(targ);
+    getScriptWindow().setCurrentNode(dnode);
+    var test_div = getScriptWindow().document.getElementById('test_div');
+    test_div.innerHTML = "got focus " + targ.nodeName + ' ' + targ + ' ' + getScriptWindow().programmaticFocus;
+    getScriptWindow().WA.Sound.resetSounds();
 
     WA.browseMode = WA.PLAY_ONE;
   } else {
@@ -815,8 +774,7 @@ function gotFocus(e) {
 
   focusedNode = targ;
 
-  debug("focus:false");
-  top.navigation_frame.programmaticFocus = false;*/
+  getScriptWindow().programmaticFocus = false;*/
 }
 
 // Play the previous character.
@@ -839,18 +797,18 @@ function prevChar() {
 
 // Sets node that will be at the current cursor location.
 function setCurrentNode(node) {
-  top.navigation_frame.currentNode = node;
+  getScriptWindow().currentNode = node;
   setCurrentChar(-1);
 }
 
 // Sets the character at the current cursor location.
 function setCurrentChar(pos) {
-  top.navigation_frame.currentChar = pos;  
+  getScriptWindow().currentChar = pos;  
 }
 
 // Returns the character at the current cursor location.
 function getCurrentChar() {
-  return top.navigation_frame.currentChar;
+  return getScriptWindow().currentChar;
 }
 
 //----------------------- START ADVANCE TO TAG ---------------------
@@ -998,7 +956,10 @@ function contentMatchFunc(context) {
   return func;
 }
 
-// Matches elements that would produce speech if read.
+/**
+ * Matches elements that would produce speech if read.
+ * @return Function that matches nodes by whether or not they speak.
+ */
 function matchBySpeaksFunc() {
   var func = function(elem) {
     var text = WA.Nodes.handleNode(elem, true);
@@ -1080,10 +1041,6 @@ function prevNodeContentFind(context) {
   return prevNodeByMatcher(matcher, "phrase found");
 }
 
-function matchByFocus() {
-  return matchByFocusFunc;
-}
-
 // Goes to the next node with the given tagName and optional attribute.
 // tag -    a regular expression that matches the nodeName
 //          of the appropriate type.
@@ -1111,14 +1068,29 @@ function nextNodeTagAttrib(tag, attrib) {
   return nextNodeByMatcher(matcher, description);
 }
 
-// Goes to the next node that is focusable.
-// Used to simulate TAB key press.
+/**
+ * Returns the match by focus function.
+ * @return matchByFocusFunc
+ */
+function matchByFocus() {
+  return matchByFocusFunc;
+}
+
+/** Goes to the next node that is focusable.
+ * Used to simulate TAB key press.
+ * @return nextNodeByMatcher
+ */
 function nextNodeFocus() { 
   var matcher = matchByFocus();
   return nextNodeByMatcher(matcher, "");
 }
 
-// Finds the next node that matches the supplied 'matcher' function.
+/**
+ * Finds the next node that matches the supplied 'matcher' function.
+ * @param matcher
+ * @param node
+ * @return The next node.
+ */
 function _nextNodeByMatcher(matcher, node) {
   var last_result = null;
   var result = node;
@@ -1132,23 +1104,29 @@ function _nextNodeByMatcher(matcher, node) {
   return result;
 }
 
-// Returns the very next node, regardless of its type.
+/**
+ * Returns the very next node, regardless of its type.
+ * @param node Node to start at.
+ * @return Next node.
+ */
 function firstNodeNoSound(node) {
   var result = nextNodeNoSound(node, function(elem) { return true; }, true, -1);
   return result;
 }
 
-// Function takes as input
-// 1)  a "matcher" function which takes as input a DOM element and returns
-//     true if it matches and false otherwise.
-// 2)  a "description" which is a string that describes the type of element
-//     being looked for, which is used to describe to users what was found.
+/**
+ * Function takes as input
+ * @param matcher Function which takes as input a DOM element and returns true
+ * if it matches and false otherwise.
+ * @param description String that describes the type of element
+ * being looked for, which is used to describe to users what was found.
+ */
 function nextNodeByMatcher(matcher, description) {
   if(WA.browseMode == WA.PAUSED) {
     return false;
   } else if(!currentNode) {
     if(!currentDoc) {
-      currentDoc = top.content_frame.document;
+      currentDoc = getContentDocument();
     }
     if(currentDoc) {
       setCurrentNode(currentDoc.body);
@@ -1169,8 +1147,8 @@ function nextNodeByMatcher(matcher, description) {
       WA.Sound.addSound('no ' + description);
       return false;
     } else {
-      visit(result);
-      setCurrentNode(result);
+      visit(result, true);
+      setCurrentNode(result, true);
       return true;
     }
   } else if(description != "") {
@@ -1179,8 +1157,14 @@ function nextNodeByMatcher(matcher, description) {
   }
 }
 
-// Finds the next node that matches 'matcher'
-// without queueing it to be spoken.
+/** 
+ * Finds the next node that matches 'matcher'
+ * without queueing it to be spoken.
+ * @param node Node to start from.
+ * @param matcher Function to match the node with.
+ * @param first Recursion depth count.
+ * @param num Number of nodes visited.
+ */
 function nextNodeNoSound(node, matcher, first, num) {
   var result = "";
 
@@ -1240,31 +1224,43 @@ function nextNodeNoSound(node, matcher, first, num) {
   return result;
 }
 
-// Goes to the next node with the given tagName and optional attribute
+/**
+ * Goes to the next node with the given tagName and optional attribute
+ * @param tag Tag to look for.
+ * @param attrib Attribute to loook for.
+ * @return Node with matching tag and attrib.
+ */
 function prevNodeTagAttrib(tag, attrib) { 
   var matcher = matchByTag(tag, attrib);
-  prevNodeByMatcher(matcher);
+  return prevNodeByMatcher(matcher);
 }
 
-// Goes to the next node with the given tagName and optional attribute
+/**
+ * Goes to the next node with the given tagName and optional attribute
+ * @return Node that was found.
+ */
 function prevNodeFocus() { 
   var matcher = matchByFocus();
-  prevNodeByMatcher(matcher);
+  return prevNodeByMatcher(matcher);
 }
 
-// Maches the previous node that matches the function matcher.
+/**
+ * Maches the previous node that matches the function matcher.
+ * @param matcher Function used as a matcher.
+ * @return Element found.
+ */
 function prevNodeByMatcher(matcher) {
   if(WA.browseMode == WA.PAUSED) {
-    return;
+    return null;
   } else if(!currentNode) {
     if(!currentDoc) {
-      currentDoc = top.content_frame.document;
+      currentDoc = getContentDocument();
     }
     if(currentDoc) {
       setCurrentNode(currentDoc.body);
     }
     if(!currentNode) {
-      return;
+      return null;
     }
   }
 
@@ -1277,30 +1273,31 @@ function prevNodeByMatcher(matcher) {
   } while(last_result != result && !matcher(result));
   
   if(result) {
-    visit(result);
+    visit(result, true);
     setCurrentNode(result);
   }
+
+  return result;
 }
 
-// Boolean: Does the parent node match the given matcher function?
+/**
+ * Boolean: Does the parent node match the given matcher function?
+ * @param node DOMElement to check.
+ * @param matcher Boolean matcher function to check with.
+ */
 function parentMatches(node, matcher) {
   return matcher(node.parentNode);
 }
 
-// Does node only make sense inside parent?
-function internalNode(node) {
-  var parent = node.parentNode;
-  if(parent) {
-  	if(parent.nodeName == "OPTION" || parent.nodeName == "SELECT") {
-      return true;
-  	}
-  }
-
-  return false;
-}
-
-// Finds the previous node that matches the supplied 'matcher'
-// and returns it.
+/**
+ * Finds the previous node that matches the supplied 'matcher'
+ * and returns it.
+ * @param node Node where the search should start.
+ * @param matcher Function used to match.
+ * @param first Count of the depth of the recursion to keep under the limit.
+ * @param num Number of nodes seen.
+ * @return node Last node seen.
+ */
 function prevNodeNoSound(node, matcher, first, num) {
   // Prevents Javascript from crashing as a result of going over the
   // 1000-level recursion limit.
@@ -1311,9 +1308,10 @@ function prevNodeNoSound(node, matcher, first, num) {
   var result = null;
 
   // Some magic to find the appropriate next node.
-  if(num > 1 || (first > 4 && !internalNode(node))) {
+  if(num > 1 || (first > 4 && !WA.Nodes.internalNode(node))) {
     num++;
-  } else if(first!=0 && !internalNode(node) && !parentMatches(node, matcher)) {
+  } else if(first!=0 && !WA.Nodes.internalNode(node) &&
+              !parentMatches(node, matcher)) {
     var node_text = WA.Nodes.handleNode(node, true);
     if((node_text && !(/^\s*$/.test(node_text)))) {
       num++;
@@ -1370,11 +1368,13 @@ function prevNodeNoSound(node, matcher, first, num) {
   return prevNodeNoSound(node.parentNode, matcher, first+1, num);
 }
 
-// Returns true if the node is an element with the given tag name and 
-// attribute (optional).
-// tag - regular expression to be applied to tag names.
-// node - node to be tested.
-// attrib - attribute node is required to have to pass test.
+/**
+ * Returns true if the node is an element with the given tag name and 
+ * attribute (optional).
+ * @param tag  Regular expression to be applied to tag names.
+ * @param node  Node to be tested.
+ * @param attrib  Attribute node is required to have to pass test.
+ */
 function isTagAttribute(node, tag, attrib) {
   if(!node || !node.tagName) {
     return false;
@@ -1393,16 +1393,22 @@ function isTagAttribute(node, tag, attrib) {
 
 var lastNode = null;
 
+/**
+ * nextNode
+ * Advance to the next node.
+ */
 function nextNode() {
+	//var _currNode = currentNode;
   var next_node_info = _nextNode();
   var next_node = next_node_info[0];
   var node_text = next_node_info[1];
 
   if(next_node && node_text) {
-    WA.Utils.recordLine('playing sound: ' + WA.Utils.getXPath(next_node) + ' ' + node_text);
     lastNode = next_node;
 
+    // Queue the sound to be played.
     playNodeSound(next_node, node_text);
+
     setCurrentChar(node_text.length);
     if(WA.browseMode == WA.PLAY_ONE) {
       WA.browseMode = WA.KEYBOARD;
@@ -1410,6 +1416,9 @@ function nextNode() {
   }
 }
 
+/**
+ * Support for advancing to the next node.
+ */
 function _nextNode() {
   var spoken_node = null; // The node that is advanced to.
   var node_text = null;
@@ -1418,7 +1427,7 @@ function _nextNode() {
     return [null, null];
   } else if(!currentNode) {
     if(!currentDoc) {
-      currentDoc = top.content_frame.document;
+      currentDoc = getContentDocument();
     }
     if(currentDoc) {
       setCurrentNode(currentDoc.body);
@@ -1428,26 +1437,17 @@ function _nextNode() {
     }
   }
 
-  debug("nextNode:" + ((currentNode.tagName) ? currentNode.tagName : currentNode));
-  visit(currentNode);
-
+  // Retrieve the text that will be spoken for this node.
   node_text = WA.Nodes.handleNode(currentNode, true);
   if(node_text) {
-  	/*
-  	WA.Utils.recordLine('playing sound: ' + WA.Utils.getXPath(currentNode) + ' ' + node_text);
-  	
-  	lastNode = currentNode;
-  	
-    WA.Sound.addSound(node_text);
-    setCurrentChar(node_text.length);
-    if(WA.browseMode == WA.PLAY_ONE) {
-      WA.browseMode = WA.KEYBOARD;
-    }*/
     spoken_node = currentNode;
   }
 
+  // Visit the current node.
+  visit(currentNode, (spoken_node != null));
+
   if(currentNode.firstChild && !WA.Nodes.leafNode(currentNode)) {
-    setCurrentNode(dfsNode(currentNode, true));
+    setCurrentNode(dfsNode(currentNode));
   } else if(currentNode.nextSibling) {
     setCurrentNode(currentNode.nextSibling);
   } else if(currentNode.nodeName == "BODY") {
@@ -1459,6 +1459,9 @@ function _nextNode() {
   return [spoken_node, node_text];
 }
 
+/**
+ * Move back up the DFS tree.
+ */
 function goBackUp() {
   var oldCurrent = currentNode;
 
@@ -1482,14 +1485,15 @@ function goBackUp() {
   }
 }
 
-
-var valPath = "";
-
+/**
+ * Navigate to the previous node in the document.
+ */
 function prevNode() {
-  debug("prevNode");
-  visit(currentNode);
-
   var node_text = WA.Nodes.handleNode(currentNode, true);
+  var spoken = (node_text != null && String(node_text).length > 0);
+
+  visit(currentNode, spoken);
+
   if(node_text) {
     setCurrentChar(node_text.length);
     if(WA.browseMode == WA.PREV_CHAR) {
@@ -1499,7 +1503,10 @@ function prevNode() {
     } else if(WA.browseMode == WA.PREV_CHAR_BACKONE) {
       WA.browseMode = WA.PREV_CHAR;
     } else if(WA.browseMode != WA.PAUSED) {
+      // Queue the sound to be played.
       WA.Sound.addSound(node_text);
+
+      // Update for the next play.
       if(WA.browseMode == WA.PLAY_ONE_BACKWARD) {
         WA.browseMode = WA.KEYBOARD;
       }
@@ -1511,32 +1518,36 @@ function prevNode() {
     WA.Sound.addSound("Start of page.");
   } else if(currentNode.previousSibling) {
     setCurrentNode(currentNode.previousSibling);
-    setCurrentNode(rdfsNode(currentNode, true));
+    setCurrentNode(rdfsNode(currentNode));
   } else {
     setCurrentNode(currentNode.parentNode);
   }
 }
 
-function rdfsNode(node, focusMe) {
+/**
+ * Reverse depth-first search from the node supplied.
+ * @param node Node where the reverse DFS should start.
+ */
+function rdfsNode(node) {
   while(node && node.nodeType == 1 && node.lastChild && !WA.Nodes.leafNode(node)) {
-    if(node.tagName == "SCRIPT" ||
-       node.tagName == "STYLE") {
+    if(node.tagName == "SCRIPT" || node.tagName == "STYLE") {
       break;
     }
-    if(focusMe && top.navigation_frame.isFocusable(node)) {
-      debug( "rdfsNode" );
-      focusNode(node);
-    }
+
+    visit(node, false);
+
     node = node.lastChild;
   }
   return node;
 }
 
-function dfsNode(node, focusMe) {
-  if(focusMe && top.navigation_frame.isFocusable(node)) {
-    debug( "dfsNode" );
-    focusNode(node);
-  }
+/**
+ * Depth-first search from the supplied node.
+ * @param node Node where the DFS shoudl start.
+ */
+function dfsNode(node) {
+  visit(node, false);
+
   if(WA.Nodes.leafNode(node)) {
     return node;
   } else {
@@ -1544,32 +1555,30 @@ function dfsNode(node, focusMe) {
   }
 }
 
-function focusNode(node) {
-  if(focusedNode != node) { 
-    programmaticFocus = true;
-    debug("focusNode:true");
-    try {
-      node.focus();
-      if(node.select) {
-      	node.select();
-      }
-    } catch(e) {
-      debug('focused: ' + node);
-    }
+/**
+ * Processes the supplied element when it becomes the current focus
+ * of reading.
+ * @param elem Element that has been visited.
+ * @param is_spoken Is the visit to a spoken node?
+ */
+function visit(elem, is_spoken) {
+  if(is_spoken) {
+    WA.Extensions.spotlightNode(elem);
+    lastNodePlayed = elem;
   }
-}
 
-// Gets called for each element that is visited.
-function visit(elem) {
+  // Focus the element if it's a focusable element.
   if(isFocusable(elem)) {
-    debug("visit");
     focusNode(elem);
   }
-  lastNodePlayed = elem;
 }
 
-// Counts the number of links that have an href, indicating that they're
-// a link and not just an anchor.
+/**
+ * Counts the number of links that have an href, indicating that they're
+ * a link and not just an anchor.
+ * @param doc Document on which links should be calculated.
+ * @return cnt Count of the links in the document.
+ */
 function countNumLinks(doc) {
   var cnt = 0;
   var elems = doc.getElementsByTagName('A');
@@ -1581,7 +1590,11 @@ function countNumLinks(doc) {
   return cnt;
 }
 
-// Counts the number of heading elements.
+/**
+ * Counts the number of heading elements on the supplied document.
+ * @param doc Document on which the number of headings should be counted.
+ * @return cnt Count of the headings in the document.
+ */
 function countNumHeadings(doc) {
   var cnt = doc.getElementsByTagName('H1').length;
   cnt += doc.getElementsByTagName('H2').length;
@@ -1592,9 +1605,13 @@ function countNumHeadings(doc) {
   return cnt;
 }
 
-// Boolean: can this node receive focus?
+/**
+ * Boolean: can this node receive focus?
+ * @param node DOM node.
+ * @return Boolean Is the node focusable?
+ */
 function isFocusable(node) {
-  if(!node) return false;
+  if(!node || node == null) return false;
   if(node.nodeType == 1) {
     if(node.tagName == "INPUT") {
       var input_type = node.getAttribute('type');
@@ -1602,8 +1619,8 @@ function isFocusable(node) {
         return true;
       }    	
     } else if((node.tagName == "A" && WA.Nodes.hasAttribute(node, 'href')) || 
-        node.tagName == "SELECT" ||
-        node.tagName == "TEXTAREA") {
+       node.tagName == "SELECT" ||
+       node.tagName == "TEXTAREA") {
       return true;
     }
     var tabindex = node.getAttribute('tabindex');
@@ -1614,32 +1631,18 @@ function isFocusable(node) {
   return false;
 }
 
-// This function returns the [x, y] position of the supplied object.
-// This can be slow since it requires tracing the element back to the root.
-function findPos(obj) {
-  var curleft = curtop = 0;
-  if(obj.offsetParent) {
-    curleft = obj.offsetLeft;
-    curtop = obj.offsetTop;
-    while (obj = obj.offsetParent) {
-	  curleft += obj.offsetLeft;
-	  curtop += obj.offsetTop;
-    }
+/**
+ * Focus the supplied node if possible.
+ * @param node Node to be focused.
+ */
+function focusNode(node) {
+  if(focusedNode != node) { 
+    programmaticFocus = true;
+    try {
+      node.focus();
+      if(node.select) {
+        node.select();
+      }
+    } catch(e) {}
   }
-
-  return [curleft,curtop];
-}
-
-// Returns the first node in the document matching the supplied tag name.
-function _firstMatching(tag_name) {
-  if(tag_name == null || typeof tag_name == 'undefined') {
-    return null;
-  }
-
-  var my_nodes = document.getElementsByTagName(tag_name);
-  if(my_nodes && my_nodes.length > 0) {
-    return my_nodes[0];
-  }
-
-  return null;
 }

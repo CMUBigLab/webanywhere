@@ -98,7 +98,7 @@ WA.Sound = {
   // Processes a sound by breaking it up according to punctuation,
   // then adds the resulting sound(s) to the queue of sounds to play.
   splitSoundsByBoundaries: true,
-  boundarySplitterRegExp: /[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+)+[\.!\?:;\s]*/,
+  boundarySplitterRegExp: /aaaaaa[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+)+[\.!\?:;\s]*/,
   splitSoundsByBoundary: function(sid) {
     return (sid + "").split(this.boundarySplitterRegExp);  
   },
@@ -159,16 +159,19 @@ WA.Sound = {
     this.playing = null;
   },
 
+  /**
+   * Starts playWaiting function which queues and plays each new sound.
+   */
   startPlayWaiting: function() {
   	var self = this;
 
-	// Wait for the sound player to be loaded.
-	if(!top.soundPlayerLoaded) {
-		setTimeout(function() {self.startPlayWaiting();}, 50);
-	} else {
+		// Wait for the sound player to be loaded.
+		if(!top.soundPlayerLoaded) {
+      setTimeout(function() {self.startPlayWaiting();}, 50);
+		} else {
       // Sound players is loaded, so start playing the sounds.
       setInterval(function(){self.playWaiting()}, this.playWaitingInterval);
-	}
+		}
   },
 
   //  Main function called that actually plays sounds when it's supposed to.
@@ -177,9 +180,10 @@ WA.Sound = {
       return;
     }
     this.inPlayWaiting = true;
-  
-    //WA.Utils.log(this.soundPlayerLoaded + '||' + this.playing + '||' + this.soundQ.length + '||' + WA.browseMode);
-  
+
+    if(this.playing!=null)
+      WA.Utils.log(this.soundPlayerLoaded + '||' + this.playing + '||' + this.soundQ.length + '||' + WA.browseMode);
+
     if(!this.soundPlayerLoaded) {
       this.lastPath = 0;
       this.inPlayWaiting = false;
@@ -206,7 +210,7 @@ WA.Sound = {
       }
     } else if(this.playing) {
       var is_playing = this.isPlaying(this.playing);
-      WA.Utils.log('playing ' + this.playing + ' ' + is_playing);
+      //WA.Utils.log('playing ' + this.playing + ' ' + is_playing);
       if(!is_playing) {
         this.playing = null;
       }
@@ -267,8 +271,6 @@ WA.Sound = {
     for(var j=123; j<127; j++) {
       this.prefetchKeycode(i);
     }
-  
-    init = 1;
   },
 
   //  TODO: This is not called right now, figure out if it is useful.
@@ -420,7 +422,9 @@ WA.Sound = {
       var duration = (WA.Sound.Prefetch.prefetchRecords[string] && WA.Sound.Prefetch.prefetchRecords[string].soundlength) ? WA.Sound.Prefetch.prefetchRecords[string].soundlength : this.timingArray[string].length; 
       WA.Utils.log('finished sound: ' + this.timingArray[string].playStart.getTime() + ' ' + duration + ' ' + this.timingArray[string].orig_string);
       sound.play();
-      WA.Utils.log('playing sound: ' + sound.play);
+      if(typeof sound.play == 'string') {
+        WA.Utils.log('playing sound: ' + sound.play);
+      }
     } else if(sound.readyState == 0 ||
        sound.readyState == 1) {
       sound.autoPlay = playdone;
@@ -461,7 +465,6 @@ WA.Sound = {
     });
   },
 
-  
   _onSoundFinish: function(sound) {
     if(sound && sound.duration) {
       this.timingArray[sound.sID].length = sound.duration;
@@ -517,19 +520,6 @@ WA.Sound = {
       'pan': 0,                      // "pan" settings, left-to-right, -100 to 100
       'volume': 100                  // self-explanatory. 0-100, the latter being the max.
       }
-  
-      soundManager.onload = function() {
-        WA.Utils.log("soundManager loaded");
-
-        // soundManager 2 should be ready to use/call at this point.
-        WA.Sound.soundPlayerLoaded = true;
-        top.soundPlayerLoaded = true;
-
-        // Call newPage to process the newly-loaded page.
-        if(top.pageLoaded) {
-          newPage();
-        }
-      }
     
       // Called when there is an error with the Flash sound player.
       // Currently, this means the the program will try to play sounds
@@ -537,11 +527,9 @@ WA.Sound = {
       soundManager.onerror = function() {
         this.soundPlayerLoaded = false;
         this.soundMethod = this.EMBED_SOUND_METHOD;
+        WA.Utils.log('Error loading sound player');
       }
     }
     this.addSound("Welcome to Web Anywhere");
   }
 };
-
-// Initialize sounds to get things rolling.
-WA.Sound.initSound();

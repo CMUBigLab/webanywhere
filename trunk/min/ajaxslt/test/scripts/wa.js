@@ -64,14 +64,15 @@ function debug(str) {
 // Updates the text that is displayed visually as what is currently being
 // played by the system.
 function updatePlaying() {
+  WA.Utils.log('updating playing');
+
   var play_div = document.getElementById('playing_div');
   if(play_div) {
     play_div.innerHTML = (playing!=null) ? playing : "(null)";
   }
 
   var sound_div = document.getElementById('sound_div');
-
-  if(currentNode && currentNode.nodeType == 1) {
+  if(sound_div && currentNode && currentNode.nodeType == 1) {
     sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + soundQ.length + " b: " + browseMode + ' focus: ' + focusedNode + ' las: ' + lastPath + ' threads: ' + free_threads + ' ' + (num++) + ' ' + soundQ + ' val: ' + valPath + ' bMode:' + browseMode;
   } else {
     sound_div.innerHTML = "curr: " + (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + soundQ.length + " b: " + browseMode + ' focus: ' + focusedNode + ' las: ' + lastPath + ' threads: ' + free_threads + ' ' + (num++) + ' ' + soundQ + ' val: ' + valPath + ' bMode:' + browseMode;
@@ -100,27 +101,6 @@ function init_browser() {
 
   if(window.attachEvent) go_button.attachEvent('onfocus', goButtonFocus);
   else if(window.addEventListener) go_button.addEventListener('focus', goButtonFocus, false);
-
-  //  All for the location textbox.
-  /*if(window.attachEvent) location_field.attachEvent('onkeypress', playKeypress);
-  else if(window.addEventListener) location_field.addEventListener('keypress', playKeypress, false);
-
-  if(window.attachEvent) location_field.attachEvent('onkeydown', tabLocation);
-  else if(window.addEventListener) location_field.addEventListener('keypress', tabLocation, false);
-
-  if(window.attachEvent) go_button.attachEvent('onkeydown', goKeyDown);
-  else if(window.addEventListener) go_button.addEventListener('keydown', goKeyDown, false);
-
-  // Deal with key presses elsewhere in document.
-  if(window.attachEvent) document.attachEvent('onkeydown', docKeyPress);
-  else if(window.addEventListener) document.addEventListener('keydown', docKeyPress, false);
-
-  if(window.attachEvent) document.attachEvent('onkeypress', suppressKeys);
-  else if(window.addEventListener) document.addEventListener('keypress', suppressKeys, false);
-
-  if(window.attachEvent) document.attachEvent('onkeyup', suppressKeys);
-  else if(window.addEventListener) document.addEventListener('keyup', suppressKeys, false);
-*/
    
   if(window.attachEvent) document.attachEvent('onkeydown', handleKeyDown);
   else if(window.addEventListener) document.addEventListener('keydown', handleKeyDown, false);
@@ -282,12 +262,6 @@ function getNavigationDocument() {
 function silenceAll() {
   browseMode = KEYBOARD;
   resetSounds();
-}
-
-// Speak text boxes when they are focused.
-function textBoxFocus(element) {
-  //var text = handlenode(element, true);
-  //prefetch(text, true, false);  
 }
 
 function getCursor(myField) {
@@ -643,28 +617,6 @@ function newPage() {
   }
   end_node.setAttribute('id', 'always_last_node');
   currentDoc.body.appendChild(end_node);
-
-    /*if(window.attachEvent) {
-      start_node.attachEvent('onkeydown', tabStartNode);
-      start_node.attachEvent('onfocus', startNodeFocus);
-      //start_node.attachEvent('onkeypress', suppressKeys);
-      //start_node.attachEvent('onkeyup', suppressKeys);
-
-      end_node.attachEvent('onkeydown', tabEndNode);
-      end_node.attachEvent('onkeypress', suppressKeys);
-      end_node.attachEvent('onkeyup', suppressKeys);
-      end_node.attachEvent('onfocus', endNodeFocus);
-    } else if(window.addEventListener) {
-      start_node.addEventListener('keypress', tabStartNode, false);
-      start_node.addEventListener('focus', startNodeFocus, false);
-      //start_node.addEventListener('keydown', suppressKeys, false);
-      //start_node.addEventListener('keyup', suppressKeys, false);
-
-      end_node.addEventListener('keypress', tabEndNode, false);
-      end_node.addEventListener('keydown', suppressKeys, false);
-      end_node.addEventListener('keyup', suppressKeys, false);
-      end_node.addEventListener('focus', endNodeFocus, false);
-    }*/
 
   if(prefetchStrategy > 0) {
     prefetchNext();
@@ -1034,18 +986,18 @@ function nonEmptyMatchFunc() {
   return func;
 }
 
-// Matches elements matching the supplied text, used for find functionality.
-// context:  text to be matched.
+/**
+ * Matches elements matching the supplied text, used for find functionality.
+ * @param context Text to be matched.
+ */
 function contentMatchFunc(context) {
   var func = function(elem) {
     if(leafElement(elem)) {
       var text = handlenode(elem, true);
       var reg = new RegExp(context, "i");
 
-      //alert('comparing: ' + context + '||' + text);
-
       if(reg.test(text)) {
-	return true;
+      	return true;
       }
     }
 
@@ -1130,6 +1082,9 @@ function prevNodeContentFind(context) {
   return prevNodeByMatcher(matcher, "phrase found");
 }
 
+/**
+ * Returns the matchByFocus function.
+ */
 function matchByFocus() {
   return matchByFocusFunc;
 }

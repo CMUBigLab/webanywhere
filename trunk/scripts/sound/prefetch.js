@@ -230,7 +230,7 @@ WA.Sound.Prefetch = {
       this.prefetch_curr_index--;
       sid = this.getFromPrefetchQ();
     } else {
-      WA.Utils.log('fetching from: ' + this.prefetch_curr_index);
+      //WA.Utils.log('fetching from: ' + this.prefetch_curr_index);
       sid = this.prefetch_array[this.prefetch_curr_index].shift();
     }
   
@@ -253,14 +253,17 @@ WA.Sound.Prefetch = {
         WA.Sound.Prefetch.prefetch_req = new ActiveXObject("Microsoft.XMLHTTP");
       }
     }
-  
+
     // Get the sound ID.
-	var sid = WA.Sound.getSoundID(text);
+  	var sid = WA.Sound.getSoundID(text);
 
     // Setup the request and the make the request.
     WA.Sound.Prefetch.prefetch_req.onreadystatechange = function() {
     	WA.Sound.Prefetch.processReqChangePrefetchSound(text, sid, playdone);
     }
+
+    WA.Utils.log("getting " + url);
+
     WA.Sound.Prefetch.prefetch_req.open("GET", url, true);
     WA.Sound.Prefetch.prefetch_req.send(null);
   },
@@ -467,7 +470,7 @@ WA.Sound.Prefetch = {
   // Prediction-based prefetching.
   prefetchPrediction: function() {
     var predictions = this.predictNext(lastNode, WA.Keyboard.last_action);
-  
+
     var impl = [1, 3, 5, 7];
     var highest = 1;
     var high_val = 0.0;

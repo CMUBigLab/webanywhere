@@ -31,7 +31,7 @@ function announce_in_focus() {
   if(returning && navLoaded) {
     if(window.navigation_frame) {
       window.navigation_frame.prefetch("Web Anywhere is now in focus.", true, false);
-      window.navigation_frame.focusLocation();
+      window.navigation_frame.WA.Interface.focusLocation();
     } else {
       setTimeout("announce_in_focus", 1000);
     }
@@ -76,7 +76,7 @@ if(strlen($arguments) > 0) {
   $arguments = '?' . $arguments;
 }
 
-$start_url = (isset($_REQUEST['starting_url']) ? base64_encode($_REQUEST['starting_url']) : 'aHR0cDovL3dlYmluc2lnaHQuY3Mud2FzaGluZ3Rvbi5lZHUvd2EvY29udGVudC5waHA=');
+$start_url = (isset($_REQUEST['starting_url']) ? base64_encode($_REQUEST['starting_url']) : base64_encode($default_content_url));
 $start_url = str_replace('$url', $start_url, $wp_path);
 ?>
 <FRAMESET ROWS="15%, *" BORDER="0">
