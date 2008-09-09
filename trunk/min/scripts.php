@@ -3,8 +3,8 @@
 //error_reporting(E_ALL | E_STRICT);
 //ini_set('display_errors', 'on');
 
-define('MINIFY_USE_CACHE', false);
-define('MINIFY_CACHE_DIR', '/projects/compression2/www/wa/temp/');
+define('MINIFY_USE_CACHE', true);
+define('MINIFY_CACHE_DIR', $min_temp_dir);
 
 if (!defined('MINIFY_BASE_DIR')) {
   /** 
