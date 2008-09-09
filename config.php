@@ -1,5 +1,10 @@
 <?php
-	// This file contains the configurable paths and options made available by WebAnywhere.
+	// This file contains the configurable paths and options
+	// made available by WebAnywhere.
+	// The default configuration assumes installation on your local machine:
+	// http://localhost/wa/
+	//
+	// Appropriate changes can be made to localize to your preference.
 
 	// Email to which errors can be sent.
 	$admin_email = 'admin@yourdomain.org';
@@ -22,21 +27,15 @@
 	// The path to the web proxy.
 	// $url$ will be replaced with the URL Escaped URL to fetch.
 	$wp_path = $root_path . '/wp/wawp.php?q=$url$';
-	
+
 	// The URL from which sounds should be retrieved.
 	// $text$ will be replaced with the URL Escaped text to fetch.
 	// Currently it is not straightforward to run your own speech server,
-	// but the default speech server can be used.
+	// but you can use the WebAnywhere server for this purpose.
 	$sound_url_base = 'http://webanywhere.cs.washington.edu/cgi-bin/getsound.pl?text=$text$&cache=1&mtts=1';
 
     // The URL that will load in WebAnywhere by default.
     $default_content_url = 'http://webanywhere.cs.washington.edu/content.php';
-
-	// Sound file that gets played when waiting for something - page to load, etc.
-	$wait_sound = '/wa/sounds/blinker.mp3';
-
-	// Turn visual spotlighting on/off.
-	$visual_spotlight = true;
 
 	// To prevent malicious users from abusing the web proxy that is part of WebAnywhere,
 	// the system can optionally limit the rate at which users can request content.
@@ -48,12 +47,18 @@
 
 	// Filename for SQLite database used to limit requests -
 	// should not be accessible from the web.
+	// Despite the default, a unix-style path will also work on unix systems.
 	$sql_lite_filename = "C:/webanywhere-accesses.sdb";
 
-	// Sets whether subdomain-based separation of Javascript scripts should be implemented.
-	// Enabling this can cause the system to run more slowly because WebAnywhere,
-	// including the SoundManger2 Flash movie, needs to be reloaded when navigating
-	// to a new domain.
+    // Temporary directory where the cache of minimized scripts is stored.
+    // Defaults to the default temporary directory on your system, which may
+    // or may not work for you.
+    $min_temp_dir = sys_get_temp_dir();
+
+	// Sets whether subdomain-based separation of Javascript scripts should
+	// be implemented.  Enabling this can cause the system to run more slowly
+	// because WebAnywhere, including the SoundManger2 Flash movie, needs to be
+	// reloaded when navigating to a new domain.
 	// This should be enabled if using a fast connection or when untrusted sites
 	// may be visited.
 	$cross_domain_security = false;
