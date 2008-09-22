@@ -44,8 +44,8 @@ WA.Extensions.VisualSpotlighter = function() {
     // Label any nodes associated with this one, specifically nodes
     // that serve as this node's label.
     if(WA.Nodes.hasAttribute(node, 'assoc_id')) {
-    	var assocNode = node.ownerDocument.getElementById(node.getAttribute('assoc_id'));
-    	this._processNode(assocNode);
+      var assocNode = node.ownerDocument.getElementById(node.getAttribute('assoc_id'));
+      this._processNode(assocNode);
     }
   };
 
@@ -92,13 +92,17 @@ WA.Extensions.VisualSpotlighter = function() {
     this._node = node;
 
     // Store the node's current class in order to restore it later.
-    this._className = node.className;
+    if((node.className + "").length > 0) {
+      this._className = node.className;
+    }
 
     /**
      * Restore the original style of the node.
      */
     this.restore = function() {
-    	this._node.className = this._className;
+    	if(this._node) {
+        this._node.className = this._className;
+    	}
     }
   };
 
@@ -107,6 +111,9 @@ WA.Extensions.VisualSpotlighter = function() {
    * @param doc Document to have the CSS style tag added to it.
    */
   this.oncePerDocument = function(doc) {
+    // Avoid highlighting nodes no longer in existence.
+    this._nodeRecords = null;
+
   	var styleNode = doc.createElement('div');
     // Funky way of adding style required to make this work with IE.
     styleNode.innerHTML =
