@@ -3,7 +3,7 @@
 //error_reporting(E_ALL | E_STRICT);
 //ini_set('display_errors', 'on');
 
-define('MINIFY_USE_CACHE', true);
+define('MINIFY_USE_CACHE', false);
 define('MINIFY_CACHE_DIR', $min_temp_dir);
 
 if (!defined('MINIFY_BASE_DIR')) {
@@ -26,7 +26,7 @@ if (!defined('MINIFY_ENCODING')) {
 
 if (!defined('MINIFY_MAX_FILES')) {
   /** Maximum number of files to combine in one request. */
-  define('MINIFY_MAX_FILES', 16);
+  define('MINIFY_MAX_FILES', 256);
 }
 
 if (!defined('MINIFY_REWRITE_CSS_URLS')) {
