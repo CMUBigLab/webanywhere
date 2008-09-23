@@ -395,8 +395,11 @@ function focusBrowserElement(element_id) {
   var doc = getNavigationDocument();
 
   var elem = doc.getElementById(element_id);
+  elem.blur();
   elem.focus();
-  //focusElement(doc, element_id);  
+  if(elem.select) {
+  	elem.select();
+  }
 }
 
 // Sets focus to the content element with the specified id.
