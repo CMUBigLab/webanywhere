@@ -98,8 +98,8 @@ if($_REQUEST[debug]==='true') {
 </form>
 <form>
 <input type="text" name="finder_field" id="finder_field" />
-<input id="find_next_button" name="find_next_button" type="submit" value="Find Next" onclick='nextNodeContentFinder(this); return false;'/>
-<input id="find_previous_button" name="find_previous_button" type="submit" value="Find Previous" onclick='prevNodeContentFinder(this); return false;'/>
+<input id="find_next_button" name="find_next_button" type="button" value="Find Next" onclick='nextNodeContentFinder(this); return false;'/>
+<input id="find_previous_button" name="find_previous_button" type="button" value="Find Previous" onclick='prevNodeContentFinder(this); return false;'/>
 </form>
 </div>
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: display;"'; } else { echo 'style="visibility: hidden"'; } ?>>Playing: <span id="playing_div"></span> Features: <span id="sound_div"></span></div>
