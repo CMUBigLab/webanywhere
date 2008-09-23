@@ -22,6 +22,10 @@ var lastNodePlayed = null;
 // Keeps track of whether a programmatic focus was requested.
 var programmaticFocus = false;
 
+// Last element to have received focus.
+// TODO:  Add a page-level focus event that updates this.
+var lastFocused = null;
+
 // Records whether a textbox has the current focus.
 var textBoxFocused = false;
 
@@ -41,6 +45,7 @@ var emulationType = 0;
 // Counts number of times that updatePlaying() has been called.
 // Something like the clock tick of the system.
 var updatePlayingCount = 0;
+
 
 /**
  * Updates the information DIVs (used primarily for debugging).
@@ -92,11 +97,32 @@ function init_browser() {
 	  else if(window.addEventListener) location_field.addEventListener('blur', function() { getScriptWindow().textBoxFocused = false; }, false);
   }
 
-  // Event listeners for the GO button.
+  // GO button focus.
   var go_button = document.getElementById('location_go');
   if(go_button) {
 	  if(window.attachEvent) go_button.attachEvent('onfocus', goButtonFocus);
 	  else if(window.addEventListener) go_button.addEventListener('focus', goButtonFocus, false);
+  }
+
+  // Finder field focus.
+  var finder_field = document.getElementById('finder_field');
+  if(finder_field) {
+    if(window.attachEvent) finder_field.attachEvent('onfocus', browserElementFocus);
+    else if(window.addEventListener) finder_field.addEventListener('focus', browserElementFocus, false);
+  }
+
+  // Find next focus.
+  var find_next = document.getElementById('find_next_button');
+  if(find_next) {
+    if(window.attachEvent) find_next.attachEvent('onfocus', browserElementFocus);
+    else if(window.addEventListener) find_next.addEventListener('focus', browserElementFocus, false);
+  }
+
+  // Find previous focus.
+  var find_next = document.getElementById('find_next_button');
+  if(find_next) {
+    if(window.attachEvent) find_next.attachEvent('onfocus', browserElementFocus);
+    else if(window.addEventListener) find_next.addEventListener('focus', browserElementFocus, false);
   }
 
   // Window-level key event handlers.
@@ -133,6 +159,9 @@ function init_browser() {
  */
 function newPage() {
   WA.browseMode = WA.PAUSED;
+
+  // Reset the last focused node since it no longer exists.
+  lastFocused = null;
 
   var content_frame = top.document.getElementById("content_frame");
   if(content_frame) {
@@ -323,12 +352,29 @@ function goButtonFocus(e) {
   if(!e) e = window.event;
   if(e.target) target = e.target;
   else if(e.srcElement) target = e.srcElement;
-  if(target.nodeType == 3) // defeat Safari bug
+  if(target.nodeType == 3)
     target = target.parentNode;
 
   var text = WA.Nodes.handleNode(target, true);
   WA.Sound.resetSounds();
   WA.Sound.addSound("Go");
+}
+
+/**
+ * Focus event handler for elements in the browser frame.
+ * @param e Event.
+ */
+function browserElementFocus(e) {
+  var target;
+  if(!e) e = window.event;
+  if(e.target) target = e.target;
+  else if(e.srcElement) target = e.srcElement;
+  if(target.nodeType == 3)
+    target = target.parentNode;
+
+  var text = WA.Nodes.handleNode(target, true);
+  WA.Sound.resetSounds();
+  WA.Sound.addSound(text);
 }
 
 // Called when users hit a key when the last node in the page has focus.
@@ -375,10 +421,6 @@ function focusElement(doc, element_id) {
   WA.browseMode = WA.PAUSED;
   WA.Sound.resetSounds();
 
-  if(currentNode) {
-  	currentNode.blur();
-  }
-
   var elem = doc.getElementById(element_id);
   if(elem) {
     elem.blur();
@@ -387,6 +429,7 @@ function focusElement(doc, element_id) {
       elem.select();
     }
     setCurrentNode(elem);
+    lastFocused = elem;
   }
 }
 
@@ -1574,6 +1617,11 @@ function visit(elem, is_spoken) {
     lastNodePlayed = elem;
   }
 
+  // Blur the last focused element.
+  if(lastFocused != null) {
+    lastFocused.blur();
+  }
+
   // Focus the element if it's a focusable element.
   if(isFocusable(elem)) {
     focusNode(elem);
@@ -1645,11 +1693,16 @@ function isFocusable(node) {
 function focusNode(node) {
   if(focusedNode != node) { 
     programmaticFocus = true;
+    if(lastFocused != null)
+      lastFocused.blur();
+    WA.Utils.log('blurring ' + lastFocused);
+
     try {
       node.focus();
       if(node.select) {
         node.select();
       }
+      lastFocused = node;
     } catch(e) {}
   }
 }
