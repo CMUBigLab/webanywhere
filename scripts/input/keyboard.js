@@ -77,7 +77,7 @@ WA.Keyboard = {
     if(this.alwaysAllowed(key_string)) {
     	return true;
     }
-  
+
     var new_node = null;
     var last_node = currentNode;
   
@@ -88,34 +88,56 @@ WA.Keyboard = {
       break;
     case 'tab':
       this.suppressKeys(e);
-      if(target_id == "location") {
-        focusBrowserElement('location_go');
-      } else if(target_id == 'location_go') {
-        WA.browseMode = WA.KEYBOARD;
-        focusContentElement('always_first_node');
-        WA.Sound.resetSounds();
-        WA.browseMode = WA.PLAY_ONE;      
-      } else if(target_id == 'always_last_node') {
-        WA.browseMode = WA.KEYBOARD;
-        WA.Sound.resetSounds();
-        WA.browseMode = WA.PLAY_ONE;
-      } else{
-        WA.browseMode = WA.KEYBOARD;
-        WA.Sound.resetSounds();
-        nextNodeFocus();
-        WA.browseMode = WA.PLAY_ONE;
-      } break;
+      switch(target_id) {
+      	case 'location':
+          focusBrowserElement('location_go');
+          break;
+        case 'location_go':
+					WA.browseMode = WA.KEYBOARD;
+					focusContentElement('always_first_node');
+					WA.Sound.resetSounds();
+					WA.browseMode = WA.PLAY_ONE;
+					break;
+				case 'always_last_node':
+	        WA.browseMode = WA.KEYBOARD;
+	        WA.Sound.resetSounds();
+	        WA.browseMode = WA.PLAY_ONE;
+          break;
+        case 'finder_field':
+          focusBrowserElement('find_next_button');
+          break;
+        case 'find_next_button':
+          focusBrowserElement('find_previous_button');
+          break;
+        default:
+	        WA.browseMode = WA.KEYBOARD;
+	        WA.Sound.resetSounds();
+	        nextNodeFocus();
+	        WA.browseMode = WA.PLAY_ONE;        
+      }
+      break;
     case 'shift tab':
       this.suppressKeys(e);
-      if(target_id == "location_go" || target_id == "location") {
-        focusBrowserElement('location');
-      } else if(target_id == 'always_first_node') {
-        focusBrowserElement('location_go');
-      } else {
-        WA.browseMode = WA.KEYBOARD;
-        WA.Sound.resetSounds();
-        prevNodeFocus();
-        WA.browseMode = WA.PLAY_ONE;
+      switch(target_id) {
+        case 'location_go':
+        case 'location':
+          focusBrowserElement('location');
+          break;
+        case 'always_first_node':
+          focusBrowserElement('location_go');
+          break;
+        case 'find_previous_button':
+          focusBrowserElement('find_next_button');
+          break;
+        case 'find_next_button':
+          focusBrowserElement('finder_field');
+          break;
+        default:
+	        WA.browseMode = WA.KEYBOARD;
+	        WA.Sound.resetSounds();
+	        prevNodeFocus();
+	        WA.browseMode = WA.PLAY_ONE;
+	        break;
       }
       break;
     case 'alt leftarrow':

@@ -375,6 +375,10 @@ function focusElement(doc, element_id) {
   WA.browseMode = WA.PAUSED;
   WA.Sound.resetSounds();
 
+  if(currentNode) {
+  	currentNode.blur();
+  }
+
   var elem = doc.getElementById(element_id);
   if(elem) {
     elem.blur();
@@ -389,7 +393,10 @@ function focusElement(doc, element_id) {
 // Places focus on an element in the browser frame.
 function focusBrowserElement(element_id) {
   var doc = getNavigationDocument();
-  focusElement(doc, element_id);  
+
+  var elem = doc.getElementById(element_id);
+  elem.focus();
+  //focusElement(doc, element_id);  
 }
 
 // Sets focus to the content element with the specified id.
@@ -938,8 +945,10 @@ function contentMatchFunc(context) {
       var text = WA.Nodes.handleNode(elem, true);
       var reg = new RegExp(context, "i");
 
+      WA.Utils.log("comparing: " + context + " to " + text);
+
       if(reg.test(text)) {
-    	return true;
+        return true;
       }
     }
 
@@ -1128,6 +1137,8 @@ function nextNodeByMatcher(matcher, description) {
       return false;
     }
   }
+
+  WA.Utils.log('current node is: ' + currentNode + "\n");
 
   var result = _nextNodeByMatcher(matcher, currentNode);
 
