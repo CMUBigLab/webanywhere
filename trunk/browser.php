@@ -11,7 +11,7 @@ echo $script_path;
 ?>/js-config.php"></script>
 <script type="text/javascript" src="<?php
 echo $script_path;
-?>/keymapping.php"></script>
+?>/input/keymapping.php"></script>
 
 <?php
 // It's about a million times easier to debug Javascript when your source files
