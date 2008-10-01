@@ -93,15 +93,15 @@ WA.Keyboard = {
           focusBrowserElement('location_go');
           break;
         case 'location_go':
-					WA.browseMode = WA.KEYBOARD;
+					setBrowseMode(WA.KEYBOARD);
 					focusContentElement('always_first_node');
 					WA.Sound.resetSounds();
-					WA.browseMode = WA.PLAY_ONE;
+					setBrowseMode(WA.PLAY_ONE);
 					break;
 				case 'always_last_node':
-	        WA.browseMode = WA.KEYBOARD;
+	        setBrowseMode(WA.KEYBOARD);
 	        WA.Sound.resetSounds();
-	        WA.browseMode = WA.PLAY_ONE;
+	        setBrowseMode(WA.PLAY_ONE);
           break;
         case 'finder_field':
           focusBrowserElement('find_next_button');
@@ -110,10 +110,10 @@ WA.Keyboard = {
           focusBrowserElement('find_previous_button');
           break;
         default:
-	        WA.browseMode = WA.KEYBOARD;
+	        setBrowseMode(WA.KEYBOARD);
 	        WA.Sound.resetSounds();
 	        nextNodeFocus();
-	        WA.browseMode = WA.PLAY_ONE;        
+	        setBrowseMode(WA.PLAY_ONE);        
       }
       break;
     case 'shift tab':
@@ -133,10 +133,10 @@ WA.Keyboard = {
           focusBrowserElement('finder_field');
           break;
         default:
-	        WA.browseMode = WA.KEYBOARD;
+	        setBrowseMode(WA.KEYBOARD);
 	        WA.Sound.resetSounds();
 	        prevNodeFocus();
-	        WA.browseMode = WA.PLAY_ONE;
+	        WAsetBrowseMode(WA.PLAY_ONE);
 	        break;
       }
       break;
@@ -156,88 +156,88 @@ WA.Keyboard = {
       break;
     case 'ctrl r':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       new_node = nextTableRow(lastNodePlayed);
       if(new_node) {
         setCurrentNode(new_node);
-        WA.browseMode = WA.PLAY_ONE;
+        setBrowseMode(WA.PLAY_ONE);
       } else {
         broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl f':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       focusBrowserElement('finder_field');
       finderBarFocus();
       break;
     case 'ctrl d':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       new_node = nextTableCol(lastNodePlayed);
       if(new_node) {
         setCurrentNode(new_node);
-        WA.browseMode = WA.PLAY_ONE;
+        setBrowseMode(WA.PLAY_ONE);
       } else {
         broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl t':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       new_node = nextNodeTagAttrib("TABLE", null);
       if(new_node) {
-        WA.browseMode = WA.READ;
+        setBrowseMode(WA.READ);
       } else {
         broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl shift t':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       new_node = prevNodeTagAttrib("TABLE", null);
       if(new_node) {
-      WA.browseMode = WA.READ;
+        setBrowseMode(WA.READ);
       } else {
-        WA.browseMode = WA.KEYBOARD;
+        setBrowseMode(WA.KEYBOARD);
       }
       break;
     case 'ctrl h':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       new_node = nextNodeTagAttrib("H", null);
       if(new_node) {
-        WA.browseMode = WA.READ;
+        setBrowseMode(WA.READ);
       } else {
         broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl shift h':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       new_node = prevNodeTagAttrib("H", null);
       if(new_node) {
-        WA.browseMode = WA.READ;
+        setBrowseMode(WA.READ);
       } else {
-        WA.browseMode = WA.KEYBOARD;
+        setBrowseMode(WA.KEYBOARD);
       }
       break;
     case 'ctrl shift f5':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       WA.Utils.log(WA.Sound.getTimingList() + '\n\n' + WA.Sound.totalLatency + ' ' + WA.Sound.soundsPlayed + ' ' + totalDuration + ' ' + (WA.Sound.totalLatency/totalDuration));
       break;
     case 'ctrl shift f6':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       WA.Sound.Prefetch.alertPrefetching();
       break;
@@ -247,43 +247,43 @@ WA.Keyboard = {
       break;
     case 'ctrl shift r':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       new_node = prevTableRow(lastNodePlayed);
       if(new_node) {
         setCurrentNode(new_node);
-        WA.browseMode = WA.PLAY_ONE;
+        setBrowseMode(WA.PLAY_ONE);
       } else {
         broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl shift d':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD;
+      setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
       new_node = prevTableCol(lastNodePlayed);
       if(new_node) {
         setCurrentNode(new_node);
-        WA.browseMode = WA.PLAY_ONE;
+        setBrowseMode(WA.PLAY_ONE);
       } else {
         broseMode = WA.KEYBOARD;
       }
       break;
     case 'ctrl p':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD; WA.Sound.resetSounds(); new_node = nextNodeTagAttrib("P", null); WA.browseMode = WA.READ;
+      setBrowseMode(WA.KEYBOARD); WA.Sound.resetSounds(); new_node = nextNodeTagAttrib("P", null); setBrowseMode(WA.READ);
       break;
     case 'ctrl shift p':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD; WA.Sound.resetSounds(); new_node = prevNodeTagAttrib("P", null); WA.browseMode = WA.READ;
+      setBrowseMode(WA.KEYBOARD); WA.Sound.resetSounds(); new_node = prevNodeTagAttrib("P", null); setBrowseMode(WA.READ);
       break;
     case 'ctrl i':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD; WA.Sound.resetSounds(); new_node = nextNodeTagAttrib("INPUT|SELECT|BUTTON", null); WA.browseMode = WA.PLAY_ONE;
+      setBrowseMode(WA.KEYBOARD); WA.Sound.resetSounds(); new_node = nextNodeTagAttrib("INPUT|SELECT|BUTTON", null); setBrowseMode(WA.PLAY_ONE);
       break;
     case 'ctrl shift i':
       this.suppressKeys(e);
-      WA.browseMode = WA.KEYBOARD; WA.Sound.resetSounds(); new_node = prevNodeTagAttrib("INPUT|SELECT|BUTTON", null); WA.browseMode = WA.PLAY_ONE;
+      setBrowseMode(WA.KEYBOARD); WA.Sound.resetSounds(); new_node = prevNodeTagAttrib("INPUT|SELECT|BUTTON", null); setBrowseMode(WA.PLAY_ONE);
       break;
     case 'ctrl 6':
       WA.Sound.Prefetch.prefetchPrediction();
@@ -293,13 +293,13 @@ WA.Keyboard = {
       this.suppressKeys(e);
       WA.Sound.resetSounds();
       nextNode(true);
-      WA.browseMode = WA.READ;
+      setBrowseMode(WA.READ);
       break;
     case 'home':
       this.suppressKeys(e);
       WA.Sound.resetSounds();
       setCurrentNode(currentDoc.body);
-      WA.browseMode = WA.READ;
+      setBrowseMode(WA.READ);
       break;
     case 'ctrl shift r':  // Allow reloads.
     case 'ctrl shift tab':  // Allow switching forward tabs.
@@ -331,14 +331,36 @@ WA.Keyboard = {
     if(default_case) {
       if(key_string == "arrowup" && !select_chosen) {
         this.suppressKeys(e);
+        var wasPlaying = WA.Sound.isPlayingSomething();
+
         WA.Sound.resetSounds();
         prevNode();
-        WA.browseMode = WA.PLAY_ONE_BACKWARD;
+
+        // A little trickery to get it to play the right node.
+        // This basically makes it so if you're in the middle of reading
+        // an element, it will skip back to the previous one, but if you're
+        // done reading that element, it will repeat it.
+        if(wasPlaying && (WA.lastBrowseModeDirection != WA.BACKWARD)) {
+        	prevNode();
+        }
+ 
+        setBrowseMode(WA.PLAY_ONE_BACKWARD);
       } else if(key_string == "arrowdown" && !select_chosen) {
         this.suppressKeys(e);
+        var wasPlaying = WA.Sound.isPlayingSomething();
+
         WA.Sound.resetSounds();
-        WA.browseMode = WA.PLAY_ONE;
         nextNode(true);
+
+        // Analogous trickery to get it to play the right node going forward.
+        // This basically makes it so if you're in the middle of reading
+        // an element, it will skip back to the previous one, but if you're
+        // done reading that element, it will repeat it.
+        if(wasPlaying && (WA.lastBrowseModeDirection != WA.FORWARD)) {
+          nextNode(true);
+        }
+
+        setBrowseMode(WA.PLAY_ONE);
       } else if(target_type == "INPUT" || target_type == "TEXTAREA") {
         return_val = true;
         var target_type = target.getAttribute('type');
@@ -352,7 +374,7 @@ WA.Keyboard = {
         goBack();
       } else if(key_string == "spacebar") {
         this.suppressKeys(e);
-        WA.browseMode = WA.KEYBOARD;
+        setBrowseMode(WA.KEYBOARD);
         WA.Sound.resetSounds();
       } else if(key_string == "enter") {
         // Do nothing.
