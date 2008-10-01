@@ -9,10 +9,6 @@ session_start();
 <script type="text/javascript" src="<?php
 echo $script_path;
 ?>/js-config.php"></script>
-<script type="text/javascript" src="<?php
-echo $script_path;
-?>/input/keymapping.php"></script>
-
 <?php
 // It's about a million times easier to debug Javascript when your source files
 // haven't been messed with.  Unfortunately, it's also slower and causes the
@@ -79,6 +75,10 @@ if($_REQUEST[debug]==='true') {
 }
 ?>
 
+<script type="text/javascript" src="<?php
+echo $script_path;
+?>/input/keymapping.php"></script>
+
 <style>
   body {font-family: Georgia, "Times New Roman", Times, serif;}
   #input {font-size: 2em;}
@@ -92,6 +92,7 @@ if($_REQUEST[debug]==='true') {
 <body bgcolor="#CCCCFF">
 <div align="center" valign="bottom" style="font-size: 1em;">
 <form onSubmit="javascript:navigate(this);return false;">
+
 <label for="location">Location</label>:
 <input type="text" size="50" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>
 <input name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
