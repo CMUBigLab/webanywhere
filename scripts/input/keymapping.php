@@ -1,7 +1,5 @@
-<?php Header('Content-Type: application/x-javascript')?>
-// The base object for all key mappings.
-var KEYMAPPING = new Object();
 <?php
+Header('Content-Type: application/x-javascript');
 session_start();
 
 // Forms mode.
@@ -22,21 +20,20 @@ $nextFocusableElement =
 $previousFocusableElement =
  isset($_SESSION['previousFocusableElement']) ? $_SESSION['previousFocusableElement'] : "shift tab";
 
-// Keys related to forms mode.
-//KEYMAPPING.useFormsMode = false;
 ?>
-
-// Forms mode.
-KEYMAPPING.formsModeToggle = '<?php echo $formsModeToggle; ?>';
-KEYMAPPING.useFormsMode = <?php echo $useFormsMode; ?>;
-
-// Basic navigation.
-KEYMAPPING.nextHeading = '<?php echo $nextHeading; ?>';
-KEYMAPPING.previousHeading = '<?php echo $previousHeading; ?>';
-
-KEYMAPPING.nextInputElement = '<?php echo $nextInputElement; ?>';
-KEYMAPPING.previousInputElement = '<?php echo $previousInputElement; ?>';
-
-KEYMAPPING.nextFocusableElement = '<?php echo $nextFocusableElement; ?>';
-KEYMAPPING.previousFocusableElement = '<?php echo $previousFocusableElement; ?>';
-
+// The base object for all key mappings.
+WA.Keyboard.Keymapping = {
+  // Forms mode.
+  formsModeToggle: '<?php echo $formsModeToggle; ?>',
+  useFormsMode: <?php echo $useFormsMode; ?>,
+	
+  // Basic navigation.
+  nextHeading: '<?php echo $nextHeading; ?>',
+  previousHeading: '<?php echo $previousHeading; ?>',
+	
+  nextInputElement: '<?php echo $nextInputElement; ?>',
+  previousInputElement: '<?php echo $previousInputElement; ?>',
+	
+  nextFocusableElement: '<?php echo $nextFocusableElement; ?>',
+  previousFocusableElement: '<?php echo $previousFocusableElement; ?>'
+}

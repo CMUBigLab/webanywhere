@@ -30,11 +30,17 @@ var WA = {
   PREV_CHAR: 7,
   PREV_CHAR_BACKONE: 8,
 
+  FORWARD: 1,
+  BACKWARD: -1,
+
   // WebAnywhere browser initialized.
   browserInit: false,
 
   // Set the initial browseMode to READ.
   browseMode: this.READ,
+
+  // Last browseMode direction (forward/back)
+  lastBrowseModeDirection: "forward",
 
   // Should WebAnywhere run in site-specific mode?
   // This option means that the location bar and other

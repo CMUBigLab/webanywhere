@@ -17,17 +17,19 @@ WA.Extensions.InPageLinkPreprocessor = function() {
       var href = node.getAttribute('href');
       if(/^#./.test(href)) {
         var self = this;
+        var ref = href.substring(1);
+
         node.setAttribute('onclick', 'return false');
+
         WA.Utils.setListener(node, 'click', function() {
-          var ref = href.substring(1);
-        	var targ_id = self._nameToId[href.substring(1)];
+        	var targ_id = self._nameToId[ref];
         	if(targ_id) {
             var targ = node.ownerDocument.getElementById(targ_id);
             if(targ) {
             	WA.Utils.log('Skipping down to ');
               visit(targ, true);
               setCurrentNode(targ, true);
-              WA.browseMode = WA.READ;
+              setBrowseMode(WA.READ);
             }
             return false;
         	}
@@ -52,4 +54,4 @@ WA.Extensions.InPageLinkPreprocessor = function() {
 };
 
 // Add this extension to the node preprocessor extensions.
-//WA.Extensions.nodePreprocessors.push(new WA.Extensions.InPageLinkPreprocessor());
+WA.Extensions.nodePreprocessors.push(new WA.Extensions.InPageLinkPreprocessor());

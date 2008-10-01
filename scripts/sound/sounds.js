@@ -76,7 +76,7 @@ WA.Sound = {
     this.soundMethod = 1;
     this.soundsLoaded = new Array();
   
-    WA.browseMode = WA.READ;   
+    setBrowseMode(WA.READ);   
   },
 
   // Prepare a string for playing sound.
@@ -285,7 +285,30 @@ WA.Sound = {
     }
   },
 
-  // Is the current sid being played right now?
+  /**
+   * Is the system going backward through the page?
+   * @return Boolean Is the system currently going backwards?
+   */
+  isGoingBackwards: function() {
+  	return (WA.browseMode == WA.PLAY_ONE_BACKWARD ||
+  	         WA.browseMode == WA.PLAY_TWO_BACKWARD ||
+  	         WA.browseMode == WA.PLAY_CHAR_BACKONE);
+  },
+
+  /**
+   * Is playing something.
+   * @return Boolean Is something being played?
+   */
+  isPlayingSomething: function() {
+    return (this.playing!=null);
+  },
+
+  /**
+   * Is the current sid being played right now?
+   * @param sid Sound ID to check.
+   * @return Boolean specifying whether the sound with ID sid
+   *         is currently playing.
+   **/
   isPlaying: function(sid) {
     sid = this.prepareSound(sid);
 
