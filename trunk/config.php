@@ -82,5 +82,8 @@
       // Adds label for properties to input elements so the correct name
       // is read.
       ,'/extensions/label-for-node-preprocessor.js'
+
+      // Adds support for in-page links.
+      ,'/extensions/inpage-link-preprocessor.js'
     );
 ?>
