@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Utils Tests</title>
+        <script type="text/javascript" src="../../app/jsUnitCore.js"></script>
+        <script type="text/javascript" src="../../../scripts/vars.js"></script>
+        <script type="text/javascript" src="../../../scripts/utils/utils.js"></script>
+
+        <script type="text/javascript">
+        function testWithValidArguments() {
+            // Test WA.Utils.findPos
+            var div = document.getElementById('absolute_div');
+            assertEquals("Get Position Test X = 307", 307, WA.Utils.findPos(div)[0]);
+            assertEquals("Get Position Test Y = 203", 203, WA.Utils.findPos(div)[1]);
+
+            // Test of WA.Utils.simpleHash.
+            assertEquals("Test of regular text string.", "helloworldNnbISmRRjWzMaOPQ", WA.Utils.simpleHash("hello world"));
+            assertEquals("Test of null string.", "nullhash", WA.Utils.simpleHash(null));
+            assertEquals("Test of empty ('') string.", "emptystring", WA.Utils.simpleHash(""));
+
+            // Test WA.Utils.getXPath
+            assertEquals("Check XPATH", "/html[1]/body[1]/div[1]#absolute_div", WA.Utils.getXPath(div));
+
+            // Test WA.Utils.trim
+            assertEquals("Check trim string", "trimmed string", WA.Utils.trim("  trimmed string    "));
+
+            // Test WA.Utils.countWords
+            assertEquals("Check count words", 7, WA.Utils.countWords("This is a sentence with 7 words."));
+        }
+
+        function testWithInvalidArguments() {
+            // Test WA.Utils.findPos
+            assertNull("null argument", WA.Utils.findPos(null));
+
+            // Test WA.Utils.trim
+            assertNull("Check trim string", WA.Utils.trim(null));
+        }
+
+
+        </script>
+    </head>
+    <body style="margin: 0; padding: 0;">
+    <h1>Test of WebAnywhere Utility Functions</h1>
+
+    <div style="border: 1px solid #F00; z-order: 3; position: absolute; left: 307; top: 203; margin: 0;" id="absolute_div">
+An absolutely positioned DIV.
+    </div>
+
+    </body>
+</html>
