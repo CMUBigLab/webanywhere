@@ -1,0 +1,14 @@
+#summary Information for developers that want to include or reference WebAnywhere from their site.
+
+= Introduction =
+
+This page is to introduce developers of other sites to the features of WebAnywhere that might be useful to them.
+
+
+= FAQ =
+
+== How do I get WebAnywhere to start at a particular page? ==
+
+Set the starting_url argument.  For example, the following would redirect to Google.
+
+http://webanywhere.cs.washington.edu/wa.php?starting_url=http://www.google.com/
