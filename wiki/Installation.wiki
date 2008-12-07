@@ -62,7 +62,9 @@ cpan -i Speech::Festival
 The module is install in xxx/Speech/Speech/Festival.pm. It's a bug. You need to move folders tree as xxx/Speech/Festival.pm.
 
 ==Config getsound.pl==
-The original version of getsound.pl locates at tts/festival/. We should copy it to the right path, /var/www/cgi-bin/ for example.
+The original version of getsound.pl locates at tts/festival/. We should copy it to the right path, /var/www/perl/ for example.
+
+getsound.pl need lame and sox application. Make a symbol link to them under the path of getsound.pl.
 
 Change following line to add our own TTS server:
 {{{
