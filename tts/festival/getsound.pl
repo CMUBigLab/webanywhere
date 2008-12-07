@@ -39,7 +39,7 @@ if(!param()) {
   $text = param('text');
   my $success = utf8::downgrade($text);
 
-  $cache = param('cache');
+  $cache = param('cache') if (param('cache'));
   $mtts = param('mmts');
 }
 
@@ -120,7 +120,12 @@ sub sendTTSToClient($$$) {
     }
 
     if($connected) {
-      request $festival "(let ((utt (Utterance Text \"" . $text . "\")))(begin (utt.synth utt) (utt.wave.resample utt 22500) (utt.send.wave.client utt)))", \&handleFestivalResponse;
+      request $festival "(let ((utt (Utterance Text \"" . $text . "\")))(begin (utt.synth utt) (utt.wave.resample utt 22500) (utt.send.wave.client utt)))";
+      wait_for_result $festival, 10;
+      handleFestivalResponse(get_result $festival);
+      wait_for_result $festival, 10;
+      get_result $festival;
+      disconnect $festival;
     } else {
       returnErrorSound();
     }
@@ -205,7 +210,7 @@ sub writeFileToClient($) {
       my $total_re += $re;
       print $buff;
     }
-    exit;
+    close(FILE);
   } else {
     # TODO:  Handle case where the speech server goes down.
     # Should return a static file that say something like "Speech server is down."
