@@ -1,6 +1,6 @@
 #summary Instructions for installing WebAnywhere.
 
-Contents
+*Contents*
 <wiki:toc max_depth="2" />
 
 = Introduction =
@@ -61,7 +61,18 @@ cpan -i Speech::Festival
 }}}
 The module is install in xxx/Speech/Speech/Festival.pm. It's a bug. You need to move folders tree as xxx/Speech/Festival.pm.
 
-==Config getsound.pl for Your TTS Server==
+==Config getsound.pl==
+The original version of getsound.pl locates at tts/festival/. We should copy it to the right path, /var/www/cgi-bin/ for example.
+
+Change following line to add our own TTS server:
+{{{
+my @servers = ('emil.cs.washington.edu', 'brangane.cs.washington.edu');
+}}}
+
+==Config config.php==
+{{{
+$sound_url_base = 'http://localhost/perl/getsound.pl?text=$text$&cache=1&mtts=1';
+}}}
 
 =Deploy Webanywhere=
 
@@ -73,4 +84,5 @@ The module is install in xxx/Speech/Speech/Festival.pm. It's a bug. You need to 
 
   # Move the downloaded WebAnywhere code into the ?? folder where Apache gets the information to host.
   # Adjust the config.php file with the following adjustments: ... 
+    * Change path of accesses database file: $sql_lite_filename = "C:/webanywhere-accesses.sdb";
   # Directing your internet browser to: ??? should now go the WebAnywhere hosted on your computer.
