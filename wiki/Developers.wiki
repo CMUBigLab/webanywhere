@@ -17,3 +17,10 @@ We can also change following line in config.php
 {{{
 $default_content_url = 'http://webanywhere.cs.washington.edu/content.php';
 }}}
+
+== Why can't I access localhost? ==
+
+There is a PHP proxy. We can comment out following code in wp/wawp.php to work around it:
+{{{
+show_report(array('which' => 'index', 'category' => 'error', 'group' => 'url', 'type' => 'external', 'error' => 1));
+}}}
