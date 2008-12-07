@@ -12,3 +12,8 @@ This page is to introduce developers of other sites to the features of WebAnywhe
 Set the starting_url argument.  For example, the following would redirect to Google.
 
 http://webanywhere.cs.washington.edu/wa.php?starting_url=http://www.google.com/
+
+We can also change following line in config.php
+{{{
+$default_content_url = 'http://webanywhere.cs.washington.edu/content.php';
+}}}
