@@ -1,11 +1,14 @@
 #summary Instructions for installing WebAnywhere.
 
+Contents
+<wiki:toc max_depth="2" />
+
 = Introduction =
 
 [Configuring]
 
 
-= Details =
+=Deploy Web Server=
 ==Installing Apache Webserver==
 
   # Download & Install Apache Webserver (also called Apache http server  
@@ -21,6 +24,46 @@
     * PDO
     * PSQLite
 
+==Config Apache for Perl==
+*This is only needed if you want to deploy Festival TTS server on Linux*
+Add following code to apache.conf
+{{{
+Alias /perl/ /path/to/perl_scripts/
+PerlModule ModPerl::Registry
+
+<Location "/perl/">
+SetHandler perl-script
+PerlHandler ModPerl::Registry
+Options +ExecCGI
+PerlOptions +ParseHeaders
+</Location> 
+}}}
+
+=Deploy Festival TTS Server=
+*This is not a necessary step* to setup WebAnywhere because we could use following TTS server
+http://webinsight.cs.washington.edu/cgi-bin/getsound.pl?text=hello
+And this is only applicable for *Linux* now.
+
+==Install Festival==
+Use following command if you are using Debian based Linux:
+{{{
+sudo apt-get install festival
+}}}
+
+==Launch Festival Server==
+{{{
+festival --server
+}}}
+
+==Install Speech::Festival Perl module==
+{{{
+cpan -i Speech::Festival
+}}}
+The module is install in xxx/Speech/Speech/Festival.pm. It's a bug. You need to move folders tree as xxx/Speech/Festival.pm.
+
+==Config getsound.pl for Your TTS Server==
+
+=Deploy Webanywhere=
 
 ==Downloading the Code==
   # Install svn on the computer and checkout the code from this site.
