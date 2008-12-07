@@ -55,7 +55,7 @@ sudo apt-get install festival
 festival --server
 }}}
 
-==Install Speech::Festival Perl module==
+==Install Perl module Speech::Festival==
 {{{
 cpan -i Speech::Festival
 }}}
