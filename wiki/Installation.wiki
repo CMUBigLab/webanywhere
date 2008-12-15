@@ -72,7 +72,7 @@ my @servers = ('emil.cs.washington.edu', 'brangane.cs.washington.edu');
 }}}
 
 ==Config config.php==
-We may need to change following lines. Please make sure web server has written permission on the directory of webanywhere-accesses.sdb.
+We may need to change following lines. Please make sure web server has writing permission on the directory of webanywhere-accesses.sdb.
 {{{
 $sound_url_base = 'http://localhost/perl/getsound.pl?text=$text$&cache=1&mtts=1';
 ...
