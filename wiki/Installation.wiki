@@ -19,14 +19,19 @@
 
 ==Installing PHP==
 
-  # Required modules:
-    * OpenSSL
-    * PDO
-    * PSQLite
+Required modules:
+  * OpenSSL
+  * PDO
+  * SQLite 3
+
+For windows PHP installer, SQLite 2 is the default. To install SQLite 3, You may need to do following:
+  # download php_pdo_sqlite.dll to PHP/ext/
+  # edit php.ini. change "extension=php_sqlite.dll" to "extension=php_pdo_sqlite.dll"
+  # restart Apache
 
 ==Config Apache for Perl==
 *This is only needed if you want to deploy Festival TTS server on Linux*
-Add following code to apache.conf
+Add following code to apache.conf 
 {{{
 Alias /perl/ /path/to/perl_scripts/
 PerlModule ModPerl::Registry
