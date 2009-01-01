@@ -17,10 +17,12 @@ Add your content here.  Format your content with:
 === index.php ===
 Main page of the WebAnywhere system. Holds two frames containing browser.php and content.php .
 === browser.php ===
+Main controllor of WA. Loaded in the upper browser frame of browser. It will load javascripts, handle requests from user.
 === content.php ===
 Default content page in content frame. Show introduction, keyboard commands and news. Default content page can be changed in config.php.
 == main scripts ==
 === config.php ===
+Config TTS, default content page, trafic control, extensions.
 == sound ==
 Sound folder.
 == proxy ==
