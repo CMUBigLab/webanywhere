@@ -17,30 +17,54 @@ Add your content here.  Format your content with:
 
 = Code Structure =
 == front end ==
+
 === index.php ===
 Main page of the WebAnywhere system. Holds two frames containing browser.php and content.php .
+
 === browser.php ===
 Main controllor of WA. Loaded in the upper browser frame of browser. It will load javascripts, handle requests from user.
+
 === content.php ===
 Default content page in content frame. Show introduction, keyboard commands and news. Default content page can be changed in config.php.
+
 == main scripts ==
+
 === config.php ===
 Config TTS, default content page, trafic control, extensions.
-== sound ==
-Sound folder.
+
+=== scripts/wa.js ===
+This script provides the main functionality for reading through a web page.
+
+=== scripts/vars.js ===
+Contains global namespace declarations, including configuration directives.
+
+=== scripts/nodes.js ===
+Contains functions for handling DOM elements.
+
 == proxy ==
 wp folder.
+
 == playing sounds ==
+
+=== sound ===
+Sound folder. Store some mp3 files.
+
+=== scripts/sound/sounds.js ===
+Contains functions for retrieving, prefetching, and playing sounds.
+
+== minify ==
+Minify is a library for combining, minifying, and caching JavaScript and CSS files on demand before sending them to a web browser.
+
 == capturing keys ==
+
 == tracking location of reader and states ==
 
 ==scripts yet to be placed under a catagory==
-recorder.php
-sound_embed.js
-soundmanager2.js
-soundmanager2.swf
-soundmanager.js
-sounds3.js
-sounds.js
-survey.php
-ustils.js
+ * recorder.php
+ * sound_embed.js
+ * soundmanager2.js
+ * soundmanager2.swf
+ * soundmanager.js
+ * sounds3.js
+ * survey.php
+ * ustils.js
