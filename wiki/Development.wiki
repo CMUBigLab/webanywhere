@@ -29,6 +29,13 @@ Default content page in content frame. Show introduction, keyboard commands and 
 
 == main scripts ==
 
+=== startup/start.js ===
+It calls WA.start.
+
+For standalone mode, it will add event listeners to the navigation window. Set the soundManager onload function. Then call WA.Sound.initSound() to initialize sounds.
+
+When soundmanager loaded, it will call newPage if top.pageLoaded (What if pageLoaded == false at this point? newPage will never be called again?)
+
 === config.php ===
 Config TTS, default content page, trafic control, extensions.
 
@@ -48,6 +55,9 @@ wp folder.
 
 === sound ===
 Sound folder. Store some mp3 files.
+
+=== /sound/soundmanager2.js ===
+This is third party script. For detail, please refer http://www.schillmania.com/projects/soundmanager2/
 
 === scripts/sound/sounds.js ===
 Contains functions for retrieving, prefetching, and playing sounds.
