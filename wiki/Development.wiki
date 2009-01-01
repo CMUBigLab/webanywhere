@@ -18,6 +18,7 @@ Add your content here.  Format your content with:
 Main page of the WebAnywhere system. Holds two frames containing browser.php and content.php .
 === browser.php ===
 === content.php ===
+Default content page in content frame. Show introduction, keyboard commands and news. Default content page can be changed in config.php.
 == main scripts ==
 === config.php ===
 == sound ==
