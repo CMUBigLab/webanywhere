@@ -1,5 +1,8 @@
 #summary Direction of the project development and the structure of the code
 
+*Contents*
+<wiki:toc max_depth="5" />
+
 = Introduction =
 
 Goals, current direction
