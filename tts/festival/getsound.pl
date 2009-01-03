@@ -39,8 +39,8 @@ if(!param()) {
   $text = param('text');
   my $success = utf8::downgrade($text);
 
-  $cache = param('cache') if (param('cache'));
-  $mtts = param('mmts');
+  $cache = param('cache') if (defined param('cache'));
+  $mtts = param('mmts') if (defined param('mmts'));
 }
 
 sendTTSToClient($text, $cache, $mtts);

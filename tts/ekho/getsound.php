@@ -1,15 +1,39 @@
 <?php
-$text = htmlspecialchars($_GET["text"]);
-`c: && cd "\lab\e-guidedog\eGuideDog_TTS" && ekho.exe --request $text`;
-$final_filename = "C:\lab\e-guidedog\eGuideDog_TTS\output.mp3";
-if (file_exists($final_filename)) {
+
+$base_dir = 'F:\TEMP';
+
+if (isset($_GET["cache"])) {
+    $cache = $_GET["cache"];
+} else {
+    $cache = 0;
+}
+
+if (isset($_GET["mtts"])) {
+    $mtts = $_GET["mtts"];
+} else {
+    $mtts = 0;
+}
+
+$text = $_GET["text"];
+
+if (strlen($text) < 20) {
+    $filename = "$text.mp3";
+} else {
+    $filename = "output.mp3";
+}
+
+$filepath = "$base_dir\\$filename";
+
+`c: && cd "\lab\e-guidedog\eGuideDog_TTS" && ekho.exe --request $text -o $filepath`;
+
+if (file_exists($filepath)) {
     header('Content-Type: audio/mpeg');
-    header('Content-Length: ' . filesize($final_filename));
-    header('Final-name: ' . $final_filename);
+    header('Content-Length: ' . filesize($filepath));
+    header('Final-name: ' . $filepath);
     header('Expires: Tue, 12 Mar 2012 04:00:25 GMT');
     flush();
-    readfile($final_filename);  
+    readfile($filepath);  
 } else {
-    echo "<html><body>Error: $final_filename not exist!</body></html>";
+    echo "<html><body>Error: $filepath not exist!</body></html>";
 }
 ?>
