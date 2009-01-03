@@ -56,16 +56,24 @@ wp folder.
 === sound ===
 Sound folder. Store some mp3 files.
 
-=== /sound/soundmanager2.js ===
+=== sound/soundmanager2.js ===
 This is third party script. For detail, please refer http://www.schillmania.com/projects/soundmanager2/
 
 === scripts/sound/sounds.js ===
-Contains functions for retrieving, prefetching, and playing sounds.
+Contains functions for retrieving, prefetching, and playing sounds. Following are frequently used functions:
+ * WA.Sound.initSound() 
+ * WA.Sound.addSound("text to say")
+ * WA.SOund.resetSounds()
 
 == minify ==
 Minify is a library for combining, minifying, and caching JavaScript and CSS files on demand before sending them to a web browser.
 
 == capturing keys ==
+
+=== scripts/input/keyboard.js ===
+Contains functions for handling keyboard events.
+
+Most key press will trigger WA.Sound.resetSounds() to clear sound queue.
 
 == tracking location of reader and states ==
 
