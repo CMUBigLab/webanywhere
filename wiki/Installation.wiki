@@ -69,7 +69,17 @@ festival --server
 {{{
 cpan -i Speech::Festival
 }}}
-The module is install in xxx/Speech/Speech/Festival.pm. It's a bug. You need to move folders tree as xxx/Speech/Festival.pm.
+The module is install in xxx/Speech/Speech/Festival.pm. It's a bug. We need to move folders tree as xxx/Speech/Festival.pm. Also, we need to comment out one print statement.
+
+{{{
+sub DESTROY
+{
+    my ($self) = @_;
+
+#    print "disconnect\n";
+    disconnect $self;
+}
+}}}
 
 ==Config getsound.pl==
 The original version of getsound.pl locates at tts/festival/. We should copy it to the right path, /var/www/perl/ for example.
