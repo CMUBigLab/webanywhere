@@ -31,6 +31,11 @@ For windows PHP installer, SQLite 2 is the default. To install SQLite 3, You may
 
 ==Config Apache for Perl==
 *This is only needed if you want to deploy Festival TTS server on Linux*
+
+Install following modules:
+ * libapache2-mod-perl2
+ * libapache2-mod-musicindex
+
 Add following code to apache.conf 
 {{{
 Alias /perl/ /path/to/perl_scripts/
