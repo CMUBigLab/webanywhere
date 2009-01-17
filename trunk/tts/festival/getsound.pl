@@ -122,9 +122,9 @@ sub sendTTSToClient($$$) {
     if($connected) {
       request $festival "(let ((utt (Utterance Text \"" . $text . "\")))(begin (utt.synth utt) (utt.wave.resample utt 22500) (utt.send.wave.client utt)))";
       wait_for_result $festival, 10;
-      handleFestivalResponse(get_result $festival);
+      handleFestivalResponse(Speech::Festival::get_result $festival);
       wait_for_result $festival, 10;
-      get_result $festival;
+      Speech::Festival::get_result $festival;
       disconnect $festival;
     } else {
       returnErrorSound();
