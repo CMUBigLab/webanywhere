@@ -65,6 +65,11 @@ sudo apt-get install festival
 festival --server
 }}}
 
+You can also setup festival to run in the background with a command like this:
+{{{
+nohup festival --server > /dev/null 2> /dev/null < /dev/null &
+}}}
+
 ==Install Perl module Speech::Festival==
 {{{
 cpan -i Speech::Festival
