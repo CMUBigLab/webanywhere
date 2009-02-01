@@ -96,6 +96,18 @@ Change following line to add our own TTS server:
 my @servers = ('emil.cs.washington.edu', 'brangane.cs.washington.edu');
 }}}
 
+For example, if you have festival running on the same machine as the web server, then the following would be correct:
+
+{{{
+my @servers = ('localhost');
+}}}
+
+The festival server will by default accept connections to localhost.  If you want to add an additional TTS server, you'll need to edit the festival.scm file to allow connections from other computers in your domain.  For instance, at the University of Washington, I have the following, which enables connections from either localhost or computers whose hostname ends in cs.washington.edu:
+
+{{{
+(defvar server_access_list '(localhost "[^\\.\\\\]+\\.cs\\.washington\\.edu")
+}}}
+
 ==Config config.php==
 We may need to change following lines. Please make sure web server has writing permission on the directory of webanywhere-accesses.sdb.
 {{{
