@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <title>Utils Tests</title>
+        <script type="text/javascript" src="../../app/jsUnitCore.js"></script>
+        <script type="text/javascript" src="../../../scripts/vars.js"></script>
+        <script type="text/javascript" src="../../../scripts/utils/utils.js"></script>
+        <script type="text/javascript" src="../../../scripts/utils/base64.js"></script>
+
+        <script type="text/javascript">
+        function testWithValidArguments() {
+            assertEquals("Test base64 encode.",
+                         "aHR0cDovL3d3dy5jcy53YXNoaW5ndG9uLmVkdS9+dGVzdC93aGF0ZXZlci5jZ2k/aGVsbG8mdGhlcmU=",
+                         WA.Utils.Base64.encode64("http://www.cs.washington.edu/~test/whatever.cgi?hello&there"));
+            assertEquals("Test base64 decode.",
+                         "http://www.cs.washington.edu/~test/whatever.cgi?hello&there",
+                         WA.Utils.Base64.decode64("aHR0cDovL3d3dy5jcy53YXNoaW5ndG9uLmVkdS9+dGVzdC93aGF0ZXZlci5jZ2k/aGVsbG8mdGhlcmU="));
+        }
+
+        function testWithInvalidArguments() {
+            // base64 encode.
+            assertNull("null argument", WA.Utils.Base64.encode64(null));
+
+            // base64 decode.
+            assertNull("null argument", WA.Utils.Base64.decode64(null));
+        }
+
+
+
+        </script>
+    </head>
+    <body style="margin: 0; padding: 0;">
+    <h1>Test of WebAnywhere Utility Functions</h1>
+
+    <div style="border: 1px solid #F00; z-order: 3; position: absolute; left: 307; top: 203; margin: 0;" id="absolute_div">
+An absolutely positioned DIV.
+    </div>
+
+    </body>
+</html>

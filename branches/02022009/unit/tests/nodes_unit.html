@@ -1,0 +1,139 @@
+<html>
+    <head>
+        <title>Utils Tests</title>
+        <script type="text/javascript" src="../app/jsUnitCore.js"></script>
+        <script type="text/javascript" src="../../scripts/vars.js"></script>
+        <script type="text/javascript" src="../../scripts/nodes.js"></script>
+
+        <script type="text/javascript">
+        function testWithValidArguments() {
+            // leafNode Tests.
+            assertEquals("Anchor with href.", true,
+                         WA.Nodes.leafNode(document.getElementById('anchor_href')));
+            assertEquals("Anchor with href.", false,
+                         WA.Nodes.leafNode(document.getElementById('anchor_name')));
+            assertEquals("Text node.", true,
+                         WA.Nodes.leafNode(document.getElementById('anchor_name').firstChild));
+            assertEquals("Childless P.", true,
+                         WA.Nodes.leafNode(document.getElementById('empty_p')));
+            assertEquals("P with Children.", false,
+                         WA.Nodes.leafNode(document.getElementById('child_p')));
+            assertEquals("Script Tag.", true,
+                         WA.Nodes.leafNode(document.getElementById('script_tag')));
+            assertEquals("Script Tag.", true,
+                         WA.Nodes.leafNode(document.getElementById('link_tag')));
+            assertEquals("Script Tag.", true,
+                         WA.Nodes.leafNode(document.getElementById(null)));
+
+            // Visibility tests.
+            assertEquals("Test of visibility: hidden.", true,
+                         WA.Nodes.isInvisible(document.getElementById('invisible_p')));
+            assertEquals("Test of visibility: hidden.", false,
+                         WA.Nodes.isInvisible(document.getElementById('empty_p')));
+            assertEquals("Test of display: none.", true,
+                         WA.Nodes.isInvisible(document.getElementById('nodisplay_p')));
+            assertEquals("Test of null input.", false,
+                         WA.Nodes.isInvisible(document.getElementById(null)));
+
+            // Tests for isFocusable.
+            assertEquals("isFocusable on Link with href.", true,
+                         WA.Nodes.isFocusable(document.getElementById('anchor_href')));
+            assertEquals("isFocusable on Link with name.", false,
+                         WA.Nodes.isFocusable(document.getElementById('anchor_name')));
+            assertEquals("isFocusable on button.", true,
+                         WA.Nodes.isFocusable(document.getElementById('button')));
+            assertEquals("isFocusable on DIV in regular TAB order.", true,
+                         WA.Nodes.isFocusable(document.getElementById('tabindex_div')));
+            assertEquals("isFocusable on focusable DIV not in tab order.", true,
+                         WA.Nodes.isFocusable(document.getElementById('notaborder_div')));
+            assertEquals("isFocusable regular DIV.", false,
+                         WA.Nodes.isFocusable(document.getElementById('regular_div')));
+
+            // Test on handleNode.
+            assertEquals("handle link.", "link UW CSE ", WA.Nodes.handleNode(document.getElementById('anchor_href'), true));
+            assertEquals("handle link.", "Anchor with name.", WA.Nodes.handleNode(document.getElementById('anchor_name').firstChild, true));
+            assertEquals("handle link.", "Yay, I have a child.", WA.Nodes.handleNode(document.getElementById('child_p').firstChild.firstChild, true));
+            assertEquals("handle link.", "Heading 1", WA.Nodes.handleNode(document.getElementsByTagName('h1')[0], true));
+
+            // Test of getLabelName.
+            assertEquals("My label with value.", "my label", WA.Nodes.getLabelName(document.getElementById('button')));
+
+            // Test getNumberOfListElements.
+            assertEquals("Get number of list elements.", 4, WA.Nodes.getNumberOfListElements(document.getElementById('unordered_list')));
+            assertEquals("Get number of list elements for non-list.", 0, WA.Nodes.getNumberOfListElements(document.getElementById('button')));
+
+            // Test of getTableName.
+            assertEquals("Get name for table.", "Table Caption. ", WA.Nodes.getTableName(document.getElementById('table')));
+
+            // Test of getTableNum.
+            assertEquals("Get the number of this table by DOM order.",
+                         0, WA.Nodes.getTableNum(document.getElementById('table')));
+
+            // Test of getNodeStyle.
+            assertEquals("Get name for table.", "hidden", WA.Nodes.getNodeStyle(document.getElementById('invisible_p'), "visibility", "visibility"));
+        }
+
+        function testWithInvalidArguments() {
+            // Test on handleNode.
+            assertNull("handle link with going down.",
+                       WA.Nodes.handleNode(document.getElementById('anchor_href'), false));
+
+            // Test of getLabelName.
+            assertEquals("My label without value.", "", WA.Nodes.getLabelName(document.getElementById('invisible_p')));
+
+            // Test getTableName.
+            assertEquals("Get name for table.", "", WA.Nodes.getTableName(document.getElementById('empty_p')));
+
+            // Test of getTableNum.
+            assertEquals("Get the number of this table by DOM order.",
+                         -1, WA.Nodes.getTableNum(null));
+        }
+        </script>
+    </head>
+    <body style="margin: 0; padding: 0;">
+    <h1>Test of WebAnywhere Utility Functions</h1>
+
+    <a href="http://www.cs.washington.edu" id="anchor_href">UW CSE</a>
+    <a name="start" id="anchor_name">Anchor with name.</a>
+
+    <!-- A childless node. -->
+    <p id="empty_p"></p>
+
+    <!-- A paragraph with children. -->
+    <p id="child_p"><b>Yay, I have a child.</b></p>
+
+    <script id="script_tag"></script>
+    
+    <link id="link_tag"></link>
+
+    <p id="invisible_p" style="visibility: hidden">Hello.</p>
+
+    <p id="nodisplay_p" style="display: none;">Hello.</p>
+
+    <form>
+    <input id="button" type="button" value="A button" my_label="my label">
+    </form>
+
+    <!-- focusable DIV with normal tab order. -->
+    <div id="tabindex_div" tabindex="0"></div>
+
+    <!-- focusable DIV with normal tab order. -->
+    <div id="notaborder_div" tabindex="-1"></div>
+
+    <!-- regular, non-focusable DIV -->
+    <div id="regular_div"></div>
+
+    <ul id="unordered_list">
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+        <li>Item 4</li>
+    </ul>
+
+    <table id="table">
+        <caption>Table Caption.</caption>
+        <tr><td>Hello</td><td>World</td></tr>
+    </table>
+
+    </body>
+</html>
