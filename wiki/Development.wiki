@@ -42,6 +42,8 @@ Config TTS, default content page, trafic control, extensions.
 === scripts/wa.js ===
 This script provides the main functionality for reading through a web page.
 
+Call setBrowseMode(WA.READ) will trigger WA to read text.
+
 === scripts/vars.js ===
 Contains global namespace declarations, including configuration directives.
 
