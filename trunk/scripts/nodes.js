@@ -123,7 +123,7 @@ WA.Nodes = {
    * @return Boolean Is the node invisible.
    */
   isInvisible: function(node) {
-      if(typeof node == 'undefined' || node.nodeType != 1) {
+      if(node == null || typeof node == 'undefined' || node.nodeType != 1) {
       	return false;
       }
 
@@ -168,32 +168,38 @@ WA.Nodes = {
     if(!goingDown) {
       return null;
     }
-  
+
+    var return_val = "";
+
     switch(node.nodeType) {
-    case 1: // An HTML Element
-      // Only speak elements that are displayed.
-      if(this.isInvisible()) {
-        return "";
-      } else {
-        return this.handleElement(node);
-      }
-    case 2: // An element attribute -- DO NOTHING
-      return "";
-    case 3: // Text -- Read the Text
-      var ret_val = node.data;
-      if(ret_val.length > 0 && ret_val.match(/\w/)) {
-        ret_val = ret_val.replace(/&#\d+;/, "");
-        return ret_val;
-      }
-      return "";
-    case 8: // Comment
-    case 9: // Document 
-    case 10: // Document Type Definition
-    default:
-      return "";
+	    case 1: // An HTML Element
+	      // Only speak elements that are displayed.
+	      if(this.isInvisible()) {
+	        return_val = "";
+	      } else {
+	        return_val = this.handleElement(node);
+	      }
+        break;
+	    case 2: // An element attribute -- DO NOTHING
+	      return_val = "";
+        break;
+	    case 3: // Text -- Read the Text
+	      var ret_val = node.data;
+	      if(ret_val.length > 0 && ret_val.match(/\w/)) {
+	        ret_val = ret_val.replace(/&#\d+;/, "");
+	        return_val = ret_val;
+	      } else {
+	        return_val = "";
+	      }
+	      break;
+	    case 8: // Comment
+	    case 9: // Document 
+	    case 10: // Document Type Definition
+	    default:
+	      return_val = "";
     } 
     
-    return "";
+    return return_val;
   },
 
   /**
@@ -208,6 +214,7 @@ WA.Nodes = {
       if(!this.leafNode(node.childNodes[i]))
         result += this.handleChildNodes(node.childNodes[i]);
     }
+
     return result;
   },
   
@@ -432,11 +439,11 @@ WA.Nodes = {
       return 0;   
     }
     for(var i=0, ecl=elem.childNodes.length; i<ecl; i++)  {
-      if(elem.childNodes.nodeName == "LI") {
+      if(elem.childNodes[i].nodeName == "LI") {
         num++;
       }
     }
-    
+
     return num;
   },
 
@@ -446,26 +453,29 @@ WA.Nodes = {
    * @return String Name of the table or the empty string.
    */
   getTableName: function(elem) {
+    var ret = "";
     if(elem.caption) {
-      return this.handleChildNodes(elem.caption);
+      ret = this.handleChildNodes(elem.caption);
     } else if(elem.summary) {
-      return elem.summary;
-    } else {
-      return "";
+      ret = elem.summary;
     }
+
+    return ret;
   },
 
   /**
-   * Gets the table number in the document.
+   * Gets the 0-indexed table number in the document.
    * @param elem
-   * @return Integer Number of the table in the document.
+   * @return Integer Number of the table in the document, -1 if not found.
    */
   getTableNum: function(elem) {
-    var tables = elem.ownerDocument.getElementsByTagName('TABLE');
-    for(var i=0, tl=tables.length; i<tl; i++) {
-      if(tables[i] == elem) return i;
+    if(elem != null) {	
+	    var tables = elem.ownerDocument.getElementsByTagName('TABLE');
+	    for(var i=0, tl=tables.length; i<tl; i++) {
+	      if(tables[i] == elem) return i;
+	    }
     }
-    return 0;
+    return -1;
   },
 
   /**
