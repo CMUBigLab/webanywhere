@@ -74,35 +74,76 @@ if($_REQUEST[debug]==='true') {
   echo $script_path . implode(',' . $script_path, $scripts) . '"></script>';
 }
 ?>
+<script>
+function browserOnload() {
+  var browseWidth =
 
+    document.getElementById('wa_browser_interface').offsetWidth;
+
+  var gWidth = document.getElementById('location_go').offsetWidth;
+  var nWidth = document.getElementById('find_next_button').offsetWidth;
+  var pWidth = document.getElementById('find_previous_button').offsetWidth;
+
+  var lBar = document.getElementById('location');
+  var lWidth = lBar.offsetWidth;
+
+  var fField = document.getElementById('finder_field');
+  var fWidth = fField.offsetWidth;
+
+  var extraWidth = browseWidth - (gWidth + nWidth + pWidth + lWidth + fWidth);
+
+  lBar.style.width = (lWidth + 0.75*extraWidth) + "px";
+  fField.style.width = (fWidth + 0.20*extraWidth) + "px";
+}
+</script>
 <script type="text/javascript" src="<?php
 echo $script_path;
 ?>/input/keymapping.php"></script>
 
 <style>
   body {font-family: Georgia, "Times New Roman", Times, serif;}
-  #input {font-size: 2em;}
   #body {font-family: arial;}
+  input {border: 1px solid #000; font-size: 1.7em; margin: 0; align: middle; vertical-align: middle;}
+  .inputbox {height: 34px; align: middle; padding: 0 2px 0 3px;}
+  .inputbutton {height: 36px; padding: 0 3px 3px 3px; font-weight: bold;}
+  td { margin: 0; padding: 0; text-align: center;}
+  tr { margin: 0; padding: 0; }
+  table { margin: 0; padding: 0; width: 100%;}
 </style>
 </head>
 <?php
   // Flush what we have so far so the browser can start downloading/processing the scripts.
   flush();
 ?>
-<body bgcolor="#CCCCFF">
-<div align="center" valign="bottom" style="font-size: 1em;">
-<form onSubmit="javascript:navigate(this);return false;">
+<body bgcolor="#000000" style="margin: 0; padding: 0;" onload="browserOnload();">
 
-<label for="location">Location</label>:
-<input type="text" size="50" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>
-<input name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
-</form>
-<form>
-<input type="text" name="finder_field" id="finder_field" />
-<input id="find_next_button" name="find_next_button" type="button" value="Find Next" onclick='nextNodeContentFinder(this); return false;'/>
-<input id="find_previous_button" name="find_previous_button" type="button" value="Find Previous" onclick='prevNodeContentFinder(this); return false;'/>
+<div id="wa_browser_interface" align="center" valign="bottom" style="margin: 0; padding: 0;">
+<form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display; inline">
+<table>
+<tr>
+<td>
+<label for="location" style="position: absolute; top: -100px">Location:&nbsp;</label>
+<input class="inputbox" type="text" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>
+</td>
+<td>
+<input class="inputbutton" name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
+</td>
+<td>
+<input class="inputbox" type="text" name="finder_field" id="finder_field"/>
+</td>
+<td>
+<input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="Next" onclick='nextNodeContentFinder(this); return false;'/>
+</td>
+<td>
+<input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="Previous" onclick='prevNodeContentFinder(this); return false;'/>
+</td>
+</tr>
+</table>
 </form>
 </div>
+
+<div id="wa_text_display" align="center" valign="middle" style="margin: 0; padding: 0.5em 0; font-size: 3em; color: #FF0; font-weight: bold;">Welcome to WebAnywhere</div>
+
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: display;"'; } else { echo 'style="visibility: hidden"'; } ?>>Playing: <span id="playing_div"></span> Features: <span id="sound_div"></span></div>
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: hidden;"'; } else { echo 'style="visibility: hidden"'; }?>>
 <span id="test_div"></span>
