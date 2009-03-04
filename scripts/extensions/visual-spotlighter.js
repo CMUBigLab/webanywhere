@@ -117,7 +117,7 @@ WA.Extensions.VisualSpotlighter = function() {
   	var styleNode = doc.createElement('div');
     // Funky way of adding style required to make this work with IE.
     styleNode.innerHTML =
-      "<p>&nbsp;</p><style>.wahighlight {color: #00B !important; background-color: #FF9 !important;}</style>";
+      "<p>&nbsp;</p><style>.wahighlight {color: #FF0 !important; background-color: #000 !important;}</style>";
     doc.body.appendChild(styleNode);
   };
 };

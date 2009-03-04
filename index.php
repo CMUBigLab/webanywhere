@@ -15,6 +15,15 @@ window.open = function() {}
 var navLoaded = false;
 function navigationLoad() {
   navLoaded = true;
+
+  var browseHeight =
+    document.getElementById('navigation_frame').contentDocument.getElementById('wa_browser_interface').offsetHeight;
+
+  var dispHeight =
+    document.getElementById('navigation_frame').contentDocument.getElementById('wa_text_display').offsetHeight;
+
+  var frameHeight = (dispHeight + browseHeight) + "px";
+  document.getElementById('wa_frameset').setAttribute('rows', frameHeight + ",*");
 }
 var returning = false;
 
@@ -79,8 +88,8 @@ if(strlen($arguments) > 0) {
 $start_url = (isset($_REQUEST['starting_url']) ? base64_encode($_REQUEST['starting_url']) : base64_encode($default_content_url));
 $start_url = str_replace('$url', $start_url, $wp_path);
 ?>
-<FRAMESET ROWS="15%, *" BORDER="0">
-     <FRAME SRC="browser.php<?php echo $arguments; ?>" id="navigation_frame" NAME="navigation_frame" onLoad="navigationLoad()" SCROLLING="NO">
+<FRAMESET id="wa_frameset" ROWS="15%, *" BORDER="0" style="margin: 0; padding: 0;">
+     <FRAME style="margin: 0; padding: 0;" SRC="browser.php<?php echo $arguments; ?>" id="navigation_frame" NAME="navigation_frame" onLoad="navigationLoad()" SCROLLING="NO">
      <FRAME SRC=<?php echo $start_url; ?> id="content_frame" NAME="content_frame" onLoad="newPage();">
 </FRAMESET>
 </HTML>

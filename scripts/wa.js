@@ -56,6 +56,11 @@ function updatePlaying() {
     play_div.innerHTML = (WA.Sound.playing!=null) ? WA.Sound.playing : "(null)";
   }
 
+  var disp_div = document.getElementById('wa_text_display');
+  if(disp_div && WA.Sound.playing != null) {
+    disp_div.innerHTML = WA.Sound.playing;
+  }
+
   var sound_div = document.getElementById('sound_div');
   if(sound_div) {
 	  if(currentNode && currentNode.nodeType == 1) {
