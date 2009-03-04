@@ -13,8 +13,8 @@ WA.Utils = {
    *        start and end.
    * @return String with whitespace removed.
    */
-  trim: function(stringToTrim) {
-    return stringToTrim.replace(/^\s+|\s+$/g,"");
+  trim: function(str) {
+    return ((str == null) ? null : str.replace(/^\s+|\s+$/g,""));
   },
 
   /**
@@ -120,25 +120,25 @@ WA.Utils = {
    if(!node) {
    	return "(none)";
    }
-  
+
    var xpath = "";
-  
+
    var namespace = node.ownerDocument.documentElement.namespaceURI;
    var prefix = namespace ? "x:" : "";
   
    var node2 = node;
    var doc = node.ownerDocument;
-  
+
    var node_id = null;
    if(node.getAttribute) {
      node_id = node.getAttribute('id');
    }
-  
+
    for(var i=0; node2 && node2 != doc; i++) {
      if(!node2.tagName || !node2.parentNode) {
        return "";
      }
-  
+
      var tag = node2.tagName.toLowerCase();
      var id = node2.id;
      var className = node2.className;
@@ -179,12 +179,12 @@ WA.Utils = {
          segment += '[' + (node2.cellIndex+1) + ']';
        }
      }
-  
+
      xpath = "/" + segment + xpath;
   
      node2 = node2.parentNode;
    }
-   
+
    if(node_id) {
      xpath += '#' + node_id;
    }
@@ -262,15 +262,17 @@ WA.Utils = {
 	 */
 	findPos: function(obj) {
 	  var curleft = curtop = 0;
-	  if(obj.offsetParent) {
+	  if(obj != null && obj.offsetParent) {
 	    curleft = obj.offsetLeft;
 	    curtop = obj.offsetTop;
 	    while (obj = obj.offsetParent) {
 	      curleft += obj.offsetLeft;
 	      curtop += obj.offsetTop;
 	    }
+	  } else {
+	  	return null;
 	  }
-	
+
 	  return [curleft,curtop];
 	},
 
