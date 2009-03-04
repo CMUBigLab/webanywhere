@@ -15,9 +15,11 @@
 WA.Utils.Base64 = {
   // String used by the encoding/decoding functions.
   _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-  
+
   // Encodes the input string and returns in base64.
   encode64: function(input) {
+    if(input == null) return null;
+
     var output = "";
     var chr1, chr2, chr3;
     var enc1, enc2, enc3, enc4;
@@ -48,6 +50,8 @@ WA.Utils.Base64 = {
 
   // Decode base64 encoded string, and returns the result.
   decode64: function(input) {
+    if(input == null) return null;
+
     var output = "";
     var chr1, chr2, chr3;
     var enc1, enc2, enc3, enc4;
