@@ -49,8 +49,8 @@ PerlOptions +ParseHeaders
 </Location> 
 }}}
 
-=Deploy Festival TTS Server=
-*This is not a necessary step* to setup WebAnywhere because we could use following TTS server
+=Deploy Festival TTS Server (optional)=
+*It is not a must step* to setup WebAnywhere because we could use following TTS server
 http://webinsight.cs.washington.edu/cgi-bin/getsound.pl?text=hello
 And this is only applicable for *Linux* now.
 
@@ -114,6 +114,29 @@ We may need to change following lines. Please make sure web server has writing p
 $sound_url_base = 'http://localhost/perl/getsound.pl?text=$text$&cache=1&mtts=1';
 ...
 $sql_lite_filename = "C:/webanywhere-accesses.sdb";
+}}}
+
+=Deploy eSpeak TTS server (optional)=
+eSpeak can speak many languages. And it's easy to deploy.
+
+==Install eSpeak==
+Please refer to http://espeak.sf.net
+We don't need to launch a eSpeak server like Festival. We just need to make sure command `espeak` can be run.
+
+==Config getsound.pl==
+We need to copy tts/espeak/getsound.pl to some path. This path is hard code in the script. So we need to change following line:
+{{{
+my $base_dir = '/home/hgneng/www-perl';
+}}}
+
+In getsound.pl of espeak, we add a "lang" variable to specify voice in espeak.
+
+==Config config.php==
+Like Festival, we need to set following line: (espeak.pl is a copy of getsound.pl)
+{{{
+
+$sound_url_base = 'http://localhost/perl/espeak.pl?text=$text$&lang=cantonese';
+
 }}}
 
 =Deploy Webanywhere=
