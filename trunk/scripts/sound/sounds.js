@@ -100,7 +100,13 @@ WA.Sound = {
   splitSoundsByBoundaries: true,
   boundarySplitterRegExp: /aaaaaa[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+)+[\.!\?:;\s]*/,
   splitSoundsByBoundary: function(sid) {
-    return (sid + "").split(this.boundarySplitterRegExp);  
+    alert(sid + "");
+    return (sid + "").split("");
+    if (top.language = 'Cantonese') {
+      return (sid + "").split("");
+    } else {
+      return (sid + "").split(this.boundarySplitterRegExp);  
+    }
   },
 
   // Adds a new sound to the queue of sounds to be played.
@@ -247,7 +253,7 @@ WA.Sound = {
       default: speak = String.fromCharCode(keycode); 
     }
   
-    var url = '/cgi-bin/getsound.pl?text=' + escape(speak);
+    var url = '/cgi-bin/getsound.pl?text=' + escape(speak); // BUG: should not hard code TTS engine path here. - Cameron, 2009.3.14
     url = proxifyURL(url, "");
   
     switch(this.soundMethod) {
