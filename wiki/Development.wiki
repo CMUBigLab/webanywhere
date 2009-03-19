@@ -84,12 +84,8 @@ Most key press will trigger WA.Sound.resetSounds() to clear sound queue.
 
 == tracking location of reader and states ==
 
-==scripts yet to be placed under a catagory==
+== scripts yet to be placed under a catagory ==
  * recorder.php
- * sound_embed.js
- * soundmanager2.js
- * soundmanager2.swf
- * soundmanager.js
  * sounds3.js
  * survey.php
  * ustils.js
