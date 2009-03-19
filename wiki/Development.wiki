@@ -72,6 +72,9 @@ Contains functions for retrieving, prefetching, and playing sounds. Following ar
  * WA.Sound.addSound("text to say")
  * WA.SOund.resetSounds()
 
+playWaiting will run as a deamon:
+setInterval(function(){self.playWaiting()}, this.playWaitingInterval);
+
 == minify ==
 Minify is a library for combining, minifying, and caching JavaScript and CSS files on demand before sending them to a web browser.
 
