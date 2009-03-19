@@ -58,7 +58,12 @@ wp folder.
 === sound ===
 Sound folder. Store some mp3 files.
 
-=== sound/soundmanager2.js ===
+=== scripts/sound ===
+Following two files have no much use because of soundmanager2.js
+ * flash.js
+ * sound_emed.js
+
+=== scripts/sound/soundmanager2.js ===
 This is third party script. For detail, please refer http://www.schillmania.com/projects/soundmanager2/
 
 === scripts/sound/sounds.js ===
