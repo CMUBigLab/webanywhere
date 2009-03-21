@@ -119,7 +119,7 @@ echo $script_path;
 <body bgcolor="#000000" style="margin: 0; padding: 0;" onload="browserOnload();">
 
 <div id="wa_browser_interface" align="center" valign="bottom" style="margin: 0; padding: 0;">
-<form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display; inline">
+<form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;">
 <table>
 <tr>
 <td>
