@@ -15,7 +15,7 @@ window.open = function() {}
 var navLoaded = false;
 function navigationLoad() {
   navLoaded = true;
-
+/* frame in IE has no contentDocument attribute. No fix plan.
   var browseHeight =
     document.getElementById('navigation_frame').contentDocument.getElementById('wa_browser_interface').offsetHeight;
 
@@ -24,6 +24,7 @@ function navigationLoad() {
 
   var frameHeight = (dispHeight + browseHeight) + "px";
   document.getElementById('wa_frameset').setAttribute('rows', frameHeight + ",*");
+*/
 }
 var returning = false;
 
