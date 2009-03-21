@@ -100,13 +100,7 @@ WA.Sound = {
   splitSoundsByBoundaries: true,
   boundarySplitterRegExp: /aaaaaa[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+)+[\.!\?:;\s]*/,
   splitSoundsByBoundary: function(sid) {
-    alert(sid + "");
-    return (sid + "").split("");
-    if (top.language = 'Cantonese') {
-      return (sid + "").split("");
-    } else {
-      return (sid + "").split(this.boundarySplitterRegExp);  
-    }
+    return (sid + "").split(this.boundarySplitterRegExp);  
   },
 
   // Adds a new sound to the queue of sounds to be played.
