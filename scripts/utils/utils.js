@@ -227,28 +227,33 @@ WA.Utils = {
       return 'emptystring';
     }
 
-    var bin = Array(16);
-    var str_len = str.length;
-
-    for(var i=0; i<16; i++) {
-      bin[i] = str_len + i;
+    var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_$";
+    var val = "";
+    var chr;
+    var enc1, enc2, enc3;
+  
+    for (var i = 0, str_len = str.length; i < str_len; i++) {
+      chr = str.charCodeAt(i);
+      if ((chr >= 48 && chr <= 57) ||
+          (chr >= 65 && chr <= 90) ||
+          (chr >= 97 && chr <= 122)) {
+        // make a direct mapping if chr in [a-zA-Z0-9]
+        val += str.charAt(i);
+      } else {
+        // other chr will encoded with a beginning $ (36).
+        // A 16 bit unicode will be encoded into 6bit + 6bit + 4bit
+        enc1 = chr >> 10;
+        enc2 = (chr & 1023) >> 4; // 1023 = 2^10 - 1
+        enc3 = chr & 15; // 15 = 2^4 - 1
+        val += '$' + keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3);
+      }
     }
-    for(var i=0; i<str_len; i++) {
-      var update_val = str.charCodeAt(i)*(i & 0xFF)
-      bin[(i & 0xF)] += update_val;
-      bin[((i << 2) & 0xF)] += update_val;
-    }
 
-    var hex_tab = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz#*@!";
-    var str2 = "";
-    for(var i=0, bl=bin.length; i<bl; i++) {
-      str2 += hex_tab.charAt(bin[i] & 0x3F);
+    // re-calculate with MD5 if length of val > 64
+    // val with MD5 will begin with '_'
+    if (val.length > 64) {
+      val = '_' + hex_md5(str);
     }
-
-    // Prepare the final string.
-    var val = str.substring(0, 15) + str2;
-    val = val.replace(/&#(\d)+;/g, "p$1");
-    val = val.replace(/[^a-zA-Z0-9]+/g, '');
 
     return val;
   },
