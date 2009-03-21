@@ -104,8 +104,8 @@ echo $script_path;
 <style>
   body {font-family: Georgia, "Times New Roman", Times, serif;}
   #body {font-family: arial;}
-  input {border: 1px solid #000; font-size: 1.7em; margin: 0; align: middle; vertical-align: middle;}
-  .inputbox {height: 34px; align: middle; padding: 0 2px 0 3px;}
+  input {border: 1px solid #000; font-size: 1.7em; margin: 0; vertical-align: middle;}
+  .inputbox {height: 34px; padding: 0 2px 0 3px;}
   .inputbutton {height: 36px; padding: 0 3px 3px 3px; font-weight: bold;}
   td { margin: 0; padding: 0; text-align: center;}
   tr { margin: 0; padding: 0; }
