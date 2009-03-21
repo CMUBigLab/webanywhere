@@ -23,6 +23,7 @@ if($_REQUEST[embed]!=='true') { ?>
 $scripts =
   array(
         '/vars.js',
+        '/utils/md5.js',
         '/utils/utils.js',
         '/utils/base64.js',
         '/nodes.js',
