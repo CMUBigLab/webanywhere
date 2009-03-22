@@ -110,6 +110,8 @@ echo $script_path;
   td { margin: 0; padding: 0; text-align: center;}
   tr { margin: 0; padding: 0; }
   table { margin: 0; padding: 0; width: 100%;}
+  #wa_browser_interface {align: center;}
+  #wa_text_display {text-align: center;}
 </style>
 </head>
 <?php
@@ -118,7 +120,7 @@ echo $script_path;
 ?>
 <body bgcolor="#000000" style="margin: 0; padding: 0;" onload="browserOnload();">
 
-<div id="wa_browser_interface" align="center" valign="bottom" style="margin: 0; padding: 0;">
+<div id="wa_browser_interface" style="margin: 0; padding: 0;">
 <form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;">
 <table>
 <tr>
@@ -143,7 +145,7 @@ echo $script_path;
 </form>
 </div>
 
-<div id="wa_text_display" align="center" valign="middle" style="margin: 0; padding: 0.5em 0; font-size: 3em; color: #FF0; font-weight: bold;">Welcome to WebAnywhere</div>
+<div id="wa_text_display" style="margin: 0; padding: 0.5em 0; font-size: 3em; color: #FF0; font-weight: bold;">Welcome to WebAnywhere</div>
 
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: display;"'; } else { echo 'style="visibility: hidden"'; } ?>>Playing: <span id="playing_div"></span> Features: <span id="sound_div"></span></div>
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: hidden;"'; } else { echo 'style="visibility: hidden"'; }?>>
