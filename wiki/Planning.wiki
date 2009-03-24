@@ -2,7 +2,7 @@
 
 = Goals for Beta "release" =
 
-We want to fix the following functions/issues to be released and to consider the project in beta.
+After the following functions/issues are fixed, we will consider the project to be in beta.
 
   * In-page links should be working (currently works in everything except IE6)
   * Highlight chunks of text as read (working for most chunks, but work on smaller chunks in some instances?)
@@ -11,7 +11,7 @@ We want to fix the following functions/issues to be released and to consider the
   * Magnified view (Jeff checked this in. Test that it works across platforms)
   * If something is hidden, don't read it aloud.
 
-When testing WebAnywhere, use the following set of sites/applications:
+We want to test WA on the following set of sites/applications:
 
   * google
   * gmail
