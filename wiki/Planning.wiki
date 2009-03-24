@@ -1,0 +1,22 @@
+#summary Milestones, timeline, and other planning for upcoming "releases."
+
+= Goals for Beta "release" =
+
+We want to fix the following functions/issues to be released and to consider the project in beta.
+
+  * In-page links should be working (currently works in everything except IE6)
+  * Highlight chunks of text as read (working for most chunks, but work on smaller chunks in some instances?)
+  * Handle frames and iframes
+  * Ensure "find" is working
+  * Magnified view (Jeff checked this in. Test that it works across platforms)
+  * If something is hidden, don't read it aloud.
+
+When testing WebAnywhere, use the following set of sites/applications:
+
+  * google
+  * gmail
+  * university of washington
+  * facebook
+  * bookshare
+  * blackboard/moodle
+  * others?
