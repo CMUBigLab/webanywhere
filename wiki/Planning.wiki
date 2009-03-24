@@ -8,6 +8,7 @@ After the following functions/issues are fixed, we will consider the project to 
   * Highlight chunks of text as read (working for most chunks, but work on smaller chunks in some instances?)
   * Handle frames and iframes
     * [http://www.martinish.com/folio/linkFrame/?url=www.schoolonthegreen.com&return=/folio/web frame example]
+    * [http://www.dyn-web.com/tutorials/iframes/ iframe examples]
   * Ensure "find" is working
   * Magnified view (Jeff checked this in. Test that it works across platforms)
   * If something is hidden, don't read it aloud.
