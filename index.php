@@ -82,6 +82,12 @@ if(isset($_REQUEST['embed'])) {
   }
   $arguments .= 'embed=' . $_REQUEST['embed'];
 }
+if(isset($_REQUEST['locale'])) {
+  if(strlen($arguments) > 0) {
+    $arguments .= '&';
+  }
+  $arguments .= 'locale=' . $_REQUEST['locale'];
+}
 if(strlen($arguments) > 0) {
   $arguments = '?' . $arguments;
 }
