@@ -1,14 +1,16 @@
 <?php
 session_start();
+include('config.php');
 ?>
-<?php include('config.php'); ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
 <title>WebAnywhere Browser Frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript" src="<?php
 echo $script_path;
 ?>/js-config.php"></script>
+<?php include('locale.php'); ?>
 <?php
 // It's about a million times easier to debug Javascript when your source files
 // haven't been messed with.  Unfortunately, it's also slower and causes the
@@ -125,27 +127,27 @@ echo $script_path;
 <table>
 <tr>
 <td>
-<label for="location" style="position: absolute; top: -100px">Location:&nbsp;</label>
+<label for="location" style="position: absolute; top: -100px"><?php echo gettext('Location') ?>:&nbsp;</label>
 <input class="inputbox" type="text" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>
 </td>
 <td>
-<input class="inputbutton" name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
+<input class="inputbutton" name="go" type="submit" value="<?php echo gettext('Go') ?>" id="location_go" onclick='navigate(this); return false;'/>
 </td>
 <td>
 <input class="inputbox" type="text" name="finder_field" id="finder_field"/>
 </td>
 <td>
-<input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="Next" onclick='nextNodeContentFinder(this); return false;'/>
+<input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="<?php echo gettext('Next') ?>" onclick='nextNodeContentFinder(this); return false;'/>
 </td>
 <td>
-<input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="Previous" onclick='prevNodeContentFinder(this); return false;'/>
+<input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="<?php echo gettext('Previous') ?>" onclick='prevNodeContentFinder(this); return false;'/>
 </td>
 </tr>
 </table>
 </form>
 </div>
 
-<div id="wa_text_display" style="margin: 0; padding: 0.5em 0; font-size: 3em; color: #FF0; font-weight: bold;">Welcome to WebAnywhere</div>
+<div id="wa_text_display" style="margin: 0; padding: 0.5em 0; font-size: 3em; color: #FF0; font-weight: bold;"><?php echo gettext('Welcome to WebAnywhere') ?></div>
 
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: display;"'; } else { echo 'style="visibility: hidden"'; } ?>>Playing: <span id="playing_div"></span> Features: <span id="sound_div"></span></div>
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: hidden;"'; } else { echo 'style="visibility: hidden"'; }?>>
