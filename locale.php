@@ -1,7 +1,17 @@
 <?php
+// load locale from GET
 $locale = $_REQUEST['locale'];
 if (empty($locale)) {
-  $locale = $default_locale;
+  if (isset($_COOKIE['userlocale'])) {
+    // load locale from cookie
+    $locale = $_COOKIE['userlocale'];
+  } else {
+    // load locale from default defined in config.php
+    $locale = $default_locale;
+  }
+} else {
+  // save new locale to cookie
+  echo "<meta http-equiv='Set-Cookie' content='userlocale=$locale;expires=Friday, 31-Dec-2099 23:59:59 GMT;'>";    
 }
 
 if (preg_match('/(.*)[.]UTF-8$/', $locale, $matchs)) {
@@ -11,7 +21,9 @@ if (preg_match('/(.*)[.]UTF-8$/', $locale, $matchs)) {
   $locale_utf8 = $locale . '.UTF-8';
 }
 
-setlocale(LC_ALL, $locale, $locale_utf8);
+$result = setlocale(LC_ALL, $locale, $locale_utf8);
+`echo "setlocale($locale)" >> /tmp/wa.log`;
+`echo "locale: $result" >> /tmp/wa.log`;
 bindtextdomain('WebAnywhere', 'locale');
 textdomain('WebAnywhere');
 

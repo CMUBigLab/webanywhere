@@ -7,6 +7,7 @@ include('config.php');
 <head>
 <title>WebAnywhere Browser Frame</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <script type="text/javascript" src="<?php
 echo $script_path;
 ?>/js-config.php"></script>
@@ -79,13 +80,14 @@ if($_REQUEST[debug]==='true') {
 ?>
 <script>
 function browserOnload() {
-  var browseWidth =
-
-    document.getElementById('wa_browser_interface').offsetWidth;
+  var browseWidth = document.getElementById('wa_browser_interface').offsetWidth;
 
   var gWidth = document.getElementById('location_go').offsetWidth;
   var nWidth = document.getElementById('find_next_button').offsetWidth;
   var pWidth = document.getElementById('find_previous_button').offsetWidth;
+<?php if ($show_locale_selection) { ?>
+  var sWidth = document.getElementById('locale_selection').offsetWidth;
+<?php } ?>
 
   var lBar = document.getElementById('location');
   var lWidth = lBar.offsetWidth;
@@ -93,10 +95,12 @@ function browserOnload() {
   var fField = document.getElementById('finder_field');
   var fWidth = fField.offsetWidth;
 
-  var extraWidth = browseWidth - (gWidth + nWidth + pWidth + lWidth + fWidth);
+  var extraWidth = browseWidth - (gWidth + nWidth + pWidth
+<?php if ($show_locale_selection) { echo "+ sWidth"; } ?>
+      + lWidth + fWidth);
 
-  lBar.style.width = (lWidth + 0.75*extraWidth) + "px";
-  fField.style.width = (fWidth + 0.20*extraWidth) + "px";
+  lBar.style.width = (lWidth + 0.80*extraWidth - 15) + "px";
+  fField.style.width = (fWidth + 0.20*extraWidth - 15) + "px";
 }
 </script>
 <script type="text/javascript" src="<?php
@@ -109,6 +113,7 @@ echo $script_path;
   input {border: 1px solid #000; font-size: 1.7em; margin: 0; vertical-align: middle;}
   .inputbox {height: 34px; padding: 0 2px 0 3px;}
   .inputbutton {height: 36px; padding: 0 3px 3px 3px; font-weight: bold;}
+  select {height: 36px; font-size: 1.7em; font-weight: bold;}
   td { margin: 0; padding: 0; text-align: center;}
   tr { margin: 0; padding: 0; }
   table { margin: 0; padding: 0; width: 100%;}
@@ -142,6 +147,28 @@ echo $script_path;
 <td>
 <input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="<?php echo gettext('Previous') ?>" onclick='prevNodeContentFinder(this); return false;'/>
 </td>
+<?php
+if ($show_locale_selection) {
+  echo '<td>';
+  echo '<select id="locale_selection" name="locale_selection" onchange="changeLocale()">';
+  if ($locale == 'en_EN') {
+    echo '<option selected value="en_EN">English</option>';
+  } else {
+    echo '<option value="en_EN">English</option>';
+  }
+  if ($locale == 'zh_CN') {
+    echo '<option selected value="zh_CN">简体中文</option>';
+  } else {
+    echo '<option value="zh_CN">简体中文</option>';
+  }
+  if ($locale == 'zh_TW') {
+    echo '<option selected value="zh_TW">繁体中文</option>';
+  } else {
+    echo '<option value="zh_TW">繁体中文</option>';
+  }
+  echo '</select></td>';
+}
+?>
 </tr>
 </table>
 </form>

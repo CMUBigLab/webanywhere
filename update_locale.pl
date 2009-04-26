@@ -12,10 +12,16 @@ foreach my $file (@files) {
   `find -name "*.js" | xargs xgettext -j -L C -o $file`;
 }
 
-# Generate *.js from *.po
+# Generate *mo and *.js from *.po
 foreach my $po_file (@files) {
   if ($po_file =~ /^(.*)[.]po$/) {
     my $js_file = "$1.js";
+
+    # generate *.mo
+    my $mo_file = "$1.mo";
+    `msgfmt -o $mo_file $po_file`;
+
+    # generate *.js
     my $msg_lines = `grep "msg" $po_file`;
     my @msgs = split(/\n/, $msg_lines);
 
