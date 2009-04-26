@@ -253,7 +253,7 @@ function newPage() {
 
     // Create an artificial focusable end element.
     var end_node = currentDoc.createElement('div');
-    end_node.innerHTML = "End of Page";
+    end_node.innerHTML = "End of page";
     if(end_node.tabIndex) { // IE.
       end_node.tabIndex = 0;
     }
@@ -340,7 +340,7 @@ function locationFocus(e) {
 
   WA.Sound.resetSounds();
 
-  WA.Sound.addSound("Location field text area:");
+  WA.Sound.addSound(gettext("Location field text area:"));
   if(target.value) {
     WA.Sound.addSound(target.value);
   }
@@ -351,7 +351,7 @@ function locationFocus(e) {
  */
 function finderBarFocus() {
   WA.Sound.resetSounds();
-  WA.Sound.addSound("Type a string to find in the current page");
+  WA.Sound.addSound(gettext("Type a string to find in the current page"));
 }
 
 /**
@@ -368,7 +368,7 @@ function goButtonFocus(e) {
 
   var text = WA.Nodes.handleNode(target, true);
   WA.Sound.resetSounds();
-  WA.Sound.addSound("Go");
+  WA.Sound.addSound(gettext("Go"));
 }
 
 /**
@@ -396,7 +396,7 @@ function browserElementFocus(e) {
 function tabEndNode(e) {
   var key = getNavigationDocument().keyString(e);
   if(key == 'tab') {
-    WA.Sound.addSound("End of Page.");
+    WA.Sound.addSound(gettext("End of page"));
     stopProp(e);
     return false;
   }
@@ -431,7 +431,7 @@ function tabLocation(e) {
     return false;
   } else if(key == 'shift tab') {
     WA.Sound.resetSounds();
-    WA.Sound.addSound("Start of Page.");
+    WA.Sound.addSound(gettext("Start of page"));
     stopProp(e);
     return false;
   }
@@ -714,7 +714,7 @@ function startNodeFocus(e) {
 function endNodeFocus(e) {
   if(currentDoc && currentDoc.title) {
     WA.Sound.resetSounds();
-    WA.Sound.addSound("End of page");
+    WA.Sound.addSound(gettext("End of page"));
   }
 }
 
@@ -1012,7 +1012,7 @@ function navTableCell(node, row_offset, col_offset, edge_message) {
       }
     }	
   } else {
-  	WA.Sound.addSound('Not in a table.');
+  	WA.Sound.addSound(gettext("Not in a table"));
   	return null;
   }
 
@@ -1161,6 +1161,18 @@ function prevNodeContentFinder() {
 }
 
 /**
+ * reload page with new locale
+ */
+function changeLocale() {
+  var newlocale = getNavigationDocument().getElementById('locale_selection').value;
+  if (top.document.location.href.indexOf('?') > 0) {
+    top.document.location.href += '&locale=' + newlocale;
+  } else {
+    top.document.location.href += '?locale=' + newlocale;
+  }
+}
+
+/**
  * Finds the next node matching the supplied context with respect to
  * the currentNode.
  * @param context Text string to match.
@@ -1290,7 +1302,7 @@ function nextNodeByMatcher(matcher, description) {
       result_id = result.getAttribute('id');
     }
     if(result_id == 'always_last_node' && description != "") {
-      WA.Sound.addSound('no ' + description);
+      WA.Sound.addSound(gettext("no ") + description);
       return false;
     } else {
       visit(result, true);
@@ -1298,7 +1310,7 @@ function nextNodeByMatcher(matcher, description) {
       return true;
     }
   } else if(description != "") {
-    WA.Sound.addSound('no ' + description);
+    WA.Sound.addSound(gettext("no ") + description);
     return false;
   }
 }
@@ -1677,7 +1689,7 @@ function prevNode() {
 
   if(currentNode.tagName == "BODY") {
     setBrowseMode(WA.KEYBOARD);
-    WA.Sound.addSound("Start of page.");
+    WA.Sound.addSound(gettext("Start of page"));
   } else if(currentNode.previousSibling) {
     setCurrentNode(currentNode.previousSibling);
     setCurrentNode(rdfsNode(currentNode));

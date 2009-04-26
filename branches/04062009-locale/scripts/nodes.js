@@ -281,42 +281,42 @@ WA.Nodes = {
 
     switch(elem.getAttribute('type')) {
       case 'button':
-        result += "Button: " + this.nodeTypeBreaker + elem.value;
+        result += gettext("Button: ") + this.nodeTypeBreaker + elem.value;
         break;
       case 'checkbox':
-        result += "Checkbox " + this.nodeTypeBreaker +
+        result += gettext("Checkbox ") + this.nodeTypeBreaker +
                     this.getLabelName(elem);
         result += ": " + ((elem.checked == true) ? "checked" : "unchecked");
         break;
       case 'file':
-        result += "File Input " + this.nodeTypeBreaker +
+        result += gettext("File Input ") + this.nodeTypeBreaker +
                     this.getLabelName(elem);
         result += ": " + elem.value;
         break;
       case 'hidden':
         break;
       case 'image':
-        result += "Image Input " + this.nodeTypeBreaker +
+        result += gettext("Image Input ") + this.nodeTypeBreaker +
                     this.getLabelName(elem) + ": ";
         result += elem.value;
         break;
       case 'password':
-        result += "Password Textarea " + this.nodeTypeBreaker +
+        result += gettext("Password Textarea ") + this.nodeTypeBreaker +
                     this.getLabelName(elem);
         break;
       case 'radio':
-        result += "Radio Button " + this.nodeTypeBreaker +
+        result += gettext("Radio Button ") + this.nodeTypeBreaker +
                     this.getLabelName(elem) + ": " + elem.value;
         break;
       case 'reset':
-        result += "Reset Button: " + this.nodeTypeBreaker + elem.value;
+        result += gettext("Reset Button ") + this.nodeTypeBreaker + elem.value;
         break;
       case 'submit':
-        result += "Submit Button: " + this.nodeTypeBreaker + elem.value;
+        result += gettext("Submit Button ") + this.nodeTypeBreaker + elem.value;
         break;
       case 'text':
       default:
-        result += "Text Area " + this.nodeTypeBreaker +
+        result += gettext("Text Area ") + this.nodeTypeBreaker +
                     this.getLabelName(elem) + ": " + elem.value;
     }
     return result;
@@ -335,40 +335,40 @@ WA.Nodes = {
     switch(elem.tagName) {
       case 'A': // Anchor
         if(this.hasAttribute(elem, 'href'))
-          result += "link " + this.nodeTypeBreaker + this.handleChildNodes(elem);
+          result += gettext("link ") + this.nodeTypeBreaker + this.handleChildNodes(elem);
         break;
       case 'AREA': // Image map region
-        result += "link " + this.nodeTypeBreaker + this.handleAreaNode(elem); 
+        result += gettext("link ") + this.nodeTypeBreaker + this.handleAreaNode(elem); 
         break;
   
       case 'BUTTON': // Button
-        result += this.handleChildNodes(elem) + " button";
+        result += this.handleChildNodes(elem) + gettext(" button");
         break;
       
       // No this.nodeTypeBreaker because low number of possibilities, likely to be cached in full.
       case 'H1': // Level-one heading
-        result += "Heading 1";
+        result += gettext("Heading 1");
         break;
       case 'H2': // Level-two heading
-        result += "Heading 2";
+        result += gettext("Heading 2");
         break;
       case 'H3': // Level-three heading
-        result += "Heading 3";
+        result += gettext("Heading 3");
         break;
       case 'H4': // Level-four heading
-        result += "Heading 4";
+        result += gettext("Heading 4");
         break;
       case 'H5': // Level-five heading
-        result += "Heading 5";
+        result += gettext("Heading 5");
         break;
       case 'H6': // Level-six heading
-        result += "Heading 6";
+        result += gettext("Heading 6");
         break;
   
       case 'IMG': // Inline image
         var image_text = this.handleImageNode(elem);
         if(image_text && image_text.length > 0) {
-          result += "Image " + this.nodeTypeBreaker + image_text;
+          result += gettext("Image ") + this.nodeTypeBreaker + image_text;
         }
         break;
       case 'INPUT': // Form input
@@ -380,28 +380,28 @@ WA.Nodes = {
         break;
   
       case 'SELECT': // Option selector
-        result += "Selection " + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
+        result += gettext("Selection ") + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
         break;
   
       case 'TABLE': // Table e.g Table 2 <name> start # rows # columns
           var rows = elem.rows.length;
           var cols = this.getLargestRowLength(elem.rows);
           if(rows > 2 && cols > 2) {
-            result += "Table " + this.getTableNum(elem) + " " + this.getTableName(elem) +
-                                 " start " +
-                                 rows + " rows " +
-                                 cols + " columns";
+            result += gettext("Table ") + this.getTableNum(elem) + " " + this.getTableName(elem) +
+                                 gettext(" start ") +
+                                 rows + gettext(" rows ") +
+                                 cols + gettext(" columns");
           }
           break;
       case 'TEXTAREA': // Multi-line text input
-          result += "Text Area " + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
+          result += gettext("Text Area ") + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
           break;
   
       case 'UL': // Unordered List
       case 'OL': // Ordered List
         var numitems = this.getNumberOfListElements(elem);
         if(numitems > 0) {
-          result += "List with " + numitems + " items";
+          result += gettext("List with ") + numitems + gettext(" items");
         }
     }
   
