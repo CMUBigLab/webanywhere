@@ -14,17 +14,19 @@ if (empty($locale)) {
   echo "<meta http-equiv='Set-Cookie' content='userlocale=$locale;expires=Friday, 31-Dec-2099 23:59:59 GMT;'>";    
 }
 
-if (preg_match('/(.*)[.]UTF-8$/', $locale, $matchs)) {
-  $locale_utf8 = $locale;
+if (preg_match('/(.*)[.]UTF(-*)8$/i', $locale, $matchs)) {
   $locale = $matchs[1];
-} else {
-  $locale_utf8 = $locale . '.UTF-8';
 }
 
-$result = setlocale(LC_ALL, $locale, $locale_utf8);
+$result = setlocale(LC_ALL, $locale,
+	$locale . '.utf8',
+	$locale . '.UTF8',
+	$locale . '.utf-8',
+	$locale . '.UTF-8');
 `echo "setlocale($locale)" >> /tmp/wa.log`;
 `echo "locale: $result" >> /tmp/wa.log`;
 bindtextdomain('WebAnywhere', 'locale');
+bind_textdomain_codeset('WebAnywhere', 'UTF-8');
 textdomain('WebAnywhere');
 
 // set Javascript locale
