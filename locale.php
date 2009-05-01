@@ -1,17 +1,25 @@
 <?php
 // load locale from GET
-$locale = $_REQUEST['locale'];
-if (empty($locale)) {
-  if (isset($_COOKIE['userlocale'])) {
-    // load locale from cookie
-    $locale = $_COOKIE['userlocale'];
+if (empty($fixed_locale)) {
+  $locale = $_REQUEST['locale'];
+  if (empty($locale)) {
+    if (isset($_COOKIE['userlocale'])) {
+      // load locale from cookie
+      $locale = $_COOKIE['userlocale'];
+    } else {
+      // load locale according to HTTP_ACCEPT_LANGUAGE
+      preg_match('/^([a-z]+)-*([a-z]*)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
+      $locale = $matches[1];
+      if (! empty($matches[2])) {
+        $locale .= '_' . strtoupper($matches[2]);
+      }
+    }
   } else {
-    // load locale from default defined in config.php
-    $locale = $default_locale;
+    // save new locale to cookie
+    echo "<meta http-equiv='Set-Cookie' content='userlocale=$locale;expires=Friday, 31-Dec-2099 23:59:59 GMT;'>";    
   }
 } else {
-  // save new locale to cookie
-  echo "<meta http-equiv='Set-Cookie' content='userlocale=$locale;expires=Friday, 31-Dec-2099 23:59:59 GMT;'>";    
+  $locale = $fixed_locale;
 }
 
 if (preg_match('/(.*)[.]UTF(-*)8$/i', $locale, $matchs)) {
