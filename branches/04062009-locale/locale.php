@@ -23,8 +23,8 @@ $result = setlocale(LC_ALL, $locale,
 	$locale . '.UTF8',
 	$locale . '.utf-8',
 	$locale . '.UTF-8');
-`echo "setlocale($locale)" >> /tmp/wa.log`;
-`echo "locale: $result" >> /tmp/wa.log`;
+#`echo "setlocale($locale)" >> /tmp/wa.log`;
+#`echo "locale: $result" >> /tmp/wa.log`;
 bindtextdomain('WebAnywhere', 'locale');
 bind_textdomain_codeset('WebAnywhere', 'UTF-8');
 textdomain('WebAnywhere');
