@@ -26,13 +26,18 @@ if (preg_match('/(.*)[.]UTF(-*)8$/i', $locale, $matchs)) {
   $locale = $matchs[1];
 }
 
+/* for windows */
+putenv("LANG=$locale");
+putenv("LANGUAGE=$locale");
+
+/* for Linux, $locale must be exist in list of `locale -a` */
 $result = setlocale(LC_ALL, $locale,
 	$locale . '.utf8',
 	$locale . '.UTF8',
 	$locale . '.utf-8',
 	$locale . '.UTF-8');
-#`echo "setlocale($locale)" >> /tmp/wa.log`;
-#`echo "locale: $result" >> /tmp/wa.log`;
+//`echo "setlocale($locale)" >> j:/temp/wa.log`;
+//`echo "locale: $result" >> j:/temp/wa.log`;
 bindtextdomain('WebAnywhere', 'locale');
 bind_textdomain_codeset('WebAnywhere', 'UTF-8');
 textdomain('WebAnywhere');
