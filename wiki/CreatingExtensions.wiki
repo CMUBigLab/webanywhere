@@ -1,0 +1,9 @@
+#summary Describes the extension API exposed by WebAnywhere.
+
+= Overview of Extensions =
+
+
+= API =
+
+
+= Example =
