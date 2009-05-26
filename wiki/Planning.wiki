@@ -10,7 +10,7 @@ After the following functions/issues are fixed, we will consider the project to 
   * Handle frames and iframes
     * [http://www.martinish.com/folio/linkFrame/?url=www.schoolonthegreen.com&return=/folio/web frame example]
     * [http://www.dyn-web.com/tutorials/iframes/ iframe examples]
-    * Text content of an iframe, e.g., <iframe ...>text content</iframe> causes an error for the spotlighter becaues it is not visible yet it tries to bring it into focus. Crashes.
+    * Text content of an iframe, e.g., {{{<iframe ...>text content</iframe>}}} causes an error for the spotlighter becaues it is not visible yet it tries to bring it into focus. Crashes.
   * Ensure "find" is working
   * Magnified view (Jeff checked this in. Test that it works across platforms)
   * If something is hidden, don't read it aloud.
