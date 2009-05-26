@@ -24,3 +24,6 @@ We want to test WA on the following set of sites/applications:
   * bookshare
   * blackboard/moodle
   * others?
+
+==Feedback questions for beta==
+  * How do you feel about the amount of space taken up by the "interface at the top?"
