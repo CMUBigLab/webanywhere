@@ -14,6 +14,7 @@ After the following functions/issues are fixed, we will consider the project to 
   * Ensure "find" is working
   * Magnified view (Jeff checked this in. Test that it works across platforms)
   * If something is hidden, don't read it aloud.
+  * Style of the "interface" - keep things together (bunched) and readable--all text in highlight. javascript->css.
 
 We want to test WA on the following set of sites/applications:
 
