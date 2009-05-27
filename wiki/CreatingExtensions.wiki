@@ -9,8 +9,8 @@ WebAnywhere has three types of extensions:
 = API =
 
 = Extension development checklist =
-  # JavaScript file is in the Extensions directory.
-  # Last line in JavaScript adds the extension to the appropriate extension array. e.g., {{{WA.Extensions.nodePreprocessors.push(new WA.Extensions.IFrameNodePreprocessor());}}}
+  # Javascript file is in the Extensions directory.
+  # Last line in Javascript adds the extension to the appropriate extension array. e.g., {{{WA.Extensions.nodePreprocessors.push(new WA.Extensions.IFrameNodePreprocessor());}}}
   # Add the extension to the extensions array in config.php. e.g., {{{ ,'/extensions/iframe-node-preprocessor.js' }}}
 
 = Example =
