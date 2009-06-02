@@ -170,6 +170,7 @@ function newPage() {
   var content_frame = top.document.getElementById("content_frame");
   if(content_frame) {
     var src = content_frame.src;
+    WA.Utils.log('In newPage, content_frame.src is: '+src);
 
     if(src.indexOf(top.webanywhere_url)!=0) {
       var location_field = document.getElementById('location');
@@ -182,6 +183,7 @@ function newPage() {
 
   var newDoc = getContentDocument();
   var newLoc = String(newDoc.location);  // Document URL.
+  WA.Utils.log('In newPage, newLoc is: '+newLoc);
 
   // Sometimes we get multiple loads from the same page.
   var startNode = newDoc.getElementById('id');
@@ -195,6 +197,7 @@ function newPage() {
       }
 
       var enc_url = newLoc.replace(/^[^\?]+\?[^=]+=([^\&]+).*$/, '$1');
+      WA.Utils.log('In newPage, enc_url is: '+enc_url);
       location_field.value = WA.Utils.Base64.decode64(unescape(enc_url.replace(/%253D/g, '=')));
     }
 
@@ -284,6 +287,7 @@ function newPage() {
   }
 
   // Speak the number of headings and links on the page.
+  // @@ Will need to create an array of Document objects and pass that?
   var nheadings = countNumHeadings(currentDoc);
   var nlinks = countNumLinks(currentDoc);
   var head = nheadings + ' ' + ((nheadings > 1) ? "Headings" : "Heading");
@@ -755,8 +759,9 @@ function navigate(e) {
   } else if(loc_val.match(/\.pdf$/)) {
     loc_val = "http://www.google.com/search?q=cache:" + loc_val;
   }
-
+  WA.Utils.log('In navigate, loc_val is: '+loc_val);
   loc.value = loc_val;
+  WA.Utils.log('In navigate, loc.value is: '+loc.value);
 
   setContentLocation(loc_val);
 }
@@ -773,17 +778,19 @@ var sameDomainRegExp = new RegExp("^(https?://)?" + top.webanywhere_url);
  **/
 function proxifyURL(loc, subdomain, rewrite) {
   var rewriteForSure = (typeof rewrite != 'undefined') && rewrite;
+  WA.Utils.log('In proxifyURL. loc is: '+loc+'  subdomain is '+subdomain+' rewrite is: '+rewrite );
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
   if(rewriteForSure || !sameDomainRegExp.test(loc)) {
     loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
+    WA.Utils.log('In proxifyURL after test for rewrite. loc is: '+loc);
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
       loc = loc.replace(top.webanywhere_domain,
       			(subdomain + '.' + top.webanywhere_domain));
     }
   }
-
+  WA.Utils.log('proxifyURL. before return. loc is: '+loc);
   return loc;
 }
 
@@ -945,6 +952,7 @@ function matchByTag(tag, attrib) {
 // Determines if a tag is visible.
 // Tags that aren't visible, shouldn't be read.
 function isVisible(elem) {
+  WA.Utils.log('In isVisible');
   if(elem.nodeType == 1) {
   	if(elem.tagName == "INPUT") {
       var input_type = elem.getAttribute('type');
@@ -1349,6 +1357,8 @@ function nextNodeNoSound(node, matcher, first, num) {
     if(result != null)
       return result;
   }
+  
+  // Need to explore the contentDocument of an iFrame? @@
 
   // Explore Parent Tree
   while(node.parentNode) {
@@ -1598,7 +1608,15 @@ function _nextNode() {
     setCurrentNode(currentNode.nextSibling);
   } else if(currentNode.nodeName == "BODY") {
     setCurrentNode(currentNode.firstChild);
-  } else {
+  } else if(currentNode.nodeName == "IFRAME") {
+    WA.Utils.log("In _nextNode. currentNode.nodeName is: "+currentNode.nodeName+"  currentNode.contentDocument.body is: "+currentNode.contentDocument.body);
+    // Push this iframe node onto the _iframeNodes stack so that we can 
+    // navigate back to this iframe when we are done with it.
+    WA.Nodes._iframeNodes.push(currentNode);
+    WA.Utils.log("_iframeNodes is "+WA.Nodes._iframeNodes.length+" nodes long.");
+    setCurrentNode(dfsNode(currentNode.contentDocument.body)); 
+  }
+  else {
     goBackUp();
   }
   
@@ -1617,16 +1635,27 @@ function goBackUp() {
       setCurrentNode(currentNode.nextSibling);
       break;
     }
-    if(currentNode.nodeName == "BODY") { // At the last node.
-      setBrowseMode(WA.KEYBOARD);
-      var end_node = null;
-      if(currentDoc) {
-	    end_node = currentDoc.getElementById('always_last_node');
-      } else {
-	    end_node = oldCurrent;
-      }
-      setCurrentNode(end_node);
-      break;
+    if(currentNode.nodeName == "BODY") { 
+      if(currentDoc.body == currentNode) { // At the last node.
+		  setBrowseMode(WA.KEYBOARD);
+		  var end_node = null;
+		  if(currentDoc) {
+			end_node = currentDoc.getElementById('always_last_node');
+		  } else {
+			end_node = oldCurrent;
+		  }
+		  setCurrentNode(end_node);
+		  break;
+		} else { // At the end of an iframe.
+		    WA.Utils.log("In goBackUp, about to pop node from _iframeNodes.");
+		    var iframeNode = WA.Nodes._iframeNodes.pop();
+		    if (iframeNode.nextSibling) { 
+		      setCurrentNode(iframeNode.nextSibling);
+		      } else {
+		        setCurrentNode(iframeNode.parentNode.nextSibling);
+		      }
+		    break;
+		}
     }
   }
 }
@@ -1676,8 +1705,14 @@ function prevNode() {
   }  
 
   if(currentNode.tagName == "BODY") {
-    setBrowseMode(WA.KEYBOARD);
-    WA.Sound.addSound("Start of page.");
+    // If this is the BODY of an iframe element, set the currentNode
+    // to the iframe element in the parent window/DOM
+    if(WA.Nodes._iframeNodes.length > 0) {
+        setCurrentNode(WA.Nodes._iframeNodes.pop());
+    } else {
+        setBrowseMode(WA.KEYBOARD);
+        WA.Sound.addSound("Start of page.");
+    }
   } else if(currentNode.previousSibling) {
     setCurrentNode(currentNode.previousSibling);
     setCurrentNode(rdfsNode(currentNode));
@@ -1763,6 +1798,7 @@ function countNumLinks(doc) {
  * @return cnt Count of the headings in the document.
  */
 function countNumHeadings(doc) {
+  // @@ doc will become an array of Document objects and will need to cycle through each one?
   var cnt = doc.getElementsByTagName('H1').length;
   cnt += doc.getElementsByTagName('H2').length;
   cnt += doc.getElementsByTagName('H3').length;
