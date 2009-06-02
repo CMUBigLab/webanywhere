@@ -25,10 +25,14 @@ WA.Nodes = {
   // TODO: remove 20 level "fudge factor"
   //       turns out the recursion limits vary browser to browser...
   recursion_limit: 1000 - 20,
+  
+  // Stack of iframe nodes is populated as we encounter iframes. 
+  _iframeNodes: [],
 
   /**
    * Return true if we should treat this node as a leaf, false otherwise.
    * The only nodes that possibly aren't leaves are the element nodes (type 3).
+   * @@shouldn't this be s/element nodes/text nodes?
    * @param node Node to see if it's a leaf node or not.
    * @return Boolean Boolean indicating whether this is a leaf node.
    */
@@ -102,7 +106,6 @@ WA.Nodes = {
         }
       case 'AREA': // Image map region
       case 'BUTTON': // Button
-      case 'IFRAME':
       case 'IMG': // Inline image
       case 'LABEL': // <label>'s will be read at the input element.
       case 'NOSCRIPT':
@@ -112,6 +115,8 @@ WA.Nodes = {
       case 'SCRIPT':
       case 'STYLE':
         return true;
+      case 'IFRAME':
+        /* not sure what to return. Moved this from the above set with img and label... */
     }
   
     return !elem.hasChildNodes();
@@ -129,6 +134,7 @@ WA.Nodes = {
 
       var disp = this.getNodeStyle(node, 'display', 'display');
       var vis = this.getNodeStyle(node, 'visibility', 'visibility');
+      WA.Utils.log('In isInvisible - disp: '+disp+' vis: '+vis);
       return (disp == 'none' || vis == 'hidden' || node.offsetWidth <= 0);
   },
 
@@ -165,6 +171,7 @@ WA.Nodes = {
    * @return String Text for this node.
    */
   handleNode: function(node, goingDown) {
+    WA.Utils.log('In handleNode: '+node.nodeName+"  "+node.nodeValue);
     if(!goingDown) {
       return null;
     }
@@ -174,7 +181,8 @@ WA.Nodes = {
     switch(node.nodeType) {
 	    case 1: // An HTML Element
 	      // Only speak elements that are displayed.
-	      if(this.isInvisible()) {
+	      // if(this.isInvisible()) { @@fixed
+	      if(this.isInvisible(node)) {
 	        return_val = "";
 	      } else {
 	        return_val = this.handleElement(node);
@@ -195,6 +203,7 @@ WA.Nodes = {
 	    case 8: // Comment
 	    case 9: // Document 
 	    case 10: // Document Type Definition
+	    // @@ need to handle document fragment? 11
 	    default:
 	      return_val = "";
     } 
@@ -336,6 +345,7 @@ WA.Nodes = {
       case 'A': // Anchor
         if(this.hasAttribute(elem, 'href'))
           result += "link " + this.nodeTypeBreaker + this.handleChildNodes(elem);
+          WA.Utils.log('nodes.js result: '+result);
         break;
       case 'AREA': // Image map region
         result += "link " + this.nodeTypeBreaker + this.handleAreaNode(elem); 
@@ -536,6 +546,24 @@ WA.Nodes = {
     // rooted at its first child.
     if(node.nextSibling) {
       nodesToVisit.push(node.nextSibling);
+    }
+    
+    // @@ if the current node is an iframe, push node.contentDocument.body 
+    // onto the stack? Also want to check that contentDocument.body exists?
+    // Check that the IFRAME isvisible or have we done that already? I think 
+    // we do that before we start traversing this node....
+    if(node.nodeName == 'IFRAME') {
+      nodesToVisit.push(node.contentDocument.body);
+      
+      // Ensure that events are handled properly from within iframes
+		/* if(window.attachEvent) node.contentDocument.attachEvent('onkeydown', handleKeyDown);
+		else if(window.addEventListener) node.contentDocument.addEventListener('keydown', handleKeyDown, false);
+	  
+		if(window.attachEvent) node.contentDocument.attachEvent('onkeyup', handleKeyUp);
+		else if(window.addEventListener) node.contentDocument.addEventListener('keyup', handleKeyUp, false);
+	  
+		if(window.attachEvent) node.contentDocument.attachEvent('onkeypress', handleKeyPress);
+		else if(window.addEventListener) node.contentDocument.addEventListener('keypress', handleKeyPress, false); */
     }
 
     // Visit the node.
