@@ -11,6 +11,9 @@
 var currentLoc = null;
 var currentDoc = null;
 
+// Array of Document objects currently in the system. 
+var nDocuments=new Array();
+
 // The current reading position (caret).
 var currentNode = null;
 var currentWord = 0;
@@ -206,6 +209,17 @@ function newPage() {
     setCurrentNode(currentDoc.body);
     currentLoc = newLoc;
       
+    // @@ Create a stack of other document.body nodes to attach events to?
+    /* This only gathers the iframes that are children of the current document. Need to make this recursive to pick up nested iframes
+    
+    var iframes = newDoc.getElementsByTagName("IFRAME");
+     if(iframes.length >= 1) {
+       for(i=0; i<iframes.length; i++) {
+         iframes[0].contentDocument.attachEvent...
+         }
+       }
+    */
+      
     // Capture key presses.
     if(window.attachEvent) currentDoc.attachEvent('onkeydown', handleKeyDown);
     else if(window.addEventListener) currentDoc.addEventListener('keydown', handleKeyDown, false);
@@ -286,9 +300,16 @@ function newPage() {
     WA.Sound.addSound(WA.initSound);
   }
 
+  // Populate the nDocuments array in prep for counting headings and links
+  // First, make sure nDocuments is zeroed out from previously loaded docs.
+  nDocuments.length = 0;
+  nDocuments.push(currentDoc);
+  buildDocumentStack(currentDoc);
+  
   // Speak the number of headings and links on the page.
-  // @@ Will need to create an array of Document objects and pass that?
-  var nheadings = countNumHeadings(currentDoc);
+  // var nheadings = countNumHeadings(currentDoc);
+  var nheadings = countNumHeadings();
+  // @@need to update countNumLinks after get headings working
   var nlinks = countNumLinks(currentDoc);
   var head = nheadings + ' ' + ((nheadings > 1) ? "Headings" : "Heading");
   var link = nlinks + ' ' + ((nlinks > 1) ? "Links" : "Link");
@@ -1797,8 +1818,7 @@ function countNumLinks(doc) {
  * @param doc Document on which the number of headings should be counted.
  * @return cnt Count of the headings in the document.
  */
-function countNumHeadings(doc) {
-  // @@ doc will become an array of Document objects and will need to cycle through each one?
+/* function countNumHeadings(doc) {
   var cnt = doc.getElementsByTagName('H1').length;
   cnt += doc.getElementsByTagName('H2').length;
   cnt += doc.getElementsByTagName('H3').length;
@@ -1806,7 +1826,38 @@ function countNumHeadings(doc) {
   cnt += doc.getElementsByTagName('H5').length;
   cnt += doc.getElementsByTagName('H6').length;
   return cnt;
+} */
+function countNumHeadings() {
+  var cnt = 0;
+  for(i=0; i<nDocuments.length; i++) {
+      cnt += nDocuments[i].getElementsByTagName('H1').length;
+	  cnt += nDocuments[i].getElementsByTagName('H2').length;
+	  cnt += nDocuments[i].getElementsByTagName('H3').length;
+	  cnt += nDocuments[i].getElementsByTagName('H4').length;
+	  cnt += nDocuments[i].getElementsByTagName('H5').length;
+	  cnt += nDocuments[i].getElementsByTagName('H6').length;
+  }
+  return cnt;
 }
+
+/**
+  * Populate the nDocuments array with all existing Document objects.
+  * At the moment, this is only testing for Document objects associated
+  * with iframe nodes. May need to broaden this to frames and ??
+  *
+  * @param docObject - A Document object to be traversed.
+  *
+  */
+  function buildDocumentStack(docObject) {
+    var iFrames = docObject.getElementsByTagName("IFRAME");
+    if(iFrames) {
+      for(i=0; i<iFrames.length; i++) {
+        nDocuments.push(iFrames[i].contentDocument);
+        buildDocumentStack(iFrames[i].contentDocument);
+      }
+    }
+    WA.Utils.log("Leaving buildDocumentStack. nDocuments.length is: "+nDocuments.length);
+  } 
 
 /**
  * Focus the supplied node if possible.
