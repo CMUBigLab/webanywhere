@@ -25,14 +25,14 @@ The system is initialized and is ready to use.
 </p>
 <h2>Introduction</h2>
 <p>
-<a href="http://webinsight.cs.washington.edu/projects/webanywhere/">WebAnywhere</a>
+<a href="http://webanywhere.cs.washington.edu/">WebAnywhere</a>
 works much like screen readers that you may have used before, such as JAWS or Window-Eyes.
 WebAnywhere has been developed targeting the Firefox web browser with Adobe Flash installed -
 the system will also work with other browsers (Internet Explorer, Safari, etc.) and
 with embedded sound players (Quicktime, Windows Media Player, etc.) but
 the system's response may be less predictable.
 A main focus of continued development is full support of these other browsers and sound players.
-If you'd like to help with development, please see our <a href="http;//webanywhere.googlecode.com">Google Code Project Page</a>.
+If you'd like to help with development, please see our <a href="http://webanywhere.googlecode.com">Google Code Project Page</a>.
 </p>
 
 <h2>Keyboard Commands</h2>
