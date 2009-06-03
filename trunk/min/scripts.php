@@ -11,7 +11,8 @@ if (!defined('MINIFY_BASE_DIR')) {
    * Base path from which all relative file paths should be resolved. By default
    * this is set to the document root.
    */
-  define('MINIFY_BASE_DIR', realpath($_SERVER['DOCUMENT_ROOT']));
+  // define('MINIFY_BASE_DIR', realpath($_SERVER['DOCUMENT_ROOT']));
+  define('MINIFY_BASE_DIR', realpath($_SERVER['REQUEST_URI']));
 }
 
 if (!defined('MINIFY_CACHE_DIR')) {
