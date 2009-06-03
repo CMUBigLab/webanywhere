@@ -136,7 +136,9 @@ WA.Keyboard = {
 	        setBrowseMode(WA.KEYBOARD);
 	        WA.Sound.resetSounds();
 	        prevNodeFocus();
-	        WAsetBrowseMode(WA.PLAY_ONE);
+	        //WAsetBrowseMode(WA.PLAY_ONE);
+	        setBrowseMode(WA.PLAY_ONE);
+	        // @@ask Jeff if this should be PLAY_ONE. Doesn't seem to read correctly when using shift-tab to go backwards through links.
 	        break;
       }
       break;
@@ -376,8 +378,9 @@ WA.Keyboard = {
         this.suppressKeys(e);
         setBrowseMode(WA.KEYBOARD);
         WA.Sound.resetSounds();
-      } else if(key_string == "enter") {
-        // Do nothing.
+      } else if(key_string == "enter") {        
+        // Otherwise, do nothing. Let the browser handle activation of the node.
+        WA.Utils.log("Trying to write something to the log. Did it work?");
         return_val = true;
       } else if(!select_chosen) {
         key_string = String(key_string);
