@@ -455,6 +455,7 @@ WA.Sound.Prefetch = {
   prefetchNode: function(node) {
     if(node) {
       var text = WA.Nodes.handleNode(node, true);
+      // @@ only add to the queue if the node is visible?
       addToPrefetchQ(text);
     }
   },

@@ -53,6 +53,7 @@ WA.Extensions = {
   preprocessNode: function(node) {
     // Call the spotlight member function on each defined spotlighter extension.
     var num = this.nodePreprocessors.length;
+     //WA.Utils.log('Number of preprocessors '+num);
     for(var i=0; i<num; i++) {
       this.nodePreprocessors[i].preprocess(node);
     }

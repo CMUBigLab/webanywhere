@@ -89,7 +89,7 @@ if(strlen($arguments) > 0) {
 $start_url = (isset($_REQUEST['starting_url']) ? base64_encode($_REQUEST['starting_url']) : base64_encode($default_content_url));
 $start_url = str_replace('$url', $start_url, $wp_path);
 ?>
-<FRAMESET id="wa_frameset" ROWS="15%, *" BORDER="0" style="margin: 0; padding: 0;">
+<FRAMESET id="wa_frameset" ROWS="20%, *" BORDER="0" style="margin: 0; padding: 0;">
      <FRAME style="margin: 0; padding: 0;" SRC="browser.php<?php echo $arguments; ?>" id="navigation_frame" NAME="navigation_frame" onLoad="navigationLoad()" SCROLLING="NO">
      <FRAME SRC=<?php echo $start_url; ?> id="content_frame" NAME="content_frame" onLoad="newPage();">
 </FRAMESET>

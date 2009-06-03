@@ -555,8 +555,9 @@ WA.Nodes = {
     if(node.nodeName == 'IFRAME') {
       nodesToVisit.push(node.contentDocument.body);
       
-      // Ensure that events are handled properly from within iframes
-		/* if(window.attachEvent) node.contentDocument.attachEvent('onkeydown', handleKeyDown);
+      /* @@ Ensure that events are handled properly from within iframes
+     Add this here or in wa.js ~line 186?
+		if(window.attachEvent) node.contentDocument.attachEvent('onkeydown', handleKeyDown);
 		else if(window.addEventListener) node.contentDocument.addEventListener('keydown', handleKeyDown, false);
 	  
 		if(window.attachEvent) node.contentDocument.attachEvent('onkeyup', handleKeyUp);

@@ -182,6 +182,7 @@ function url_parse($url, & $container) {
   if(!empty($temp)) {
     $temp['port_ext'] = '';
     $temp['base']     = $temp['scheme'] . '://' . $temp['host'];
+    /* @@does this also need to include the filenames/path? */
 
     if(isset($temp['port'])) {
       $temp['base'] .= $temp['port_ext'] = ':' . $temp['port'];
@@ -192,6 +193,7 @@ function url_parse($url, & $container) {
     $temp['path'] = isset($temp['path']) ? $temp['path'] : '/';
     $path         = array();
     $temp['path'] = explode('/', $temp['path']);
+    /* @@find out what the path is */
     
     foreach ($temp['path'] as $dir) {
       if($dir === '..') {
@@ -208,6 +210,7 @@ function url_parse($url, & $container) {
     $temp['base']    .= $temp['dir'];
     $temp['prev_dir'] = substr_count($temp['path'], '/') > 1 ? substr($temp['base'], 0, strrpos($temp['base'], '/')+1) : $temp['base'] . '/';
     $container = $temp;
+    /* @@ find out what path is now...after all these machinations */
 
     return true;
   }
@@ -235,6 +238,7 @@ function complete_url($url, $proxify = true) {
         break;
       case '#':
         $proxify = false;
+        /* @@ does this mean that if it's a relative link it isnt proxifying? */
         break;
       case 'm':
         if(substr($url, 0, 7) == 'mailto:') {
@@ -268,6 +272,8 @@ function proxify_script($script) {
   echo "HEELLLOOO!"; //$script;
   $script = preg_replace('#\\.[^=\s]*location\s*=\s*[\'"]?[^\'"]+[\'"]?#is', 'top.content_frame.', $script);
 //location\s+=\s+['"][^'"]+['"]#is', 'top.content_frame.', $script);
+
+/* @@ more hashes...what does this do? */
 
   return $script;
 }
@@ -607,7 +613,7 @@ if($limit_request_rate && !preg_match($address_pattern, $_url)) {
 
 //
 // HOTLINKING PREVENTION
-//
+// 
 if(!$_config['allow_hotlinking'] && isset($_SERVER['HTTP_REFERER'])) {
   $_hotlink_domains[] = $_http_host;
   $is_hotlinking = true;
