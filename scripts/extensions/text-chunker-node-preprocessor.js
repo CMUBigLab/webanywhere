@@ -14,6 +14,7 @@ WA.Extensions.TextChunkerNodePreprocessor = function() {
    * @param node Node to be pre-processed.
    */
   this.preprocess = function(node) {
+  // @@ also need to check that parent nodes are visible (via css properties)? If not, don't read?
     if(node.nodeType == 3 && !(WA.Nodes.internalNode(node))) {
       var node_text = node.data;
 
@@ -58,7 +59,7 @@ WA.Extensions.TextChunkerNodePreprocessor = function() {
 
   this._splitRegExp = new RegExp(this._stringDelimiter);
 
-  this._beforeSplitRE = /((([^\.]\s*[^A-Z]\.)|([;,\?!]))($|(?=\s)))/g;
+  this._beforeSplitRE = /((([^\.]\s*[^A-Z]\.)|([;,\?!*]))($|(?=\s)))/g;
   this._afterSplitRE = /(\s(\s+\-+\s+|that|because|but|instead|and|or|which|according)(\s|$))/gi;
 
   /**

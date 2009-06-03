@@ -110,7 +110,7 @@ echo $script_path;
   td { margin: 0; padding: 0; text-align: center;}
   tr { margin: 0; padding: 0; }
   table { margin: 0; padding: 0; width: 100%;}
-  #wa_browser_interface {align: center;}
+  #wa_browser_interface {text-align: center;}
   #wa_text_display {text-align: center;}
 </style>
 </head>

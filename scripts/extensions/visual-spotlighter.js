@@ -119,6 +119,19 @@ WA.Extensions.VisualSpotlighter = function() {
     styleNode.innerHTML =
       "<p>&nbsp;</p><style>.wahighlight {color: #FF0 !important; background-color: #000 !important;}</style>";
     doc.body.appendChild(styleNode);
+    
+    // Need to add the style to each document associated with an iframe
+    var iframeNodes = doc.getElementsByTagName('iframe');
+    // WA.Utils.log("in Visual spotlighter: iframeNodes.length is: "+iframeNodes.length);
+    if(iframeNodes.length > 0) {
+      for(i=0; i<iframeNodes.length; i++) {
+        var styleNode2 = iframeNodes[i].contentDocument.createElement('div');
+        // Funky way of adding style required to make this work with IE.
+        styleNode2.innerHTML =
+        "<p>&nbsp;</p><style>.wahighlight {color: #FF0 !important; background-color: #000 !important;}</style>";
+        iframeNodes[i].contentDocument.body.appendChild(styleNode2);
+       }
+     } 
   };
 };
 
