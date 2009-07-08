@@ -31,6 +31,7 @@ $scripts =
         '/startup/standalone.js',
         '/sound/prefetch.js',
         '/input/keyboard.js',
+        '/input/action-queue.js',
         '/interface/interface.js',
         '/extensions/extensions.js',
         '/wa.js',
@@ -75,27 +76,17 @@ if($_REQUEST[debug]==='true') {
   echo $script_path . implode(',' . $script_path, $scripts) . '"></script>';
 }
 ?>
-<script>
-function browserOnload() {
-  var browseWidth =
-
-    document.getElementById('wa_browser_interface').offsetWidth;
-
-  var gWidth = document.getElementById('location_go').offsetWidth;
-  var nWidth = document.getElementById('find_next_button').offsetWidth;
-  var pWidth = document.getElementById('find_previous_button').offsetWidth;
-
-  var lBar = document.getElementById('location');
-  var lWidth = lBar.offsetWidth;
-
-  var fField = document.getElementById('finder_field');
-  var fWidth = fField.offsetWidth;
-
-  var extraWidth = browseWidth - (gWidth + nWidth + pWidth + lWidth + fWidth);
-
-  lBar.style.width = (lWidth + 0.75*extraWidth) + "px";
-  fField.style.width = (fWidth + 0.20*extraWidth) + "px";
+<?php
+if(isset($_REQUEST['script'])) {?>
+<script type="text/javascript" src="http://webinsight.cs.washington.edu/wa/repository/getscript.php?scriptnum=<?php
+echo $_REQUEST['script'];
+?>"></script>
+<?php
 }
+?>
+<script type="text/javascript">
+WA.sessionid="<?php echo session_id(); ?>";
+function browserOnload() {}
 </script>
 <script type="text/javascript" src="<?php
 echo $script_path;
@@ -105,34 +96,38 @@ echo $script_path;
   body {font-family: Georgia, "Times New Roman", Times, serif;}
   #body {font-family: arial;}
   input {border: 1px solid #000; font-size: 1.7em; margin: 0; vertical-align: middle;}
-  .inputbox {height: 34px; padding: 0 2px 0 3px;}
+  .inputbox {height: 34px; padding: 0;}
   .inputbutton {height: 36px; padding: 0 3px 3px 3px; font-weight: bold;}
   td { margin: 0; padding: 0; text-align: center;}
-  tr { margin: 0; padding: 0; }
+  tr { margin: 0; padding: 0;}
   table { margin: 0; padding: 0; width: 100%;}
-  #wa_browser_interface {text-align: center;}
-  #wa_text_display {text-align: center;}
+  #wa_browser_interface {text-align: center; margin: 0; padding: 0;}
+  #wa_text_display {text-align: center}
+  #wa_finder_field {width: 100%;}
+  #location {width: 100%;}
 </style>
+
 </head>
 <?php
   // Flush what we have so far so the browser can start downloading/processing the scripts.
+  // Jeff: Not entirely convinced that this helps.
   flush();
 ?>
 <body bgcolor="#000000" style="margin: 0; padding: 0;" onload="browserOnload();">
 
-<div id="wa_browser_interface" style="margin: 0; padding: 0;">
+<div id="wa_browser_interface" style="">
 <form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;">
-<table>
-<tr>
-<td>
+<table width="100%">
+<tr width="100%">
+<td width="70%">
 <label for="location" style="position: absolute; top: -100px">Location:&nbsp;</label>
 <input class="inputbox" type="text" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>
 </td>
 <td>
 <input class="inputbutton" name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
 </td>
-<td>
-<input class="inputbox" type="text" name="finder_field" id="finder_field"/>
+<td width="20%">
+<input class="inputbox" type="text" name="finder_field" id="wa_finder_field"/>
 </td>
 <td>
 <input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="Next" onclick='nextNodeContentFinder(this); return false;'/>
@@ -145,7 +140,7 @@ echo $script_path;
 </form>
 </div>
 
-<div id="wa_text_display" style="margin: 0; padding: 0.5em 0; font-size: 3em; color: #FF0; font-weight: bold;">Welcome to WebAnywhere</div>
+<div id="wa_text_display" style="margin: 0; padding: 0.1em; font-size: 3em; color: #FF0; font-weight: bold;">Welcome to WebAnywhere</div>
 
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: display;"'; } else { echo 'style="visibility: hidden"'; } ?>>Playing: <span id="playing_div"></span> Features: <span id="sound_div"></span></div>
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: hidden;"'; } else { echo 'style="visibility: hidden"'; }?>>
