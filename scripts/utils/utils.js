@@ -110,6 +110,36 @@ WA.Utils = {
     prefetch_req.send(params);
   },
 
+  _delayPostQueue: null,
+  delayPostURL: function(args) {
+  	if(WA.Utils._delayPostQueue) {
+  		WA.Utils._delayPostQueue = new Array();
+  	}
+
+    var queue = WA.Utils._delayPostQueue;
+    queue.push(args);
+  },
+
+  /**
+   * Returns a string that should be delay-posted.
+   * @param maxlength The maximum length of the information to be returned.
+   */
+  getDelayPostInfo: function(maxlength) {
+    var queue = WA.Utils._delayPostQueue.length;
+  	var postInfo = "";
+
+    if(queue == null || queue.length < 1) {
+    	return "";
+    }
+
+    for(var i=0; tmp.length < maxlength && queue.length > 0; i++) {
+    	if(tmp.length > 0) { tmp += "&"; }
+      var tmp = "arg" + i + "=" + escape(queue.shift());
+    }
+
+    return postInfo;
+  },
+
   /** 
    * Returns an XPATH for the specified node, starting with its document element
    * as root.
@@ -330,5 +360,27 @@ WA.Utils = {
   	if(typeof console != 'undefined' && typeof console.log != 'undefined') {
   		console.log(str);
   	}
+  },
+
+  /**
+   * Returns the currently selected text (if any).
+   * @return Currently selected text.
+   */
+  getSelection: function(doc) {
+    WA.Utils.log('getSelection');
+    if(doc.getSelection) {
+      WA.Utils.log('doc.getSelection');
+      return "" + doc.getSelection();
+    } else if(doc.selection) {
+      WA.Utils.log('doc.selection');
+      return "" + doc.selection.createRange().text;
+    } /* // commented out because we don't have ref to the right window.
+      else if(window.getSelection) {
+      WA.Utils.log('window.getSelection');
+      return "" + window.getSelection();
+    } */ else {
+      WA.Utils.log('nothing');
+      return "";
+    }
   }
 };
