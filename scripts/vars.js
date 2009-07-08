@@ -21,6 +21,7 @@ var WA = {
 
   // Constants.
   // BrowseMode sound playback states.
+  LOADING: 0,
   READ: 1,
   KEYBOARD: 2,
   PAUSED: 3,
