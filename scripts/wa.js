@@ -112,7 +112,7 @@ function init_browser() {
   }
 
   // Finder field focus.
-  var finder_field = document.getElementById('finder_field');
+  var finder_field = document.getElementById('wa_finder_field');
   if(finder_field) {
     if(window.attachEvent) finder_field.attachEvent('onfocus', browserElementFocus);
     else if(window.addEventListener) finder_field.addEventListener('focus', browserElementFocus, false);
@@ -255,6 +255,9 @@ function newPage() {
     // to be prefetched, and other preprocessing steps.
     WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){return WA.Nodes.leafNode(node);});
 
+	  // Reset extensions.
+	  WA.Extensions.resetExtensions();
+
     // Run any extensions that requests to be run once per document.
     WA.Extensions.runOncePerDocument(currentDoc);
 
@@ -315,11 +318,15 @@ function newPage() {
   var link = nlinks + ' ' + ((nlinks > 1) ? "Links" : "Link");
   WA.Sound.addSound(head + ' ' + link);
 
-  // Reset extensions.
-  WA.Extensions.resetExtensions();
-
   // Set our browsing mode to READ after a short delay.
-  setTimeout(function() {setBrowseMode(WA.READ)}, 50);
+  setTimeout(function() {
+     if(WA.Extensions.actionsWaiting()) {
+      WA.Sound.resetSounds();
+      setBrowseMode(WA.KEYBOARD);
+     } else {
+  	  setBrowseMode(WA.READ)
+     }
+  	}, 50);
 
   // Get and submit recorder if we're in debug mode.
   var rec = getNavigationDocument().getElementById('recording');
@@ -578,8 +585,10 @@ function getNavigationDocument() {
  */
 function getScriptWindow() {
   	if("navigation_frame" in top) {
+  	  getScriptWindow = function() { return top.navigation_frame; }
   		return top.navigation_frame;
   	} else {
+      getScriptWindow = function() { return top; }
   		return top;
   	}
 }
@@ -838,6 +847,8 @@ function setContentLocation(loc) {
 
   WA.Utils.log('location is ' + loc);
 
+  setBrowseMode(WA.LOADING);
+
   // Set new location by setting the src attribute of the content frame.
   // Do not set the location of the frame document because WebAnywhere can
   // lose control of this because of redirects, etc.
@@ -1056,7 +1067,11 @@ var fucusableElementRegExp = /^A|SELECT|TEXTAREA|BUTTON|INPUT/;
 function matchByFocusFunc(elem) {
   if(elem && elem.nodeType == 1)  {
     var tindex = elem.getAttribute('tabindex');
-    if(fucusableElementRegExp.test(elem.nodeName)) {
+    if((tindex && tindex > 0) || (elem.tabIndex && elem.tabIndex > 0)) {
+      // Return false because this should be handled by the tabindex extension.
+      WA.Utils.log("Returning false because tindex=" + tindex);
+      return false;
+    } else if(fucusableElementRegExp.test(elem.nodeName) || ((tindex && tindex == 0) || (elem.tabIndex && elem.tabIndex == 0))) {
       if(elem.tagName == "INPUT") {
         var input_type = elem.getAttribute('type');
         if(input_type && /hidden/i.test(input_type)) {
@@ -1065,8 +1080,6 @@ function matchByFocusFunc(elem) {
       }
       
       return true;
-    } else if((tindex && tindex >=0) || (elem.tabIndex && elem.tabIndex >= 0)) {
-	  return true;
     }
   }
   return false;
@@ -1153,7 +1166,7 @@ function getFinderValue() {
 
 function getFinderBox() {
   var nav_doc = getNavigationDocument();
-  var find_text = nav_doc.getElementById('finder_field');
+  var find_text = nav_doc.getElementById('wa_finder_field');
 
   return find_text;
 }
@@ -1253,7 +1266,20 @@ function matchByFocus() {
  * Used to simulate TAB key press.
  * @return nextNodeByMatcher
  */
-function nextNodeFocus() { 
+function nextNodeFocus() {	
+	//if(typeof WA.Extensions.TabIndexExtension.getNextNode != 'undefined') {
+    WA.Utils.log('checking tabindex');
+    var next = tabIndexExt.getNextNode();
+    WA.Utils.log('next: ' + next);
+    if(next != null) {
+    	WA.Utils.log('next: ' + next.innerHTML);
+    	tabIndexExt.recordTabIndex(next);
+      setCurrentNode(next, true);
+    	return true;
+    }
+  //}
+  WA.Utils.log('NORMAL FOCUS');
+
   var matcher = matchByFocus();
   return nextNodeByMatcher(matcher, "");
 }
@@ -1417,8 +1443,27 @@ function prevNodeTagAttrib(tag, attrib) {
  * @return Node that was found.
  */
 function prevNodeFocus() { 
-  var matcher = matchByFocus();
-  return prevNodeByMatcher(matcher);
+  var middle = tabIndexExt.inMiddle();
+
+  if(!middle) {
+	  var matcher = matchByFocus();
+	  var prevresult = prevNodeByMatcher(matcher);
+	
+	  if(prevresult && getScriptWindow().currentNode != getFirstContent()) {
+	    return true;
+	  }
+  }
+
+  WA.Utils.log('checking ptabindex');
+  var prev = tabIndexExt.getPrevNode();
+  if(prev != null) {
+    WA.Utils.log('prev: ' + prev.innerHTML);
+    tabIndexExt.recordTabIndex(prev);
+    setCurrentNode(prev, true);
+    return true;
+  }
+
+  return prevresult;
 }
 
 /**
