@@ -55,11 +55,16 @@ WA.Keyboard = {
    * @return Boolean Indicates whether event should be blocked.
    */
   doKeyPress: function (e, target, key_string, source) {
-    if(!WA.browserInit) {
+    //WA.Keyboard.ActionQueue.recordAction(e, target, key_string, source);
+    this._doKeyPress(e, target, key_string, source);
+  },
+
+  _doKeyPress: function (e, target, key_string, source) {
+      if(e && !WA.browserInit) {
     	this.suppressKeys(e);
     	return false;
     }
-  
+
     var target_id = null;
     var target_type = null;
   
@@ -67,7 +72,7 @@ WA.Keyboard = {
       target_id = target.getAttribute('id');
       target_type = target.tagName;
     }
-  
+
     WA.Utils.recordLine('keypress: ' + key_string + ' ' + source + ' ' + WA.Utils.getXPath(target) + ' ' + WA.Utils.getXPath(currentNode));
 
     var return_val = false;
@@ -103,7 +108,7 @@ WA.Keyboard = {
 	        WA.Sound.resetSounds();
 	        setBrowseMode(WA.PLAY_ONE);
           break;
-        case 'finder_field':
+        case 'wa_finder_field':
           focusBrowserElement('find_next_button');
           break;
         case 'find_next_button':
@@ -116,6 +121,8 @@ WA.Keyboard = {
 	        setBrowseMode(WA.PLAY_ONE);        
       }
       break;
+    case 'ctrl /':
+      alert('Question mark');
     case 'shift tab':
       this.suppressKeys(e);
       switch(target_id) {
@@ -130,15 +137,13 @@ WA.Keyboard = {
           focusBrowserElement('find_next_button');
           break;
         case 'find_next_button':
-          focusBrowserElement('finder_field');
+          focusBrowserElement('wa_finder_field');
           break;
         default:
 	        setBrowseMode(WA.KEYBOARD);
 	        WA.Sound.resetSounds();
 	        prevNodeFocus();
-	        //WAsetBrowseMode(WA.PLAY_ONE);
 	        setBrowseMode(WA.PLAY_ONE);
-	        // @@ask Jeff if this should be PLAY_ONE. Doesn't seem to read correctly when using shift-tab to go backwards through links.
 	        break;
       }
       break;
@@ -147,6 +152,9 @@ WA.Keyboard = {
       break;
     case 'alt rightarrow':
       goForward();
+      break;
+    case 'ctrl n':
+      WA.Keyboard.ActionQueue.playFromQueue();
       break;
     case 'ctrl l':
       this.suppressKeys(e);
@@ -172,7 +180,7 @@ WA.Keyboard = {
       this.suppressKeys(e);
       setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
-      focusBrowserElement('finder_field');
+      focusBrowserElement('wa_finder_field');
       finderBarFocus();
       break;
     case 'ctrl d':
@@ -210,6 +218,7 @@ WA.Keyboard = {
       }
       break;
     case 'ctrl h':
+      var startnode = getScriptWindow().currentNode;
       this.suppressKeys(e);
       setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
@@ -217,7 +226,8 @@ WA.Keyboard = {
       if(new_node) {
         setBrowseMode(WA.READ);
       } else {
-        broseMode = WA.KEYBOARD;
+      	setCurrentNode(startnode);
+        setBrowseMode(WA.KEYBOARD);
       }
       break;
     case 'ctrl shift h':
@@ -582,15 +592,10 @@ WA.Keyboard = {
     key = string.toLowerCase();
 
     if(!key.match(/^((ctrl|alt|shift)\s*)*$/)) {
-      if(this.wa_ctrl_pressed) {
-        this.wa_ctrl_speaks = false;
-      }
-      if(this.wa_alt_pressed) {
-        this.wa_alt_speaks = false;
-      }
-      if(this.wa_shift_pressed) {
-        this.wa_shift_speaks = false;
-      }
+      // Reset the control keys since this command used them.
+      this.wa_ctrl_speaks = false;
+      this.wa_alt_speaks = false;
+      this.wa_shift_speaks = false;
   
       return_val =
         this.doKeyPress(e, target, key, "key down");
@@ -745,13 +750,15 @@ WA.Keyboard = {
   // from accidently pressing a shortcut that would cause them to leave the
   // browsing window.
   suppressKeys: function (e) { //, key) {
-    if(e.stopPropagation) {
-      e.stopPropagation();
-      e.preventDefault();
-    } else {
-      e.cancelBubble = true;
-      e.returnValue = false;
-      e.keyCode = 0;
+    if(e != null) {
+	    if(e.stopPropagation) {
+	      e.stopPropagation();
+	      e.preventDefault();
+	    } else {
+	      e.cancelBubble = true;
+	      e.returnValue = false;
+	      e.keyCode = 0;
+	    }
     }
   
     return false;
@@ -790,5 +797,16 @@ WA.Keyboard = {
     this.wa_up_tracker = false;
 
     this.formsModeOn = false;
+  },
+
+  _keyEventList: null,
+
+  // Creates a new doKeyPress function from a passed-in array of keyboardEvent objects.
+  create_doKeyPress: function(kevents) {
+    kevent = [{name: "NextHeading", description: "Next Heading", key: "h", ctrl: true, alt: false, shift: false}];
+
+    for(var i=0; i<kevents.length; i++) {
+      
+    }
   }
 };
