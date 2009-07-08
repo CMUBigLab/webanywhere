@@ -15,16 +15,6 @@ window.open = function() {}
 var navLoaded = false;
 function navigationLoad() {
   navLoaded = true;
-/* frame in IE has no contentDocument attribute. No fix plan.
-  var browseHeight =
-    document.getElementById('navigation_frame').contentDocument.getElementById('wa_browser_interface').offsetHeight;
-
-  var dispHeight =
-    document.getElementById('navigation_frame').contentDocument.getElementById('wa_text_display').offsetHeight;
-
-  var frameHeight = (dispHeight + browseHeight) + "px";
-  document.getElementById('wa_frameset').setAttribute('rows', frameHeight + ",*");
-*/
 }
 var returning = false;
 
@@ -82,6 +72,13 @@ if(isset($_REQUEST['embed'])) {
   }
   $arguments .= 'embed=' . $_REQUEST['embed'];
 }
+if(isset($_REQUEST['script'])) {
+  if(strlen($arguments) > 0) {
+    $arguments .= '&';
+  }
+  $arguments .= 'script=' . $_REQUEST['script'];
+}
+
 if(strlen($arguments) > 0) {
   $arguments = '?' . $arguments;
 }
