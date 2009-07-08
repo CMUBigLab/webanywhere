@@ -3,11 +3,14 @@
 <head>
 <title>Welcome to WebAnywhere</title>
 <style>
-body {
-  font-family: Georgia, "Times New Roman", Times, serif;
-}
+.hidden {position: absolute; top: -1000px;}
+body {font-family: Georgia, "Times New Roman", Times, serif;}
+h1 { text-align: center; width: 400px; height: 142px; background-image: url(images/wa-logo.png); }
+.wa-outer-container { width: 50%; min-width: 400px; margin: 0 auto; padding: 0;}
+.wa-heading-container {margin: 0 auto 2em auto; padding: 0;}
+.wa-content-container {margin: 0; padding-left: 70px;}
+
 </style>
- <link rel="stylesheet" href="/style.css" type="text/css"></link>
 </head>
 <body bgcolor="#FFFFFF">
 <?php
@@ -17,11 +20,14 @@ if(!isset($_REQUEST['submit'])) {
 <a href="">One</a><a href="">Two</a><a href="">Three</a>
 <?php } ?>
 
-<div style="width: 50%; margin: auto;">
+<div class="wa-outer-container">
 
-<h1>WebAnywhere Alpha Release!</h1>
+<div class="wa-heading-container">
+<h1><span class="hidden">WebAnywhere</a></h1>
+</div>
 
-<div class="dotbox">
+<div class="wa-content-container">
+<div>
 <p>
 WebAnywhere has been initialized and is now ready to use.
 </p>
