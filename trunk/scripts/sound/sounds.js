@@ -85,6 +85,7 @@ WA.Sound = {
   prepareSound: function(sid) {
     if(sid && sid.length > 1) {
       sid = sid.toLowerCase();
+      if(sid==".") { sid = "dot"; }
       sid = sid.replace(/(^\s*[\.\?!,\-:]*\s*)|(\s*[\.\?!,:]+\s*$)/g, "");
     }
     return sid;
@@ -218,6 +219,12 @@ WA.Sound = {
       if(WA.prefetchStrategy > 1) {
         this.prefetchFromSoundQ();
       }
+    } else if(!this.playing && WA.browseMode != WA.LOADING &&
+                WA.Keyboard.ActionQueue.queueSize() > 0) {
+
+    	WA.Keyboard.ActionQueue.playFromQueue();
+    	WA.Sound.playWaiting();
+
     } else if(!this.playing && (WA.browseMode == WA.READ || WA.browseMode == WA.PLAY_ONE || WA.browseMode == WA.PLAY_ONE_BACKWARD || WA.browseMode == WA.PLAY_TWO_BACKWARD || WA.browseMode == WA.PREV_CHAR || WA.browseMode == WA.PREV_CHAR_BACKONE)) {
       this.lastPath = 2;
       //alert('notplaying');
