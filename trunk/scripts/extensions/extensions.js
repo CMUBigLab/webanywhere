@@ -19,6 +19,44 @@ WA.Extensions = {
   // Functions to be executed once at the load of each document.
   oncePerDocument: new Array(),
 
+  // Functions to run when the nothing is playing.
+  waitingForPauses: new Array(),
+
+  // Are there actions waiting to be completed during pauses?
+  actionsWaiting: function() {
+    var num = this.waitingForPauses.length;
+    for(var i=0; i<num; i++) {
+      if(this.waitingForPauses[i].actionsWaiting()) {
+      	return true;
+      }
+    }
+    return false;
+  },
+
+  runActionsWaiting: function() {
+    var num = this.waitingForPauses.length;
+    for(var i=0; i<num; i++) {
+      this.waitingForPauses[i].playNext();
+    }
+  },
+
+  // Functions that specify what will be read next.
+  readNext: new Array(),
+
+  // 
+  actionsWaiting: function() {
+    var num = this.waitingForPauses.length;
+    for(var i=0; i<num; i++) {
+      if(this.waitingForPauses[i].actionsWaiting()) {
+        return true;
+      }
+    }
+    return false;
+  },
+  
+
+
+
   /**
    * SpotlightNodes:
    * Applies spotlighters to the supplied node.
@@ -64,5 +102,12 @@ WA.Extensions = {
   	for(var i=0; i<num; i++) {
       this.nodeSpotlighters[i].reset();
   	}
+  },
+
+  runWaitingForPause: function() {
+    var num = this.waitingForPauses.length;
+    for(var i=0; i<num; i++) {
+      this.waitingForPauses[i].run();
+    }    
   }
 }

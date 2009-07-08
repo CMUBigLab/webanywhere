@@ -8,18 +8,20 @@
 WA.Extensions.VisualSpotlighter = function() {
   /**
    * Spotlight the supplied node.
-   * @param node Node to be spotlighted.
+   * @param node Node to be spotlighted.  node=null unspotlights.
    */
   this.spotlight = function(node) {
     var self = this;
 
-    if(node.nodeType != 1 || node.nodeName == "OPTION") {
-    	node = node.parentNode;
+    if(this._nodeRecords != null && this._nodeRecords.length > 0) {
+      // Unspotlight the last node, then store this node.
+      this.unspotlight();
     }
 
-    if(this._nodeRecords != null && this._nodeRecords.length > 0) {
-    // Unspotlight the last node, then store this node.
-      this.unspotlight();
+    if(node == null) return;
+
+    if(node.nodeType != 1 || node.nodeName == "OPTION") {
+      node = node.parentNode;
     }
 
     this._nodeRecords = new Array();
@@ -117,7 +119,7 @@ WA.Extensions.VisualSpotlighter = function() {
   	var styleNode = doc.createElement('div');
     // Funky way of adding style required to make this work with IE.
     styleNode.innerHTML =
-      "<p>&nbsp;</p><style>.wahighlight {color: #FF0 !important; background-color: #000 !important;}</style>";
+      "<p>&nbsp;</p><style>.wahighlight {border-color: #FF0 !important; color: #FF0 !important; background-color: #000 !important;}</style>";
     doc.body.appendChild(styleNode);
     
     // Need to add the style to each document associated with an iframe
