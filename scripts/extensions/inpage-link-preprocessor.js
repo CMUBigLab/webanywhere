@@ -17,11 +17,9 @@ WA.Extensions.InPageLinkPreprocessor = function() {
             WA.Utils.log('inpage-link-preprocessor, preprocess, node value is: '+node.nodeValue+' nodeName is: '+node.nodeName);
     if(node.nodeName == "A") {
       var href = node.getAttribute('href');
-      WA.Utils.log('inpage-link-preprocessor, href is: '+href);
       if(/^#./.test(href)) {
         var self = this;
         var ref = href.substring(1);
-		WA.Utils.log('inpage-link-preprocessor, ref is: '+ref);
 		
 		/* If we have an in-page link, add an onclick element with false so that we handle the click action instead of the browser */
 		/* trying to address the IE6 bug where it doesn't recognize return false. */
@@ -30,7 +28,6 @@ WA.Extensions.InPageLinkPreprocessor = function() {
         /* There are two ways to create targets of in-page links. One is to set the "name" attribute on an "a" element, the other is to set the "id" attribute on any element. */
 
         WA.Utils.setListener(node, 'click', function() {
-          WA.Utils.log('inpage-link-preprocessor, setListener, node is: '+node+' nodeValue is: '+node.nodeValue);
             /* If the user has clicked on an in-page link, we need to make the target node the current node. The first step is to see which kind of target we're linking to. If it's an "a" element with a "name" attribute, self._nameToId will exist and "targ_id" will be set to the value we assigned it during the preprocessing. */
         	var targ_id = self._nameToId[ref];
         	
