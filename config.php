@@ -33,17 +33,16 @@
 	// Currently it is not straightforward to run your own speech server,
 	// but you can use the WebAnywhere server for this purpose.
 	$sound_url_base = 'http://webanywhere.cs.washington.edu/cgi-bin/getsound.pl?text=$text$&cache=1&mtts=1';
-    //$sound_url_base = 'http://127.0.0.1:8000/$text$';
 
 
-    // The URL that will load in WebAnywhere by default.
-    $default_content_url = "http://" . $webanywhere_domain . $root_path . '/content.php';
+        // The URL that will load in WebAnywhere by default.
+        $default_content_url = "http://" . $webanywhere_domain . $root_path . '/content.php';
 
 	// To prevent malicious users from abusing the web proxy that is part of WebAnywhere,
 	// the system can optionally limit the rate at which users can request content.
 	$limit_request_rate = false;
 
-      // Limit rates per minute and per day.
+          // Limit rates per minute and per day.
 	  $limit_rate_day = 20000;
 	  $limit_rate_minute = 250;
 
@@ -95,4 +94,3 @@
       // Adds support for speaking selected text.
       ,'extensions/selection-reading-extension.js'
     );
-?>
