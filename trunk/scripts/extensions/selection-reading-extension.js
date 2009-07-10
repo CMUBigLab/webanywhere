@@ -19,7 +19,6 @@ WA.Extensions.SelectionReadingExtension = function() {
     // and empty the sound queue.
     silenceAll();
     WA.Extensions.spotlightNode(null);
-    WA.Sound.resetSounds();
   };
 
   this.oncePerDocument = function(doc) {

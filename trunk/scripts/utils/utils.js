@@ -382,5 +382,20 @@ WA.Utils = {
       WA.Utils.log('nothing');
       return "";
     }
-  }
+  },
+
+  // Returns the target of the supplied event.
+  // Returns null on error.
+  getTarget: function(e) {
+    var target = null;
+  
+    if(e.target) target = e.target;
+    else if(e.srcElement) target = e.srcElement;
+    else return null;
+  
+    if(target.nodeType == 3)
+      target = target.parentNode;
+  
+    return target;
+  },
 };

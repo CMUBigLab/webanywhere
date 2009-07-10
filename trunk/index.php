@@ -91,12 +91,11 @@ function newPage() {
   }
 }
 
-// Called on load to resize the 
+// Called onload and onresize to resize the 
 function resizeContentFrame() {
-  document.getElementById('content_frame').style.height = "100%";
-  document.getElementById('wa_iframe_div').style.height = "100%";
+  var newHeight = WA.Utils.contentWidthHeight(top)[1] -
+                    (document.getElementById('wa_navigator').offsetHeight);
 
-  var newHeight = document.getElementById('content_frame').offsetHeight - (document.getElementById('wa_navigator').offsetHeight);
   document.getElementById('content_frame').style.height = newHeight + 'px';
   document.getElementById('wa_iframe_div').style.height = newHeight + 'px';
 }
@@ -120,28 +119,28 @@ if(isset($_REQUEST['embed']) && $_REQUEST['embed']!=='true') { ?>
 // scripts which are actually needed.
 $scripts =
   array(
-        '/vars.js',
-        '/utils/md5.js',
-        '/utils/utils.js',
-        '/utils/base64.js',
-        '/nodes.js',
-        '/sound/sounds.js',
-        '/startup/standalone.js',
-        '/sound/prefetch.js',
-        '/input/keyboard.js',
-        '/input/action-queue.js',
-        '/interface/interface.js',
-        '/extensions/extensions.js',
-        '/wa.js',
-        '/startup/start.js'
+        'vars.js',
+        'utils/md5.js',
+        'utils/utils.js',
+        'utils/base64.js',
+        'nodes.js',
+        'sound/sounds.js',
+        'startup/standalone.js',
+        'sound/prefetch.js',
+        'input/keyboard.js',
+        'input/action-queue.js',
+        'interface/interface.js',
+        'extensions/extensions.js',
+        'wa.js',
+        'startup/start.js'
         );
 
 // Depending on the type of sound player used, include the appropriate
 // set of routines for playing sounds.
 if(isset($_REQUEST['embed']) && $_REQUEST['embed']==='true') {
-  array_unshift($scripts, '/sound/sound_embed.js');
+  array_unshift($scripts, 'sound/sound_embed.js');
 } else {
-  array_unshift($scripts, '/sound/soundmanager2.js');
+  array_unshift($scripts, 'sound/soundmanager2.js');
 }
 
 // Add in any system-defined extensions.
@@ -159,19 +158,17 @@ if(isset($_REQUEST['firebug']) && $_REQUEST['firebug']==='true') {
 // each script separately (better for debugging), or
 // combined script using the script minimizer.
 if(isset($_REQUEST['debug']) && $_REQUEST['debug']==='true') {
-  $start = '<script type="text/javascript" src="' . $script_path;
+  $start = '<script type="text/javascript" src="' . $script_path . '/';
   $end = '"></script>';
   
   // Output script tags individually.
   echo $start . implode($end . "\n" . $start, $scripts) . $end . "\n";
 } else {
-  //$jsBuild = new Minify_Build($scripts);
-
   echo '<script type="text/javascript" src="';
-  echo $min_script_path . '/scripts.php?files=';
+  echo $min_script_path . '/?b=' . trim($script_path, '/') . '&f=';
 
   // Concatenate the individual scripts used into one long string.
-  echo $script_path . implode(',' . $script_path, $scripts) . '"></script>';
+  echo implode(',', $scripts) . '"></script>';
 }
 ?>
 <?php
