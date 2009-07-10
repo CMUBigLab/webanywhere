@@ -506,21 +506,6 @@ WA.Keyboard = {
   
     return key;	
   },
-  
-  // Returns the target of the supplied key event.
-  // Returns null on error.
-  getTarget: function(e) {
-    var target;
-  
-    if(e.target) target = e.target;
-    else if(e.srcElement) target = e.srcElement;
-    else return null;
-  
-    if(target.nodeType == 3)
-      target = target.parentNode;
-  
-    return target;
-  },
 
   // Handles the keydown event.
   // Most keys will be passed through
@@ -536,7 +521,7 @@ WA.Keyboard = {
 
     var key = this.getKeyString(e);
 
-    var target = this.getTarget(e);
+    var target = WA.Utils.getTarget(e);
 
     var ctrlPressed = false;
     var altPressed = false;
@@ -621,7 +606,7 @@ WA.Keyboard = {
 
     var return_val = false;
 
-    var target = this.getTarget(e);
+    var target = WA.Utils.getTarget(e);
     if(target.nodeName == "INPUT") {
       var target_type = target.getAttribute('type');
       if(/^password/i.test(target_type)) {
@@ -704,7 +689,7 @@ WA.Keyboard = {
   // process the event, and preventing the browser from attempting to handle it.
   handleKeyPress: function (e) {
     // Another event handler will process key presses on password boxes.
-    var target = this.getTarget(e);
+    var target = WA.Utils.getTarget(e);
     if(target.nodeName == "INPUT") {
       var target_type = target.getAttribute('type');
       if(/^password/i.test(target_type)) {

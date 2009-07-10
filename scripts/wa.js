@@ -88,21 +88,14 @@ function init_browser() {
   WA.browserInit = true;
 
   // Updates the debugging panel.
-  setInterval('updatePlaying()', 200);
+  setInterval('updatePlaying()', 150);
 
   // Hack for resetting the keyboard events, currently once every 45 seconds.
   // TODO:  Figure out what the underlying problem is that makes this necessary.
   setInterval(function() {WA.Keyboard.resetKeyboardModifiers();}, 45000);
 
-  // Event listeners for the location bar.
-  var location_field = document.getElementById('location');
-  if(location_field) {
-	  if(window.attachEvent) location_field.attachEvent('onfocus', locationFocus);
-	  else if(window.addEventListener) location_field.addEventListener('focus', locationFocus, false);
-	
-	  if(window.attachEvent) location_field.attachEvent('onblur', function() { getScriptWindow().textBoxFocused = false; });
-	  else if(window.addEventListener) location_field.addEventListener('blur', function() { getScriptWindow().textBoxFocused = false; }, false);
-  }
+  // Prepares the location bar, attaches events, etc.
+  WA.Interface.setupLocationBar();
 
   // GO button focus.
   var go_button = document.getElementById('location_go');
@@ -355,27 +348,6 @@ function handleKeyUp(e) {
 }
 function handleKeyPress(e) {
   WA.Keyboard.handleKeyPress(e);
-}
-
-
-/**
- * Called when the location bar gains focus.
- */
-function locationFocus(e) {
-  getScriptWindow().textBoxFocused = true;
-
-  var target;
-  if(!e) e = window.event;
-  if(e.target) target = e.target;
-  else if(e.srcElement) target = e.srcElement;
-  if(target.nodeType == 3) target = target.parentNode;
-
-  WA.Sound.resetSounds();
-
-  WA.Sound.addSound("Location field text area:");
-  if(target.value) {
-    WA.Sound.addSound(target.value);
-  }
 }
 
 /**

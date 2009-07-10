@@ -33,6 +33,8 @@
 	// Currently it is not straightforward to run your own speech server,
 	// but you can use the WebAnywhere server for this purpose.
 	$sound_url_base = 'http://webanywhere.cs.washington.edu/cgi-bin/getsound.pl?text=$text$&cache=1&mtts=1';
+    //$sound_url_base = 'http://127.0.0.1:8000/$text$';
+
 
     // The URL that will load in WebAnywhere by default.
     $default_content_url = "http://" . $webanywhere_domain . $root_path . '/content.php';
@@ -68,29 +70,29 @@
     // Comment individual extensions out to prevent their inclusion.
     $extensions = array(
       // Visually spotlights each node as it is being read.
-      '/extensions/visual-spotlighter.js'
+      'extensions/visual-spotlighter.js'
 
       // Scrolls each node into view as it is being read.
-      ,'/extensions/scroll-into-view-spotlighter.js'
+      ,'extensions/scroll-into-view-spotlighter.js'
 
       // Wraps phrases in SPAN tags so they will be read and highlighted
       // in small, logical chunks.
-      ,'/extensions/text-chunker-node-preprocessor.js'
+      ,'extensions/text-chunker-node-preprocessor.js'
 
       // Turns off auto-complete for forms on the page.
-      ,'/extensions/autocomplete-off-node-preprocessor.js'
+      ,'extensions/autocomplete-off-node-preprocessor.js'
 
       // Adds label for properties to input elements so the correct name
       // is read.
-      ,'/extensions/label-for-node-preprocessor.js'
+      ,'extensions/label-for-node-preprocessor.js'
 
       // Adds support for in-page links.
-      ,'/extensions/inpage-link-preprocessor.js'
+      ,'extensions/inpage-link-preprocessor.js'
 
       // Adds support for tab-index.
-      ,'/extensions/tabindex-preprocessor.js'
+      ,'extensions/tabindex-preprocessor.js'
 
       // Adds support for speaking selected text.
-      ,'/extensions/selection-reading-extension.js'
+      ,'extensions/selection-reading-extension.js'
     );
 ?>
