@@ -71,12 +71,17 @@ WA.Sound = {
     this.soundPlayerLoaded = false;
   
     this.soundQ = new Array();
-    this.playing = null;
+    WA.Sound.setWhatsPlaying(null);
   
     this.soundMethod = 1;
     this.soundsLoaded = new Array();
   
     setBrowseMode(WA.READ);   
+  },
+
+  setWhatsPlaying: function(playing) {
+    WA.Sound.playing = playing;
+    WA.Interface.updatePlaying();
   },
 
   // Prepare a string for playing sound.
@@ -186,7 +191,7 @@ WA.Sound = {
     this.stopAllSounds();
     this.soundQ = null;
     this.soundQ = new Array();
-    this.playing = null;
+    WA.Sound.setWhatsPlaying(null);
   },
 
   /**
@@ -222,7 +227,7 @@ WA.Sound = {
       this.lastPath = 1;
       var sid = this.getSound();
       this.lastPath = 3;
-      this.playing = sid;
+      WA.Sound.setWhatsPlaying(sid);
       this.playSound(sid, false);
       if(WA.prefetchStrategy > 1) {
         this.prefetchFromSoundQ();
@@ -248,7 +253,7 @@ WA.Sound = {
       var is_playing = this.isPlaying(this.playing);
       //WA.Utils.log('playing ' + this.playing + ' ' + is_playing);
       if(!is_playing) {
-        this.playing = null;
+        WA.Sound.setWhatsPlaying(null);
       }
     }
     this.inPlayWaiting = false;
@@ -549,7 +554,7 @@ WA.Sound = {
   // Called after the system believes that it should be done playing a sound.
   _donePlayingEmbedSound: function() {
     WA.Utils.log('done playing: ' + this.playing);
-    this.playing = null;
+    WA.Sound.setWhatsPlaying(null);
   },
 
 

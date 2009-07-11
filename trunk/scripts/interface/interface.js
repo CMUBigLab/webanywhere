@@ -91,5 +91,65 @@ WA.Interface = {
 
       WA.Interface.expectingLocationFocus = false;
     }
+  },
+
+
+  updateCurrentlyPlayingSize: function(time, total) {
+    var width = WA.Utils.contentWidthHeight(top)[0];
+    var text_disp = document.getElementById('wa_text_display');
+    var curr_width = text_disp.offsetWidth;
+
+    var diff = width - curr_width;
+
+    if(diff >= 0) {
+      // Center.
+      text_disp.style.position = 'relative';
+      text_disp.style.left = Math.floor(diff / 2.0) + "px";
+      WA.Utils.log("SET Relative: " + Math.floor(diff / 2.0) + ' ' + width + " " + curr_width);
+    } else {
+      // Scroll.
+      if(time > 1000) {
+        text_disp.style.position = 'relative';
+        var frac = ((time-1000) / (total-1000));
+        text_disp.style.left = Math.floor(diff * frac) + "px";
+        WA.Utils.log("SET Relative: " + frac + ' ' + Math.floor(diff / 2.0) + ' ' + width + " " + curr_width);
+        if(frac < 1.0) {
+          setTimeout(function(){ WA.Interface.updateCurrentlyPlayingSize(time+100, total); }, 100);
+        }
+      } else {
+        text_disp.style.position = 'relative';
+        text_disp.style.left = "0px";
+        setTimeout(function(){ WA.Interface.updateCurrentlyPlayingSize(time+100, total); }, 100);
+      }
+    }
+  },
+
+
+  /**
+   * Updates the information DIVs that say what's playing (deprecated: also used for debugging).
+   */
+  updatePlaying: function() {
+    var play_div = document.getElementById('playing_div');
+    if(play_div) {
+      play_div.innerHTML = (WA.Sound.playing!=null) ? WA.Sound.playing : "(null)";
+    }
+  
+    var disp_div = document.getElementById('wa_text_display');
+    if(disp_div && WA.Sound.playing != null) {
+      disp_div.innerHTML = WA.Sound.playing;
+      WA.Interface.updateCurrentlyPlayingSize(0, 3000);
+    }
+  
+    /*var sound_div = document.getElementById('sound_div');
+    if(sound_div) {
+      if(currentNode && currentNode.nodeType == 1) {
+        sound_div.innerHTML = "curr: " +
+          (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' bMode:' + WA.browseMode;
+      } else {
+        sound_div.innerHTML = "curr: " +
+          (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' bMode:' + WA.browseMode;
+      }
+    }*/
   }
+
 }
