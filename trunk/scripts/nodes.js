@@ -553,18 +553,15 @@ WA.Nodes = {
     // Check that the IFRAME isvisible or have we done that already? I think 
     // we do that before we start traversing this node....
     if(node.nodeName == 'IFRAME') {
-      nodesToVisit.push(node.contentDocument.body);
-      
-      /* @@ Ensure that events are handled properly from within iframes
-     Add this here or in wa.js ~line 186?
-		if(window.attachEvent) node.contentDocument.attachEvent('onkeydown', handleKeyDown);
-		else if(window.addEventListener) node.contentDocument.addEventListener('keydown', handleKeyDown, false);
-	  
-		if(window.attachEvent) node.contentDocument.attachEvent('onkeyup', handleKeyUp);
-		else if(window.addEventListener) node.contentDocument.addEventListener('keyup', handleKeyUp, false);
-	  
-		if(window.attachEvent) node.contentDocument.attachEvent('onkeypress', handleKeyPress);
-		else if(window.addEventListener) node.contentDocument.addEventListener('keypress', handleKeyPress, false); */
+      // try/catch to make sure that we have permission to view the contents
+      // of this IFRAME.  This is a bit ugly, but necessary for the moment.
+      // Ideally, we would be able to explicitly test if accessing the iframe
+      // violates the same-origin policy.
+      try{
+        nodesToVisit.push(node.contentDocument.body);
+      } catch(e) {
+        // Nothing to do here, but IFRAME will be ignored.
+      }
     }
 
     // Visit the node.

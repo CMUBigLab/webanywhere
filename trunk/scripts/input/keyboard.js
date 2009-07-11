@@ -88,14 +88,14 @@ WA.Keyboard = {
   
     switch(key_string) {
     case 'ctrl':
-      silenceAll();
+      WA.Sound.silenceAll();
       this.wa_up_tracker = false;
       break;
     case 'tab':
       this.suppressKeys(e);
       switch(target_id) {
       	case 'location':
-          focusBrowserElement('location_go');
+          WA.Interface.focusBrowserElement('location_go');
           break;
         case 'location_go':
 					setBrowseMode(WA.KEYBOARD);
@@ -109,10 +109,10 @@ WA.Keyboard = {
 	        setBrowseMode(WA.PLAY_ONE);
           break;
         case 'wa_finder_field':
-          focusBrowserElement('find_next_button');
+          WA.Interface.focusBrowserElement('find_next_button');
           break;
         case 'find_next_button':
-          focusBrowserElement('find_previous_button');
+          WA.Interface.focusBrowserElement('find_previous_button');
           break;
         default:
 	        setBrowseMode(WA.KEYBOARD);
@@ -128,16 +128,16 @@ WA.Keyboard = {
       switch(target_id) {
         case 'location_go':
         case 'location':
-          focusBrowserElement('location');
+          WA.Interface.focusBrowserElement('location');
           break;
         case 'always_first_node':
-          focusBrowserElement('location_go');
+          WA.Interface.focusBrowserElement('location_go');
           break;
         case 'find_previous_button':
-          focusBrowserElement('find_next_button');
+          WA.Interface.focusBrowserElement('find_next_button');
           break;
         case 'find_next_button':
-          focusBrowserElement('wa_finder_field');
+          WA.Interface.focusBrowserElement('wa_finder_field');
           break;
         default:
 	        setBrowseMode(WA.KEYBOARD);
@@ -158,7 +158,7 @@ WA.Keyboard = {
       break;
     case 'ctrl l':
       this.suppressKeys(e);
-      focusBrowserElement('location');
+      WA.Interface.focusBrowserElement('location');
       break;
     case 'ctrl tab':
     case 'ctrl shift tab':
@@ -180,7 +180,7 @@ WA.Keyboard = {
       this.suppressKeys(e);
       setBrowseMode(WA.KEYBOARD);
       WA.Sound.resetSounds();
-      focusBrowserElement('wa_finder_field');
+      WA.Interface.focusBrowserElement('wa_finder_field');
       finderBarFocus();
       break;
     case 'ctrl d':

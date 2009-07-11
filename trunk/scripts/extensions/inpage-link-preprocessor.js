@@ -14,7 +14,7 @@ WA.Extensions.InPageLinkPreprocessor = function() {
    */
   this.preprocess = function(node) {
   /* If the node is an "a" element, test if it is an in-page link */
-            WA.Utils.log('inpage-link-preprocessor, preprocess, node value is: '+node.nodeValue+' nodeName is: '+node.nodeName);
+    //WA.Utils.log('inpage-link-preprocessor, preprocess, node value is: '+node.nodeValue+' nodeName is: '+node.nodeName);
     if(node.nodeName == "A") {
       var href = node.getAttribute('href');
       if(/^#./.test(href)) {

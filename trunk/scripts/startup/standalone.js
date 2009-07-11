@@ -19,7 +19,7 @@ WA.start = function() {
 
     // Call newPage to process the newly-loaded page.
     if(top.pageLoaded) {
-      newPage();
+      //newPage();
     }
   }
 

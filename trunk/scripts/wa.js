@@ -142,8 +142,6 @@ function init_browser() {
   if(WA.Sound.soundMethod == WA.Sound.EMBED_SOUND_METHOD) {
     WA.Sound.soundPlayerLoaded = true;
     top.soundPlayerLoaded = true;
-
-    newPage();
   }
 
   // Time for the system to start looking for sounds to play.
@@ -151,13 +149,35 @@ function init_browser() {
 
   // Prefetch the letters.
   WA.Sound.Prefetch.prefetchLetters();
+
+
+  if(document.attachEvent)
+    document.getElementById('content_frame').attachEvent('onload', newPage);
+  else if(document.addEventListener)
+    document.getElementById('content_frame').addEventListener('load', newPage, false);
+  document.getElementById('content_frame').removeAttribute('onload');
+  document.getElementById('content_frame').setAttribute('onload', '');
+  document.getElementById('content_frame').onload = function() {};
 }
+
+/*function delayedNewPage(target, timeout) {
+  clearTimeout(timeout);
+  if(!WA.browserInit || !WA.Sound.soundPlayerLoaded) {
+    WA.Utils.log("newPage delayed: " + WA.browserInit + ' ' + WA.Sound.soundPlayerLoaded);
+    timeout = setTimeout(function() { newPage(target); }, 1000);
+  }
+}*/
 
 /**
  * Called when a new page loads.
  * Adds event handlers, pre-processes content when appropriate.
  */
-function newPage() {
+function newPage(e) {
+  /*var target = WA.Utils.getTarget(e);
+  if(target.document) {
+    alert(target.document.location);
+  }*/
+
   setBrowseMode(WA.PAUSED);
 
   // Reset the last focused node since it no longer exists.
@@ -166,7 +186,7 @@ function newPage() {
   var content_frame = top.document.getElementById("content_frame");
   if(content_frame) {
     var src = content_frame.src;
-    WA.Utils.log('In newPage, content_frame.src is: '+src);
+    WA.Utils.log('In newPage, content_frame.src is: ' + src);
 
     if(src.indexOf(top.webanywhere_url)!=0) {
       var location_field = document.getElementById('location');
@@ -177,7 +197,13 @@ function newPage() {
     }
   }
 
+  try {
   var newDoc = getContentDocument();
+  } catch(e) {
+    alert('died: ' + e.toString());
+    return;
+  }
+
   var newLoc = String(newDoc.location);  // Document URL.
   WA.Utils.log('In newPage, newLoc is: '+newLoc);
 
@@ -193,13 +219,13 @@ function newPage() {
       }
 
       var enc_url = newLoc.replace(/^[^\?]+\?[^=]+=([^\&]+).*$/, '$1');
-      WA.Utils.log('In newPage, enc_url is: '+enc_url);
+      //WA.Utils.log('In newPage, enc_url is: '+enc_url);
       location_field.value = WA.Utils.Base64.decode64(unescape(enc_url.replace(/%253D/g, '=')));
     }
 
     // Update the current nodes.
     currentDoc = newDoc;
-    setCurrentNode(currentDoc.body);
+    setCurrentNode((currentDoc.body.firstChild != null) ? currentDoc.body.firstChild : currentDoc.body);
     currentLoc = newLoc;
       
     // @@ Create a stack of other document.body nodes to attach events to?
@@ -244,15 +270,22 @@ function newPage() {
       WA.Sound.Prefetch.incPrefetchIndex();
     }
 
+
     // Preprocess the page, including adding to the list of nodes
     // to be prefetched, and other preprocessing steps.
     WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){return WA.Nodes.leafNode(node);});
 
+
 	  // Reset extensions.
 	  WA.Extensions.resetExtensions();
 
+    WA.Utils.log("Before OncePer.")
+
     // Run any extensions that requests to be run once per document.
-    WA.Extensions.runOncePerDocument(currentDoc);
+    //WA.Extensions.runOncePerDocument(currentDoc);
+
+    WA.Utils.log("After OncePer.")
+
 
     // Create an artificial focusable start element containg the page title.
     var start_node = currentDoc.createElement('div');
@@ -334,6 +367,8 @@ function newPage() {
   WA.timesLoaded++;
 
   WA.Utils.log("finished new page load");
+
+  WA.Utils.log("PAGE HAS LOADED");
 }
 
 /**
@@ -462,24 +497,6 @@ function focusElement(doc, element_id) {
   }
 }
 
-/**
- * Places focus on an element in the browser frame.
- * @param element_id ID of the element to focus.
- **/
-function focusBrowserElement(element_id) {
-  var doc = getNavigationDocument();
-
-  var elem = doc.getElementById(element_id);
-
-  if(elem) {
-	  elem.blur();
-	  elem.focus();
-	  if(elem.select) {
-	  	elem.select();
-	  };
-  }
-}
-
 /** Sets focus to the content element with the specified id.
  * @param element_id  The id of the element to which focus will be set.
  **/
@@ -493,7 +510,8 @@ function focusContentElement(element_id) {
  * @return document Content document.
  */
 function getContentDocument() {
-  return getContentWindow().document;
+  var win = getContentWindow();
+  return win.document;
 }
 
 /**
@@ -563,14 +581,6 @@ function getScriptWindow() {
       getScriptWindow = function() { return top; }
   		return top;
   	}
-}
-
-/**
- * Silence the system and stop automatic forward progression.
- */
-function silenceAll() {
-  setBrowseMode(WA.KEYBOARD);
-  WA.Sound.resetSounds();
 }
 
 /**
@@ -780,19 +790,19 @@ var sameDomainRegExp = new RegExp("^(https?://)?" + top.webanywhere_url);
  **/
 function proxifyURL(loc, subdomain, rewrite) {
   var rewriteForSure = (typeof rewrite != 'undefined') && rewrite;
-  WA.Utils.log('In proxifyURL. loc is: '+loc+'  subdomain is '+subdomain+' rewrite is: '+rewrite );
+  //WA.Utils.log('In proxifyURL. loc is: '+loc+'  subdomain is '+subdomain+' rewrite is: '+rewrite );
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
   if(rewriteForSure || !sameDomainRegExp.test(loc)) {
     loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
-    WA.Utils.log('In proxifyURL after test for rewrite. loc is: '+loc);
+    //WA.Utils.log('In proxifyURL after test for rewrite. loc is: '+loc);
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
       loc = loc.replace(top.webanywhere_domain,
       			(subdomain + '.' + top.webanywhere_domain));
     }
   }
-  WA.Utils.log('proxifyURL. before return. loc is: '+loc);
+  WA.Utils.log('proxifyURL. before return. loc is: ' + loc);
   return loc;
 }
 
@@ -1646,15 +1656,14 @@ function _nextNode() {
     setCurrentNode(currentNode.nextSibling);
   } else if(currentNode.nodeName == "BODY") {
     setCurrentNode(currentNode.firstChild);
-  } else if(currentNode.nodeName == "IFRAME") {
+  } /*else if(currentNode.nodeName == "IFRAME") {
     WA.Utils.log("In _nextNode. currentNode.nodeName is: "+currentNode.nodeName+"  currentNode.contentDocument.body is: "+currentNode.contentDocument.body);
     // Push this iframe node onto the _iframeNodes stack so that we can 
     // navigate back to this iframe when we are done with it.
     WA.Nodes._iframeNodes.push(currentNode);
     WA.Utils.log("_iframeNodes is "+WA.Nodes._iframeNodes.length+" nodes long.");
     setCurrentNode(dfsNode(currentNode.contentDocument.body)); 
-  }
-  else {
+  } */ else {
     goBackUp();
   }
   
@@ -1866,14 +1875,14 @@ function countNumHeadings() {
   *
   */
   function buildDocumentStack(docObject) {
-    var iFrames = docObject.getElementsByTagName("IFRAME");
+    /*var iFrames = docObject.getElementsByTagName("IFRAME");
     if(iFrames) {
       for(i=0; i<iFrames.length; i++) {
         nDocuments.push(iFrames[i].contentDocument);
         buildDocumentStack(iFrames[i].contentDocument);
       }
     }
-    WA.Utils.log("Leaving buildDocumentStack. nDocuments.length is: "+nDocuments.length);
+    WA.Utils.log("Leaving buildDocumentStack. nDocuments.length is: "+nDocuments.length);*/
   } 
 
 /**

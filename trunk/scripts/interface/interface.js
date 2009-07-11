@@ -45,7 +45,7 @@ WA.Interface = {
     WA.Interface.expectingLocationFocus = true;
 
     // Prevent WebAnywhere from continuing reading.
-    silenceAll();
+    WA.Sound.silenceAll();
     WA.Extensions.spotlightNode(null);
 
     WA.Interface.locationFocus(e);
@@ -67,5 +67,29 @@ WA.Interface = {
        if(window.attachEvent) location_field.attachEvent('onmousedown', WA.Interface.locationMouseDown);
        else if(window.addEventListener) location_field.addEventListener('mousedown', WA.Interface.locationMouseDown, false);
      }
-   }
+   },
+
+  /**
+   * Places focus on an element in the browser frame.
+   * @param element_id ID of the element to focus.
+   **/
+  focusBrowserElement: function(element_id) {
+    var doc = getNavigationDocument();
+
+    var elem = doc.getElementById(element_id);
+  
+    if(elem) {
+      if(element_id == 'location') {
+        WA.Interface.expectingLocationFocus = true;
+      }
+
+      elem.blur();
+      elem.focus();
+      if(elem.select) {
+        elem.select();
+      };
+
+      WA.Interface.expectingLocationFocus = false;
+    }
+  }
 }

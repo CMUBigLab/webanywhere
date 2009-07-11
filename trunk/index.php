@@ -83,13 +83,6 @@ function unload_webanywhere() {
   //window.navigation_frame.prefetch("Web Anywhere is being unloaded.  If the system stops responding, try pressing either backspace or alt + left arrow to return to this page.", true, false);
   //returning = true;
 }
-var pageLoaded = false;
-function newPage() {
-  pageLoaded = true;
-  if(top.soundPlayerLoaded) {
-    window.navigation_frame.newPage();
-  }
-}
 
 // Called onload and onresize to resize the 
 function resizeContentFrame() {
@@ -181,7 +174,8 @@ echo $_REQUEST['script'];
 ?>
 <script type="text/javascript">
 WA.sessionid="<?php echo session_id(); ?>";
-function browserOnload() {}
+function browserOnload() {
+}
 </script>
 <script type="text/javascript" src="<?php
 echo $script_path;
@@ -189,7 +183,7 @@ echo $script_path;
 
 
 <STYLE type="text/css">
-  html, body { margin:0; padding:0; width: 100%; overflow: hidden; border: none;}
+  html, body { margin:0; padding:0; width: 100%; height: 100%; overflow: hidden; border: none;}
   body {font-family: Georgia, "Times New Roman", Times, serif;}
 
   table { margin: 0; padding: 0; width: 100%;}
@@ -212,21 +206,18 @@ echo $script_path;
 </STYLE>
 </HEAD>
 
-<?php
-//$start_url = "http://www.yahoo.com";
-?>
-
 <BODY onload="resizeContentFrame(); browserOnload();" onresize="resizeContentFrame()">
     <DIV ID="wa_navigator">
       <DIV ID="wa_navigator_inner">
 
       <div id="wa_browser_interface">
-            <form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;">
+            <form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;" autocomplete="off">
                 <table width="100%">
                     <tr width="100%">
                         <td width="70%">
                             <label for="location" style="position: absolute; top: -100px">Location:&nbsp;</label>
-                            <input class="inputbox" type="text" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>
+                            <input class="inputbox" type="text" id="location"
+                               autocomplete="off" value="http://webinsight.cs.washington.edu/wa/content.php"/>
                         </td>
                         <td>
                             <input class="inputbutton" name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
@@ -270,7 +261,7 @@ echo $script_path;
        </DIV>
     </DIV>
     <DIV ID="wa_iframe_div">
-        <IFRAME  id="content_frame" NAME="content_frame" onLoad="newPage();" WIDTH="100%" HEIGHT="100%" BORDER="0" SRC="<?php echo $start_url; ?>" id="content_frame" NAME="content_frame" onLoad="newPage();">
+        <IFRAME  id="content_frame" NAME="content_frame" WIDTH="100%" HEIGHT="100%" BORDER="0" SRC="<?php echo $start_url; ?>" onload="newPage('onload' + this.contentWindow)">
             <p><a href="<?php echo $start_url; ?>">example</a></p>
          </IFRAME>
     </DIV>
