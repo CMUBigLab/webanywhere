@@ -236,7 +236,9 @@ echo $script_path;
             </form>
         </div>
 
-        <div id="wa_text_display" style="margin: 0; padding: 0.1em; font-size: 3em; color: #FF0; font-weight: bold;">Welcome to WebAnywhere</div>
+        <div id="wa_text_display_container" style="width: 5000px;">
+          <span id="wa_text_display" style="margin: 0; padding: 0.1em; font-size: 3em; color: #FF0; font-weight: bold;">Welcome to WebAnywhere</span>
+        </div>
 
 <div style="display: none;">
         <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: display;"'; } else { echo 'style="visibility: hidden"'; } ?>>

@@ -49,33 +49,6 @@ var emulationType = 0;
 // Something like the clock tick of the system.
 var updatePlayingCount = 0;
 
-
-/**
- * Updates the information DIVs (used primarily for debugging).
- */
-function updatePlaying() {
-  var play_div = document.getElementById('playing_div');
-  if(play_div) {
-    play_div.innerHTML = (WA.Sound.playing!=null) ? WA.Sound.playing : "(null)";
-  }
-
-  var disp_div = document.getElementById('wa_text_display');
-  if(disp_div && WA.Sound.playing != null) {
-    disp_div.innerHTML = WA.Sound.playing;
-  }
-
-  var sound_div = document.getElementById('sound_div');
-  if(sound_div) {
-	  if(currentNode && currentNode.nodeType == 1) {
-	    sound_div.innerHTML = "curr: " +
-        (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' bMode:' + WA.browseMode;
-	  } else {
-	    sound_div.innerHTML = "curr: " +
-        (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' bMode:' + WA.browseMode;
-	  }
-  }
-}
-
 /**
  * Initializes the WebAnywhere browser.
  * Called when the frameset page loads.
@@ -88,7 +61,7 @@ function init_browser() {
   WA.browserInit = true;
 
   // Updates the debugging panel.
-  setInterval('updatePlaying()', 150);
+  //setInterval('updatePlaying()', 150);
 
   // Hack for resetting the keyboard events, currently once every 45 seconds.
   // TODO:  Figure out what the underlying problem is that makes this necessary.
@@ -224,7 +197,9 @@ function newPage(e) {
 
     // Update the current nodes.
     currentDoc = newDoc;
-    setCurrentNode((currentDoc.body.firstChild != null) ? currentDoc.body.firstChild : currentDoc.body);
+    //setCurrentNode((currentDoc.body.firstChild != null) ? currentDoc.body.firstChild : currentDoc.body);
+    setCurrentNode(currentDoc.body);
+
     currentLoc = newLoc;
       
     // @@ Create a stack of other document.body nodes to attach events to?
