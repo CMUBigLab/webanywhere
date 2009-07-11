@@ -22,11 +22,11 @@
    +------------------------------------------------------------------------------+
 */
 
-// Include the global WebAnywhere configuration file.
+// Include the global WebAnywhere configuration files.
 include('../config.php');
 
-//error_reporting(E_ALL);
-//ini_set('display_errors','On');
+error_reporting(E_ALL);
+ini_set('display_errors','On');
 
 //
 // CONFIGURABLE OPTIONS
@@ -182,7 +182,6 @@ function url_parse($url, & $container) {
   if(!empty($temp)) {
     $temp['port_ext'] = '';
     $temp['base']     = $temp['scheme'] . '://' . $temp['host'];
-    /* @@does this also need to include the filenames/path? */
 
     if(isset($temp['port'])) {
       $temp['base'] .= $temp['port_ext'] = ':' . $temp['port'];
@@ -193,7 +192,6 @@ function url_parse($url, & $container) {
     $temp['path'] = isset($temp['path']) ? $temp['path'] : '/';
     $path         = array();
     $temp['path'] = explode('/', $temp['path']);
-    /* @@find out what the path is */
     
     foreach ($temp['path'] as $dir) {
       if($dir === '..') {
@@ -210,7 +208,6 @@ function url_parse($url, & $container) {
     $temp['base']    .= $temp['dir'];
     $temp['prev_dir'] = substr_count($temp['path'], '/') > 1 ? substr($temp['base'], 0, strrpos($temp['base'], '/')+1) : $temp['base'] . '/';
     $container = $temp;
-    /* @@ find out what path is now...after all these machinations */
 
     return true;
   }
@@ -238,7 +235,6 @@ function complete_url($url, $proxify = true) {
         break;
       case '#':
         $proxify = false;
-        /* @@ does this mean that if it's a relative link it isnt proxifying? */
         break;
       case 'm':
         if(substr($url, 0, 7) == 'mailto:') {
@@ -269,11 +265,8 @@ function proxify_script($script) {
   // A common technique used by web sites to ensure that their pages are in the
   // top-most window is to set the location of top window.  This helps to make
   // sure that WebAnywhere is at the top.
-  echo "HEELLLOOO!"; //$script;
   $script = preg_replace('#\\.[^=\s]*location\s*=\s*[\'"]?[^\'"]+[\'"]?#is', 'top.content_frame.', $script);
 //location\s+=\s+['"][^'"]+['"]#is', 'top.content_frame.', $script);
-
-/* @@ more hashes...what does this do? */
 
   return $script;
 }
@@ -461,8 +454,8 @@ There was a problem with your request, please try it again, or email <a href="ma
 //
 // IP-Based Throttle-Check
 //
-$wp_path_escaped = str_replace("/", "\/", $wp_path);
-$address_pattern = "/^https?:\/\/" . $webanywhere_domain . "(?!" . $wp_path_escaped . ")/";
+$wp_dir_escaped = str_replace("/", "\/", $wp_path);
+$address_pattern = "/^https?:\/\/" . $webanywhere_domain . "(?!" . $wp_dir_escaped . ")/";
 if($limit_request_rate && !preg_match($address_pattern, $_url)) {
   if(isset($_SERVER['REMOTE_ADDR'])) {
     $ipArr = explode('.',$_SERVER['REMOTE_ADDR']);
@@ -472,7 +465,8 @@ if($limit_request_rate && !preg_match($address_pattern, $_url)) {
           + $ipArr[3];
 
     // Get or create our new database.
-    $dbh = new PDO("sqlite:" . $sql_lite_filename);
+    $filename = "/projects/compression2/webinsight/www/wa/wp/webanywhere-accesses.sdb";
+    $dbh = new PDO("sqlite:" . $filename);
 
     if($dbh) {
       $array = getdate();
@@ -550,7 +544,7 @@ if($limit_request_rate && !preg_match($address_pattern, $_url)) {
       $stmt->closeCursor();
 
       if(!$url_row) {
-        $url_insert->execute();
+	$url_insert->execute();
         $url_insert->closeCursor();
         $url_id = $dbh->lastInsertId();
       } else {
@@ -613,7 +607,7 @@ if($limit_request_rate && !preg_match($address_pattern, $_url)) {
 
 //
 // HOTLINKING PREVENTION
-// 
+//
 if(!$_config['allow_hotlinking'] && isset($_SERVER['HTTP_REFERER'])) {
   $_hotlink_domains[] = $_http_host;
   $is_hotlinking = true;
@@ -980,6 +974,12 @@ if($_content_type == 'text/css') {
   if(!$_flags['show_images']) {
     $_response_body = preg_replace('#<(img|image)[^>]*?>#si', '', $_response_body);
   }
+
+  //$_response_body = preg_replace('#(function )(_)#is', '$1_$2', $_response_body);  
+  $_response_body = preg_replace('#\.replace\(([^\/])#is', '.rep($1', $_response_body);  
+
+
+  //$_response_body = preg_replace('#(<\s*/head\s*>)#is', '<script>if(window==top) document.location = "http://webanywhere.cs.washington.edu/content.php";</script>' . '$1', $_response_body);
     
   //
   // PROXIFY HTML RESOURCE
@@ -1222,7 +1222,7 @@ if($_content_type == 'text/css') {
     }
   
 
-    $_response_body = preg_replace('#(</head>)#is', "<base href='" . $url_retrieved . "'/>\n$1", $_response_body);
+    //$_response_body = preg_replace('#(</head>)#is', "<base href='" . $url_retrieved . "'/>\n$1", $_response_body);
   
     if($_flags['include_form'] && !isset($_GET['nf']))
     {
