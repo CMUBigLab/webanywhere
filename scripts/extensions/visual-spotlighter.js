@@ -123,7 +123,7 @@ WA.Extensions.VisualSpotlighter = function() {
     doc.body.appendChild(styleNode);
     
     // Need to add the style to each document associated with an iframe
-    var iframeNodes = doc.getElementsByTagName('iframe');
+    /*var iframeNodes = doc.getElementsByTagName('iframe');
     // WA.Utils.log("in Visual spotlighter: iframeNodes.length is: "+iframeNodes.length);
     if(iframeNodes.length > 0) {
       for(i=0; i<iframeNodes.length; i++) {
@@ -133,7 +133,7 @@ WA.Extensions.VisualSpotlighter = function() {
         "<p>&nbsp;</p><style>.wahighlight {color: #FF0 !important; background-color: #000 !important;}</style>";
         iframeNodes[i].contentDocument.body.appendChild(styleNode2);
        }
-     } 
+     }*/ 
   };
 };
 

@@ -200,7 +200,6 @@ function newPage(e) {
   try {
   var newDoc = getContentDocument();
   } catch(e) {
-    alert('died: ' + e.toString());
     return;
   }
 
@@ -282,7 +281,7 @@ function newPage(e) {
     WA.Utils.log("Before OncePer.")
 
     // Run any extensions that requests to be run once per document.
-    //WA.Extensions.runOncePerDocument(currentDoc);
+    WA.Extensions.runOncePerDocument(currentDoc);
 
     WA.Utils.log("After OncePer.")
 
@@ -799,10 +798,10 @@ function proxifyURL(loc, subdomain, rewrite) {
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
       loc = loc.replace(top.webanywhere_domain,
-      			(subdomain + '.' + top.webanywhere_domain));
+      			  (subdomain + '.' + top.webanywhere_domain));
     }
   }
-  WA.Utils.log('proxifyURL. before return. loc is: ' + loc);
+  WA.Utils.log('Done proxifyURL: ' + loc);
   return loc;
 }
 
