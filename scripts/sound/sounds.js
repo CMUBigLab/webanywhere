@@ -142,6 +142,14 @@ WA.Sound = {
     }
   },
 
+  /**
+   * Silence the system and stop automatic forward progression.
+   */
+  silenceAll: function() {
+    setBrowseMode(WA.KEYBOARD);
+    WA.Sound.resetSounds();
+  },
+
   // Adds a single sound (one that does not get split) to the sound queue.
   _addIndividualSound: function(sid) {
     sid = this.prepareSound(sid);
@@ -518,7 +526,8 @@ WA.Sound = {
 
   _onSoundFinish: function(sound) {
     if(sound && sound.duration) {
-      this.timingArray[sound.sID].length = sound.duration;
+      var string = sound.sID;
+      this.timingArray[string].length = sound.duration;
       WA.Utils.log('finished sound: ' + this.timingArray[string].playStart.getTime() + ' ' + sound.duration + ' ' + this.timingArray[string].orig_string);
     } else {
       WA.Utils.log('finished sound: ' + this.timingArray[string].end.getTime() + ' ' + sound.durationEstimate + ' ' + this.timingArray[string].orig_string);

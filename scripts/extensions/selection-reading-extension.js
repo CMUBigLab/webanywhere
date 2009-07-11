@@ -17,7 +17,7 @@ WA.Extensions.SelectionReadingExtension = function() {
   this.handleMouseDown = function(doc) {
     // Stop WebAnywhere from reading new nodes, remove any current spotlights,
     // and empty the sound queue.
-    silenceAll();
+    WA.Sound.silenceAll();
     WA.Extensions.spotlightNode(null);
   };
 
