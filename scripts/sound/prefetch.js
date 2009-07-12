@@ -201,7 +201,8 @@ WA.Sound.Prefetch = {
 
   // Adds the sid (sound ID) to the prefetch queue.
   addToPrefetchQ: function(sid) {
-    if(this.Sound.splitSoundsByBoundaries) {
+    WA.Sound._addSound(sid, this._addIndividualToPrefetchQ);
+    /*if(this.Sound.splitSoundsByBoundaries) {
       var matches = this.Sound.splitSoundsByBoundary(sid);
       if(matches && matches.length > 0) {
         for(var match_i=0, ml=matches.length; match_i<ml; match_i++) {
@@ -212,7 +213,7 @@ WA.Sound.Prefetch = {
       }
     } else { // TODO:  Is this needed?
       this._addIndividualToPrefetchQ(sid);
-    }
+    }*/
   },
 
   // Adds the sid (sound ID) to the prefetch queue.
@@ -523,7 +524,7 @@ WA.Sound.Prefetch = {
 
   // Initialize the system to prefetch letters and common symbols.
   // Letters are ordered according to a guess of their popularity in the web context.
-  lettersNotFetched: ['w','.','h','t','p','/','g','o','e','l','b','f','c','i','j','k','m','n','d','q','r','s','u','v','a','x','y','z','go','star','end of page','submit button'],
+  lettersNotFetched: ['w','.','h','t','p','/','g','o','e','l','b','f','c','i','j','k','m','n','d','q','r','s','u','v','a','x','y','z','go','star','end of page','submit button','link','start of page','invalid key press'],
 
   // Prefetches the letters, so that when the user begins typing,
   // they do not experience as much latency in echoing.

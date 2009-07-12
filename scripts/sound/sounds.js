@@ -132,20 +132,26 @@ WA.Sound = {
 
   // Adds a new sound to the queue of sounds to be played.
   addSound: function(sid) {
+    this._addSound(sid, this._addIndividualSound);
+  },
+
+  // Adds a new sound to the queue of sounds to be played.
+  _addSound: function(sid, func) {
     // Split sounds into multiple pieces to improve latency of sound retrieval.
-    if(this.splitSoundsByBoundaries) {
-      var matches = this.splitSoundsByBoundary(sid);
+    if(WA.Sound.splitSoundsByBoundaries) {
+      var matches = WA.Sound.splitSoundsByBoundary(sid);
       if(matches && matches.length > 0) {
         for(var match_i=0, ml=matches.length; match_i<ml; match_i++) {
-          if(!this.boundarySplitterRegExp.test(matches[match_i])) {
-            this._addIndividualSound(matches[match_i]);
+          if(!WA.Sound.boundarySplitterRegExp.test(matches[match_i])) {
+            func(matches[match_i]);
           }
         }
       }
     } else { // TODO:  Is this needed?
-      this._addIndividualSound(sid);
+      func(sid);
     }
   },
+
 
   /**
    * Silence the system and stop automatic forward progression.
@@ -157,8 +163,8 @@ WA.Sound = {
 
   // Adds a single sound (one that does not get split) to the sound queue.
   _addIndividualSound: function(sid) {
-    sid = this.prepareSound(sid);
-    this.soundQ.unshift(sid);  
+    sid = WA.Sound.prepareSound(sid);
+    WA.Sound.soundQ.unshift(sid);  
   },
 
   // Gets the next sound in the queue that should be played.
