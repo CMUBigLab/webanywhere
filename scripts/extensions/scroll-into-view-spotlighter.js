@@ -6,6 +6,9 @@
  */
 WA.Extensions.ScrollIntoViewSpotlighter = function() {
   this.spotlight = function(node) {
+    if(node==null)
+      return;
+
   	if(node.nodeType != 1 || node.nodeName=="OPTION")
   	 node = node.parentNode;
 

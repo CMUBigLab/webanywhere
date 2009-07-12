@@ -110,7 +110,7 @@ WA.Nodes = {
       case 'LABEL': // <label>'s will be read at the input element.
       case 'NOSCRIPT':
       case 'SELECT':
-        return isVisible(elem);
+        return this.isVisible(elem);
       case 'HEAD':
       case 'SCRIPT':
       case 'STYLE':
@@ -128,14 +128,44 @@ WA.Nodes = {
    * @return Boolean Is the node invisible.
    */
   isInvisible: function(node) {
-      if(node == null || typeof node == 'undefined' || node.nodeType != 1) {
-      	return false;
-      }
+    //var viz = WA.Nodes.isVisible(node);
+    //WA.Utils.log('Is VIZ (' + node.nodeName + ' ' + node.id + ') - ' + viz);
+ 
+    if(node == null || typeof node == 'undefined' || node.nodeType != 1 || node.nodeName == "BODY") {
+    	return false;
+    }
 
-      var disp = this.getNodeStyle(node, 'display', 'display');
-      var vis = this.getNodeStyle(node, 'visibility', 'visibility');
-      WA.Utils.log('In isInvisible - disp: '+disp+' vis: '+vis);
-      return (disp == 'none' || vis == 'hidden' || node.offsetWidth <= 0);
+    var disp = this.getNodeStyle(node, 'display', 'display');
+    var vis = this.getNodeStyle(node, 'visibility', 'visibility');
+    WA.Utils.log('In isInvisible (' + node.nodeName + ' ' + node.id + ') - disp: '+disp+' vis: '+vis);
+    if(disp == 'none' || vis == 'hidden' || node.offsetWidth <= 0 || !node.parentNode) return true;
+
+    return false; //WA.Nodes.isInvisible(node.parentNode);
+  },
+
+  isVisible: function(obj) {
+    if(obj.nodeName == "BODY") return true
+    
+    if(!obj) return false
+    else if(!obj.parentNode) return false
+    else if(obj.style) {
+      if (obj.style.display == 'none') return false
+      else if (obj.style.visibility == 'hidden') return false
+    }
+
+    if(window.getComputedStyle) {
+      var style = window.getComputedStyle(obj, "")
+      if (style.display == 'none') return false
+      if (style.visibility == 'hidden') return false
+    }
+    
+    var style = obj.currentStyle
+    if(style) {
+      if (style['display'] == 'none') return false
+      if (style['visibility'] == 'hidden') return false
+    }
+    
+    return WA.Nodes.isVisible(obj.parentNode)
   },
 
 	/**
@@ -181,7 +211,6 @@ WA.Nodes = {
     switch(node.nodeType) {
 	    case 1: // An HTML Element
 	      // Only speak elements that are displayed.
-	      // if(this.isInvisible()) { @@fixed
 	      if(this.isInvisible(node)) {
 	        return_val = "";
 	      } else {

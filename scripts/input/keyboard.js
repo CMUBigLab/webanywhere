@@ -121,8 +121,12 @@ WA.Keyboard = {
 	        setBrowseMode(WA.PLAY_ONE);        
       }
       break;
-    case 'ctrl /':
-      alert('Question mark');
+    case 'forward slash':
+      WA.Interface.addBlocker();
+      break;
+    case 'esc':
+      WA.Interface.removeBlocker();
+      break;
     case 'shift tab':
       this.suppressKeys(e);
       switch(target_id) {

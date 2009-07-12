@@ -60,9 +60,6 @@ function init_browser() {
   // Mark the browser as having been initialized.
   WA.browserInit = true;
 
-  // Updates the debugging panel.
-  //setInterval('updatePlaying()', 150);
-
   // Hack for resetting the keyboard events, currently once every 45 seconds.
   // TODO:  Figure out what the underlying problem is that makes this necessary.
   setInterval(function() {WA.Keyboard.resetKeyboardModifiers();}, 45000);
@@ -123,7 +120,6 @@ function init_browser() {
   // Prefetch the letters.
   WA.Sound.Prefetch.prefetchLetters();
 
-
   if(document.attachEvent)
     document.getElementById('content_frame').attachEvent('onload', newPage);
   else if(document.addEventListener)
@@ -133,24 +129,11 @@ function init_browser() {
   document.getElementById('content_frame').onload = function() {};
 }
 
-/*function delayedNewPage(target, timeout) {
-  clearTimeout(timeout);
-  if(!WA.browserInit || !WA.Sound.soundPlayerLoaded) {
-    WA.Utils.log("newPage delayed: " + WA.browserInit + ' ' + WA.Sound.soundPlayerLoaded);
-    timeout = setTimeout(function() { newPage(target); }, 1000);
-  }
-}*/
-
 /**
  * Called when a new page loads.
  * Adds event handlers, pre-processes content when appropriate.
  */
 function newPage(e) {
-  /*var target = WA.Utils.getTarget(e);
-  if(target.document) {
-    alert(target.document.location);
-  }*/
-
   setBrowseMode(WA.PAUSED);
 
   // Reset the last focused node since it no longer exists.
@@ -249,17 +232,11 @@ function newPage(e) {
     // to be prefetched, and other preprocessing steps.
     WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){return WA.Nodes.leafNode(node);});
 
-
 	  // Reset extensions.
 	  WA.Extensions.resetExtensions();
 
-    WA.Utils.log("Before OncePer.")
-
     // Run any extensions that requests to be run once per document.
     WA.Extensions.runOncePerDocument(currentDoc);
-
-    WA.Utils.log("After OncePer.")
-
 
     // Create an artificial focusable start element containg the page title.
     var start_node = currentDoc.createElement('div');
@@ -939,7 +916,7 @@ function matchByTag(tag, attrib) {
 
 // Determines if a tag is visible.
 // Tags that aren't visible, shouldn't be read.
-function isVisible(elem) {
+/*function isVisible(elem) {
   WA.Utils.log('In isVisible');
   if(elem.nodeType == 1) {
   	if(elem.tagName == "INPUT") {
@@ -952,7 +929,7 @@ function isVisible(elem) {
 
   // Default is that it's visible.
   return true;  
-}
+}*/
 
 
 // Functions for navigating within a table.
