@@ -88,6 +88,7 @@ WA.Sound = {
   // This includes normalizing the string by making it all lowercase, removing
   // punctuation, etc.
   prepareSound: function(sid) {
+    sid = String(sid);
     if(sid && sid.length > 1) {
       sid = sid.toLowerCase();
       if(sid==".") { sid = "dot"; }
@@ -163,7 +164,7 @@ WA.Sound = {
 
   // Adds a single sound (one that does not get split) to the sound queue.
   _addIndividualSound: function(sid) {
-    sid = WA.Sound.prepareSound(sid);
+    //sid = WA.Sound.prepareSound(sid);
     WA.Sound.soundQ.unshift(sid);  
   },
 
@@ -275,10 +276,8 @@ WA.Sound = {
   // Play the sound.
   playSound: function(string, bm) {
     var playdone = true;
-    string = this.prepareSound(string);
-    url = this.urlForString(string);
-
-	//WA.Utils.log('url: ' + url);
+    string = WA.Sound.prepareSound(string);
+    url = WA.Sound.urlForString(string);
 
     switch(this.soundMethod) {
       case this.FLASH_SOUND_METHOD: this._prefetchFlash(string, url, playdone, bm); break;
