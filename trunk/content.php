@@ -29,9 +29,10 @@ if(!isset($_REQUEST['submit'])) {
 <div>
 <p>
 WebAnywhere has been initialized and is now ready to use.
+Press '<span class='hidden'>forward </span>/' at any time to hear a list of available shortcut keys.
 </p>
 <p>
-<span><a href="http://webinsight.cs.washington.edu/projects/webanywhere/">WebAnywhere</a> is a non-visual interface to the web that requires no new software to be downloaded or installed.</span><span>It works right in the browser, which means you can access it from any computer, even locked-down public computer terminals.</span><span>WebAnywhere enables you to interact with the web in a similar way to how you may have used other screen readers, such as JAWS or Window-Eyes, before.</span>
+<span><a href="http://webinsight.cs.washington.edu/projects/webanywhere/">WebAnywhere</a> is a non-visual interface to the web that requires no new software to be downloaded or installed.</span><span>It works right in the browser, which means you can access it from any computer, even locked-down public computer terminals.</span><span>WebAnywhere enables you to interact with the web in a similar way to how you may have used other screen readers before.</span>
 </p>
 
 <p>
@@ -41,14 +42,14 @@ into your browser.
 </p>
 
 <p>
-<span>The system works best when a recent version of Adobe Flash is installed but will also work with embedded sound players, like Windows Media Player and Quicktime.</span><span>The current release is an Alpha release, which means WebAnywhere may not always work as expected.</span><span>We're working quickly to fix bugs and add features, so you should expect rapid development in the coming weeks and months.</span><span>Because WebAnywhere is released right on the web, you'll always have the latest version when you visit this site.</span>
+<span>WebAnywhere works best with the Firefox web browser using a recent version of Adobe Flash.</span><span>We're working quickly to fix bugs and add features, so you should expect rapid development in the coming weeks and months.</span><span>Because WebAnywhere is released right on the web, you'll always have the latest version when you visit this site.</span>
 </p>
 </div>
 
 <h2>Using WebAnywhere</h2>
 <div class="dotbox">
 <p>
-You interact with WebAnywhere using the keyboard.  A selection of keyboard commands that are currently supported is listed below.
+You can interact with WebAnywhere using the keyboard.  A selection of keyboard commands that are currently supported is listed below, and can be accessed at any time by pressing '<span class='hidden'>forward </span>/'.
 Pressing SHIFT in combination with them reverses the direction of the search, searching backward from the current cursor position instead of forward from it.<br>
 </p>
 

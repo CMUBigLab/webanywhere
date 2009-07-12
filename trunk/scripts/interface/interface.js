@@ -137,7 +137,9 @@ WA.Interface = {
     var disp_div = document.getElementById('wa_text_display');
     if(disp_div && WA.Sound.playing != null) {
       disp_div.innerHTML = WA.Sound.playing;
-      WA.Interface.updateCurrentlyPlayingSize(0, 3000);
+      // Currently this uses an estimate of the file's playing time, but we
+      // could consider using the real, live playing time.
+      WA.Interface.updateCurrentlyPlayingSize(0, String(WA.Sound.playing).length * 130);
     }
   
     /*var sound_div = document.getElementById('sound_div');
@@ -150,6 +152,54 @@ WA.Interface = {
           (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' bMode:' + WA.browseMode;
       }
     }*/
-  }
+  },
 
+  _nodeToReturn: null,
+
+  addBlocker: function() {
+    WA.Interface._nodeToReturn = getScriptWindow().currentNode;
+
+    var blocker_div = document.getElementById('wa_blocker_div');
+    var bcontent_div = document.getElementById('wa_blocker_content_div');
+
+    blocker_div.style.top = "0px";
+    blocker_div.style.display = 'block';
+    blocker_div.style.height = document.getElementById('wa_iframe_div').offsetHeight + "px";
+    blocker_div.style.top = document.getElementById('wa_iframe_div').style.top;
+
+    bcontent_div.style.top = "0px";
+    bcontent_div.style.display = 'block';
+    bcontent_div.style.height = blocker_div.style.height;
+    bcontent_div.style.top = blocker_div.style.top;
+
+    bcontent_div.innerHTML = "<div id='wa_keyboard_shortcuts'>" +
+                    "<h2 id='wa_keyboard_shortcuts_heading'>Keyboard Shortcuts</h2>" +
+                    "<ul>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-L</b> - move the cursor to the location box where you can type a URL to visit.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>Arrow Down</b> - read the next element on the page.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>Arrow Up</b> - read the previous element on the page.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>TAB</b> - skip to the next link or form control.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-H</b> - skip to the next heading.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-I</b> - skip to the next input element.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-R</b> - skip to the next row by cell when in a table.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-D</b> - skip to the next column by cell when in a table.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>Page Down</b> - read continuously from the current position.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>Home</b> - read continuously, starting over from the beginning of the page.</li>" +
+                    "<li style=' margin: 0; padding: 0.1em;'><b>CTRL</b> - silence WebAnywhere and pause the system.</li>" +
+                    "</ul>" +
+                    "</div>";
+
+    setCurrentNode(document.getElementById('wa_keyboard_shortcuts_heading').firstChild);
+    setBrowseMode(WA.READ);
+  },
+
+  removeBlocker: function() {
+    var div = document.getElementById('wa_blocker_div');
+    div.style.display = 'none';
+
+    div = document.getElementById('wa_blocker_content_div');
+    div.style.display = 'none';
+
+    setCurrentNode(WA.Interface._nodeToReturn);
+  }
 }

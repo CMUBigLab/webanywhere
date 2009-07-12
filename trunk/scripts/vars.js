@@ -54,11 +54,11 @@ var WA = {
   
   // Prefetch strategy.
   // 0 == none, 1 == parallel dom, 2 == next node, 3 == markov
-  // 0 can be slow.
+  // 0 can make using WebAnywhere slow.
   // 1 degrades ungracefully.
   // 2 should offer the best performance for now.
   // 3 is a bit unstable.
-  prefetchStrategy: 0,
+  prefetchStrategy: 1,
 
   // Times loaded.
   timesLoaded: 0,
