@@ -202,23 +202,11 @@ WA.Sound.Prefetch = {
   // Adds the sid (sound ID) to the prefetch queue.
   addToPrefetchQ: function(sid) {
     WA.Sound._addSound(sid, this._addIndividualToPrefetchQ);
-    /*if(this.Sound.splitSoundsByBoundaries) {
-      var matches = this.Sound.splitSoundsByBoundary(sid);
-      if(matches && matches.length > 0) {
-        for(var match_i=0, ml=matches.length; match_i<ml; match_i++) {
-          if(!WA.Sound.boundarySplitterRegExp.test(matches[match_i])) {
-            this._addIndividualToPrefetchQ(matches[match_i]);
-          }
-        }
-      }
-    } else { // TODO:  Is this needed?
-      this._addIndividualToPrefetchQ(sid);
-    }*/
   },
 
   // Adds the sid (sound ID) to the prefetch queue.
   _addIndividualToPrefetchQ: function(sid) {
-    sid = this.Sound.prepareSound(sid);
+    sid = WA.Sound.prepareSound(sid);
     this.prefetch_array[this.prefetch_curr_index].push(sid);
   },
 
@@ -435,8 +423,8 @@ WA.Sound.Prefetch = {
   // Prefetch a the sound for the supplied text.
   numPrefetched: 0,
   prefetchText: function(text) {
-    var string = this.Sound.prepareSound(text);
-    var url = this.Sound.urlForString(string);
+    var string = WA.Sound.prepareSound(text);
+    var url = WA.Sound.urlForString(string);
     var sid = WA.Sound.getSoundID(text);
 
     if(typeof this.prefetchRecords[sid] == 'undefined') {
@@ -449,7 +437,7 @@ WA.Sound.Prefetch = {
       return false;
     }
 
-	return false;
+  	return false;
   },
 
   // Adds the textual representation of the node to the prefetch queue.

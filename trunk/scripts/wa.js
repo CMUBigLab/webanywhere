@@ -744,7 +744,7 @@ function proxifyURL(loc, subdomain, rewrite) {
   //WA.Utils.log('In proxifyURL. loc is: '+loc+'  subdomain is '+subdomain+' rewrite is: '+rewrite );
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
-  //WA.Utils.log(loc + " ___ " + top.webanywhere_domain);
+  WA.Utils.log(loc + " ___ " + top.webanywhere_domain);
 
   if(rewriteForSure || !sameDomainRegExp.test(loc)) {
     loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
