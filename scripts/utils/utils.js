@@ -357,9 +357,16 @@ WA.Utils = {
    * @param str String to log to the console.
    */
   log: function(str) {
-  	if(typeof console != 'undefined' && typeof console.log != 'undefined') {
-  		console.log(str);
-  	}
+    if(!(/debug=true/.test(document.location))) {
+      WA.Utils.log = function() {}      
+    } else {
+      WA.Utils.log = function(str) {
+      	if(typeof console != 'undefined' && typeof console.log != 'undefined') {
+      		console.log(str);
+      	}
+      }
+      WA.Utils.log(str);
+    }
   },
 
   /**

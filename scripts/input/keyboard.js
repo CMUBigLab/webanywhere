@@ -121,7 +121,7 @@ WA.Keyboard = {
 	        setBrowseMode(WA.PLAY_ONE);        
       }
       break;
-    case 'forward slash':
+    case 'ctrl forward slash':
       WA.Interface.addBlocker();
       break;
     case 'esc':

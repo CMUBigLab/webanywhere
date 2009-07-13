@@ -218,29 +218,31 @@ echo $script_path;
       <DIV ID="wa_navigator_inner">
 
       <div id="wa_browser_interface">
-            <form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;" autocomplete="off">
-                <table width="100%">
-                    <tr width="100%">
-                        <td width="70%">
-                            <label for="location" style="position: absolute; top: -100px">Location:&nbsp;</label>
-                            <input class="inputbox" type="text" id="location"
-                               autocomplete="off" value="http://webinsight.cs.washington.edu/wa/content.php"/>
-                        </td>
-                        <td>
-                            <input class="inputbutton" name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
-                            </td>
-                            <td width="20%">
-                            <input class="inputbox" type="text" name="finder_field" id="wa_finder_field"/>
-                        </td>
-                        <td>
-                            <input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="Next" onclick='nextNodeContentFinder(this); return false;'/>
-                        </td>
-                        <td>
-                            <input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="Previous" onclick='prevNodeContentFinder(this); return false;'/>
-                        </td>
-                    </tr>
-                </table>
-            </form>
+	        <table width="100%">
+	            <tr width="100%">
+	              <form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;" autocomplete="off">
+	                <td width="70%">
+	                    <label for="location" style="position: absolute; top: -100px">Location:&nbsp;</label>
+	                    <input class="inputbox" type="text" id="location"
+	                      autocomplete="off" value="http://webinsight.cs.washington.edu/wa/content.php"/>
+	                </td>
+	                <td>
+	                    <input class="inputbutton" name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
+	                  </td>
+	              </form>
+	              <form onSubmit="javascript:nextNodeContentFinder(this);return false;" style="margin: 0; padding: 0; display: inline;" autocomplete="off">
+	                <td width="20%">
+	                    <input class="inputbox" type="text" name="finder_field" id="wa_finder_field"/>
+	                </td>
+	                <td>
+	                    <input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="Next" onclick='nextNodeContentFinder(this); return false;'/>
+	                </td>
+	                <td>
+	                    <input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="Previous" onclick='prevNodeContentFinder(this); return false;'/>
+	                </td>
+	              </form>
+	            </tr>
+	        </table>
         </div>
 
         <div id="wa_text_display_container" style="width: 5000px;">
@@ -274,7 +276,7 @@ echo $script_path;
     <DIV ID="wa_iframe_div">
         <IFRAME  id="content_frame" NAME="content_frame" WIDTH="100%" HEIGHT="100%" BORDER="0" SRC="<?php echo $start_url; ?>" onload="newPage('onload' + this.contentWindow)">
             <p><a href="<?php echo $start_url; ?>">example</a></p>
-         </IFRAME>
+        </IFRAME>
     </DIV>
 </BODY>
 </HTML>
