@@ -9,6 +9,7 @@ h1 { text-align: center; width: 400px; height: 142px; background-image: url(imag
 .wa-outer-container { width: 50%; min-width: 400px; margin: 0 auto; padding: 0;}
 .wa-heading-container {margin: 0 auto 2em auto; padding: 0;}
 .wa-content-container {margin: 0; padding-left: 70px;}
+li {margin: 0; padding: 0.1em;}
 </style>
 </head>
 <body bgcolor="#FFFFFF">
@@ -29,7 +30,7 @@ if(!isset($_REQUEST['submit'])) {
 <div>
 <p>
 WebAnywhere has been initialized and is now ready to use.
-Press '<span class='hidden'>forward </span>/' at any time to hear a list of available shortcut keys.
+Press the 'forward slash' key at any time to hear a list of available shortcut keys.
 </p>
 <p>
 <span><a href="http://webinsight.cs.washington.edu/projects/webanywhere/">WebAnywhere</a> is a non-visual interface to the web that requires no new software to be downloaded or installed.</span><span>It works right in the browser, which means you can access it from any computer, even locked-down public computer terminals.</span><span>WebAnywhere enables you to interact with the web in a similar way to how you may have used other screen readers before.</span>
@@ -57,17 +58,17 @@ Pressing SHIFT in combination with them reverses the direction of the search, se
 <input type="hidden" name="dumb"/>
 <?php } ?>
 <ul>
-<li style="margin: 0; padding: 0.1em;"><b>CTRL-L</b> - move the cursor to the location box where you can type a URL to visit.</li>
-<li style="margin: 0; padding: 0.1em;"><b>Arrow Down</b> - read the next element on the page.</li>
-<li style="margin: 0; padding: 0.1em;"><b>Arrow Up</b> - read the previous element on the page.</li>
-<li style="margin: 0; padding: 0.1em;"><b>TAB</b> - skip to the next link or form control.</li>
-<li style="margin: 0; padding: 0.1em;"><b>CTRL-H</b> - skip to the next heading.</li>
-<li style="margin: 0; padding: 0.1em;"><b>CTRL-I</b> - skip to the next input element.</li>
-<li style="margin: 0; padding: 0.1em;"><b>CTRL-R</b> - skip to the next row by cell when in a table.</li>
-<li style="margin: 0; padding: 0.1em;"><b>CTRL-D</b> - skip to the next column by cell when in a table.</li>
-<li style="margin: 0; padding: 0.1em;"><b>Page Down</b> - read continuously from the current position.</li>
-<li style="margin: 0; padding: 0.1em;"><b>Home</b> - read continuously, starting over from the beginning of the page.</li>
-<li style="margin: 0; padding: 0.1em;"><b>CTRL</b> - silence WebAnywhere and pause the system.</li>
+<li><b>CTRL-L</b> - move the cursor to the location box where you can type a URL to visit.</li>
+<li><b>Arrow Down</b> - read the next element on the page.</li>
+<li><b>Arrow Up</b> - read the previous element on the page.</li>
+<li><b>TAB</b> - skip to the next link or form control.</li>
+<li><b>CTRL-H</b> - skip to the next heading.</li>
+<li><b>CTRL-I</b> - skip to the next input element.</li>
+<li><b>CTRL-R</b> - skip to the next row by cell when in a table.</li>
+<li><b>CTRL-D</b> - skip to the next column by cell when in a table.</li>
+<li><b>Page Down</b> - read continuously from the current position.</li>
+<li><b>Home</b> - read continuously, starting over from the beginning of the page.</li>
+<li><b>CTRL</b> - silence WebAnywhere and pause the system.</li>
 </ul>
 </div>
 
@@ -90,8 +91,7 @@ document.write('<embed sr'+'c="http://www.youtube.com/v/wfjD06aOxts" type="appli
 
 </div>
 
-
-
+<?php if($_REQUEST[debug]==='true') { ?>
 <!--
 <h2>Login</h2>
 <p>
@@ -107,7 +107,7 @@ document.write('<embed sr'+'c="http://www.youtube.com/v/wfjD06aOxts" type="appli
 </form>
 </p>
 -->
-<?php if($_REQUEST[debug]==='true') { ?>
+
 <div>
 <form>
 <input type="text" name="password"><br/>
@@ -122,7 +122,7 @@ document.write('<embed sr'+'c="http://www.youtube.com/v/wfjD06aOxts" type="appli
 <?php } else { ?>
 <h1>Invalid Login</h1>
 <p>
-   That login name/password that you entered is not valid.  If you should have access to WebAnywhere, please email <a href="mailto:jbigham@cs.washington.edu">jbigham@cs.washington.edu</a> to reset your credentials.
+The login name/password that you entered is not valid.  If you should have access to WebAnywhere, please email <a href="mailto:jbigham@cs.washington.edu">jbigham@cs.washington.edu</a> to reset your credentials.
 </p>
 <?php } ?>
 </body>

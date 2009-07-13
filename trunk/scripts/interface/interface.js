@@ -108,9 +108,10 @@ WA.Interface = {
       WA.Utils.log("SET Relative: " + Math.floor(diff / 2.0) + ' ' + width + " " + curr_width);
     } else {
       // Scroll.
-      if(time > 1000) {
+      var delay = width * 2.0;
+      if(time > delay) {
         text_disp.style.position = 'relative';
-        var frac = ((time-1000) / (total-1000));
+        var frac = ((time-delay) / (total-delay));
         text_disp.style.left = Math.floor(diff * frac) + "px";
         WA.Utils.log("SET Relative: " + frac + ' ' + Math.floor(diff / 2.0) + ' ' + width + " " + curr_width);
         if(frac < 1.0) {
@@ -119,7 +120,7 @@ WA.Interface = {
       } else {
         text_disp.style.position = 'relative';
         text_disp.style.left = "0px";
-        setTimeout(function(){ WA.Interface.updateCurrentlyPlayingSize(time+100, total); }, 100);
+        setTimeout(function(){ WA.Interface.updateCurrentlyPlayingSize(time+100, total); }, 150);
       }
     }
   },
@@ -139,7 +140,7 @@ WA.Interface = {
       disp_div.innerHTML = WA.Sound.playing;
       // Currently this uses an estimate of the file's playing time, but we
       // could consider using the real, live playing time.
-      WA.Interface.updateCurrentlyPlayingSize(0, String(WA.Sound.playing).length * 130);
+      WA.Interface.updateCurrentlyPlayingSize(0, String(WA.Sound.playing).length * 110);
     }
   
     /*var sound_div = document.getElementById('sound_div');
@@ -157,6 +158,10 @@ WA.Interface = {
   _nodeToReturn: null,
 
   addBlocker: function() {
+    WA.Sound.silenceAll();
+    WA.Extensions.spotlightNode(null);
+    setBrowseMode(WA.KEYBOARD);
+
     WA.Interface._nodeToReturn = getScriptWindow().currentNode;
 
     var blocker_div = document.getElementById('wa_blocker_div');
@@ -174,6 +179,7 @@ WA.Interface = {
 
     bcontent_div.innerHTML = "<div id='wa_keyboard_shortcuts'>" +
                     "<h2 id='wa_keyboard_shortcuts_heading'>Keyboard Shortcuts</h2>" +
+                    "<p>The following keyboard shortcuts are available. Press escape to exit this menu.</p>" +
                     "<ul>" +
                     "<li style='margin: 0; padding: 0.1em;'><b>CTRL-L</b> - move the cursor to the location box where you can type a URL to visit.</li>" +
                     "<li style='margin: 0; padding: 0.1em;'><b>Arrow Down</b> - read the next element on the page.</li>" +
@@ -194,12 +200,17 @@ WA.Interface = {
   },
 
   removeBlocker: function() {
+    setBrowseMode(WA.KEYBOARD);
+
     var div = document.getElementById('wa_blocker_div');
     div.style.display = 'none';
 
     div = document.getElementById('wa_blocker_content_div');
     div.style.display = 'none';
 
-    setCurrentNode(WA.Interface._nodeToReturn);
+    if(WA.Interface._nodeToReturn) {
+      setCurrentNode(WA.Interface._nodeToReturn);
+      WA.Extensions.spotlightNode(WA.Interface._nodeToReturn);
+    }
   }
 }
