@@ -33,8 +33,8 @@ if(strlen($arguments) > 0) {
 $start_url = (isset($_REQUEST['starting_url']) ? base64_encode($_REQUEST['starting_url']) : base64_encode($default_content_url));
 $start_url = str_replace('$url', $start_url, $wp_path);
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" 
- "http://www.w3.org/TR/html4/frameset.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
 <HTML>
 <HEAD>
 <TITLE>WebAnywhere - Your Access Technology Anywhere</TITLE>
@@ -204,8 +204,8 @@ echo $script_path;
   #content_frame {position: absolute; top: 55px; margin: 0; padding:0; height: 100%; display: block; width:100%; border: none; height: 100%; width: 100%;}
   #wa_iframe_div {position: absolute; top: 55px; height: 100%; width: 100%; z-index: 1;}
 
-  #wa_blocker_div {position: absolute; left: 0; width: 100%; z-index: 2; background-color: #BBB; filter:alpha(opacity=85); -moz-opacity:0.85; -khtml-opacity: 0.85; opacity: 0.85;}
-  #wa_blocker_content_div {position: absolute; left: 0; width: 100%; z-index: 3; background-color: transparent;}
+  #wa_blocker_div {display: none; position: absolute; left: 0; width: 100%; z-index: 2; background-color: #BBB; filter:alpha(opacity=85); -moz-opacity:0.85; -khtml-opacity: 0.85; opacity: 0.85;}
+  #wa_blocker_content_div {display: none; position: absolute; left: 0; width: 100%; z-index: 3; background-color: transparent;}
   #wa_keyboard_shortcuts {margin: 2em auto; width: 45em; background-color: #FFF; padding: 2em; border: 3px solid #000; -moz-border-radius: 6px; filter:alpha(opacity=100); -moz-opacity: 1.0; -khtml-opacity: 1.0; opacity: 1.0;}
 
   .wahighlight {border-color: #FF0 !important; color: #FF0 !important; background-color: #000 !important;}
@@ -271,12 +271,12 @@ echo $script_path;
 
        </DIV>
     </DIV>
-    <DIV ID="wa_blocker_div"></DIV>
-    <DIV ID="wa_blocker_content_div"></DIV>
     <DIV ID="wa_iframe_div">
-        <IFRAME  id="content_frame" NAME="content_frame" WIDTH="100%" HEIGHT="100%" BORDER="0" SRC="<?php echo $start_url; ?>" onload="newPage('onload' + this.contentWindow)">
+        <IFRAME  id="content_frame" NAME="content_frame" WIDTH="100%" HEIGHT="100%" FRAMEBORDER="0" SRC="<?php echo $start_url; ?>" onload="newPage('onload' + this.contentWindow)">
             <p><a href="<?php echo $start_url; ?>">example</a></p>
         </IFRAME>
     </DIV>
+    <DIV ID="wa_blocker_div"></DIV>
+    <DIV ID="wa_blocker_content_div"></DIV>
 </BODY>
 </HTML>
