@@ -62,13 +62,15 @@ Pressing SHIFT in combination with them reverses the direction of the search, se
 <li><b>Arrow Down</b> - read the next element on the page.</li>
 <li><b>Arrow Up</b> - read the previous element on the page.</li>
 <li><b>TAB</b> - skip to the next link or form control.</li>
+<li><b>CTRL</b> - silence WebAnywhere and pause the system.</li>
 <li><b>CTRL-H</b> - skip to the next heading.</li>
 <li><b>CTRL-I</b> - skip to the next input element.</li>
 <li><b>CTRL-R</b> - skip to the next row by cell when in a table.</li>
 <li><b>CTRL-D</b> - skip to the next column by cell when in a table.</li>
 <li><b>Page Down</b> - read continuously from the current position.</li>
 <li><b>Home</b> - read continuously, starting over from the beginning of the page.</li>
-<li><b>CTRL</b> - silence WebAnywhere and pause the system.</li>
+<li><b>CTRL+Arrow Down</b> - when a selection box is focused, read the next option.</li>
+<li><b>CTRL+Arrow Up</b> - when a selection box is focused, read the previous option.</li>
 </ul>
 </div>
 
