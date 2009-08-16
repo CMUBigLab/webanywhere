@@ -2,6 +2,8 @@
 Header('Content-Type: application/x-javascript');
 session_start();
 
+// Replace with database lookup.
+
 // Forms mode.
 $formsModeToggle = isset($_SESSION['formsModeToggle']) ? $_SESSION['formsModeToggle'] : "enter";
 $useFormsMode = isset($_SESSION['useFormsMode']) ? $_SESSION['useFormsMode'] : "false";

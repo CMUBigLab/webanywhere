@@ -77,7 +77,7 @@ WA.Interface = {
     var doc = getNavigationDocument();
 
     var elem = doc.getElementById(element_id);
-  
+
     if(elem) {
       if(element_id == 'location') {
         WA.Interface.expectingLocationFocus = true;
@@ -89,7 +89,7 @@ WA.Interface = {
         elem.select();
       };
 
-      WA.Interface.expectingLocationFocus = false;
+      setTimeout("WA.Interface.expectingLocationFocus = false;", 0);
     }
   },
 

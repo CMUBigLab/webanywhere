@@ -117,3 +117,4 @@ WA.Extensions.TabIndexExtension = function() {
 var tabIndexExt = new WA.Extensions.TabIndexExtension();
 WA.Extensions.nodePreprocessors.push(tabIndexExt);
 WA.Extensions.nodeSpotlighters.push(tabIndexExt);
+WA.Extensions.extensionList.push(tabIndexExt);

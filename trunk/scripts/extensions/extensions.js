@@ -22,6 +22,21 @@ WA.Extensions = {
   // Functions to run when the nothing is playing.
   waitingForPauses: new Array(),
 
+  // Functions that need to be called periodically.
+  periodicFunctions: new Array(),
+
+  // List of all extensions.
+  extensionList: new Array(),
+
+  callPeriodics: function() {
+    // Call the functions that are to be called periodically.
+    var num = WA.Extensions.periodicFunctions.length;
+    WA.Utils.log(num + "PERIODICS");
+    for(var i=0; i<num; i++) {
+      WA.Extensions.periodicFunctions[i].runPeriodic();
+    }
+  },
+
   // Are there actions waiting to be completed during pauses?
   actionsWaiting: function() {
     var num = this.waitingForPauses.length;
@@ -98,9 +113,11 @@ WA.Extensions = {
   },
 
   resetExtensions: function() {
-  	var num = this.nodeSpotlighters.length;
+  	var num = this.extensionList.length;
   	for(var i=0; i<num; i++) {
-      this.nodeSpotlighters[i].reset();
+  	  if(this.extensionList[i].reset) {
+        this.extensionList[i].reset();
+  	  }
   	}
   },
 

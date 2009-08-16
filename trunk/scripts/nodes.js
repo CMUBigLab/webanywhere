@@ -443,7 +443,7 @@ WA.Nodes = {
           result += "List with " + numitems + " items";
         }
     }
-  
+
     if(elem.getAttribute('title')) {
       result = result + " " + elem.getAttribute('title');
     }
@@ -650,6 +650,16 @@ WA.Nodes = {
     } else {
       // This should not happen.
       return "";
+    }
+  },
+
+  getTextContent: function(node) {
+    if(node!=null) {
+      if(node.textContent) {
+        return node.textContent;
+      } else if(node.innerText) {
+        return node.innerText;
+      }
     }
   }
 };
