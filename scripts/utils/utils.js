@@ -295,21 +295,21 @@ WA.Utils = {
 	 * @param obj DOM element for which the position should be calculated.
 	 * @return [x,y] position of the supplied element.
 	 */
-	findPos: function(obj) {
-	  var curleft = curtop = 0;
-	  if(obj != null && obj.offsetParent) {
-	    curleft = obj.offsetLeft;
-	    curtop = obj.offsetTop;
-	    while (obj = obj.offsetParent) {
-	      curleft += obj.offsetLeft;
-	      curtop += obj.offsetTop;
-	    }
-	  } else {
-	  	return null;
-	  }
-
-	  return [curleft,curtop];
-	},
+  findPos: function(obj) {
+    var curleft = curtop = 0;
+    if(obj != null && obj.offsetParent) {
+      curleft = obj.offsetLeft;
+      curtop = obj.offsetTop;
+      while (obj = obj.offsetParent) {
+        curleft += obj.offsetLeft;
+        curtop += obj.offsetTop;
+      }
+    } else {
+    	return null;
+    }
+  
+    return [curleft,curtop];
+  },
 
   /**
    * Return the height/width of the visible portion of the supplied window.
@@ -404,5 +404,5 @@ WA.Utils = {
       target = target.parentNode;
   
     return target;
-  },
+  }
 };

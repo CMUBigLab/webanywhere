@@ -38,7 +38,11 @@ WA.Extensions.ScrollIntoViewSpotlighter = function() {
 
   this.unspotlight = function() {}
   this.reset = function() {}
-}
+};
 
 // Add this extension to the node spotlighter extensions.
-WA.Extensions.nodeSpotlighters.push(new WA.Extensions.ScrollIntoViewSpotlighter());
+(function() {
+  var scrollSpotExt = new WA.Extensions.ScrollIntoViewSpotlighter();
+  WA.Extensions.nodeSpotlighters.push(scrollSpotExt);
+  WA.Extensions.extensionList.push(scrollSpotExt);
+})();

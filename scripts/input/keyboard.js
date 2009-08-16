@@ -151,6 +151,9 @@ WA.Keyboard = {
 	        break;
       }
       break;
+    case 'ctrl a':
+      WA.Extensions.callPeriodics();
+      break;
     case 'alt leftarrow':
       goBack();
       break;
@@ -270,7 +273,7 @@ WA.Keyboard = {
         setCurrentNode(new_node);
         setBrowseMode(WA.PLAY_ONE);
       } else {
-        broseMode = WA.KEYBOARD;
+        setBrowseMode(WA.KEYBOARD);
       }
       break;
     case 'ctrl shift d':
@@ -282,7 +285,7 @@ WA.Keyboard = {
         setCurrentNode(new_node);
         setBrowseMode(WA.PLAY_ONE);
       } else {
-        broseMode = WA.KEYBOARD;
+        setBrowseMode(WA.KEYBOARD);
       }
       break;
     case 'ctrl p':
@@ -304,6 +307,16 @@ WA.Keyboard = {
     case 'ctrl 6':
       WA.Sound.Prefetch.prefetchPrediction();
       WA.Utils.log('done');
+      break;
+    case 'ctrl 7':
+      WA.Utils.log("calling Periodics");
+      WA.Extensions.callPeriodics();
+      WA.Utils.log("done calling Periodics");
+      break;
+    case 'ctrl 8':
+      WA.Extensions.resetExtensions();
+      WA.Nodes.treeTraverseRecursion(currentNode, function(node){WA.Extensions.preprocessNode(node)}, function(node){return WA.Nodes.leafNode(node)});
+      WA.Extensions.runOncePerDocument(currentDoc);
       break;
     case 'pagedown':
       this.suppressKeys(e);
@@ -746,7 +759,7 @@ WA.Keyboard = {
 	    } else {
 	      e.cancelBubble = true;
 	      e.returnValue = false;
-	      e.keyCode = 0;
+	      //e.keyCode = 0;
 	    }
     }
   
@@ -787,6 +800,13 @@ WA.Keyboard = {
 
     this.formsModeOn = false;
   },
+
+  /**
+   * Resets various components of the keyboard listening upon a new page load.
+   */
+   resetOnNewPage: function() {
+     WA.Keyboard.resetKeyboardModifiers();
+   },
 
   _keyEventList: null,
 

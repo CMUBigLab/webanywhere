@@ -19,6 +19,9 @@ var currentNode = null;
 var currentWord = 0;
 var currentChar = 0;
 
+// Last currentNode.
+var lastNode = null;
+
 // The last node to be played by the system.
 var lastNodePlayed = null;
 
@@ -138,6 +141,7 @@ function newPage(e) {
 
   // Reset the last focused node since it no longer exists.
   lastFocused = null;
+  lastNode = null;
 
   var content_frame = top.document.getElementById("content_frame");
   if(content_frame) {
@@ -228,14 +232,20 @@ function newPage(e) {
     }
 
 
+    //
+    // EXTENSIONS
+    //
+    
+    // Reset extensions.
+    WA.Extensions.resetExtensions();
+
     // Preprocess the page, including adding to the list of nodes
     // to be prefetched, and other preprocessing steps.
+    // Calls WA.Extensions.preprocessNode(node) to preprocess for extensions.
     WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){return WA.Nodes.leafNode(node);});
 
-	  // Reset extensions.
-	  WA.Extensions.resetExtensions();
-
     // Run any extensions that requests to be run once per document.
+    // This is assumed to run prior to the node preprocessor.
     WA.Extensions.runOncePerDocument(currentDoc);
 
     // Create an artificial focusable start element containg the page title.
@@ -266,7 +276,7 @@ function newPage(e) {
 
   // Reset the keyboard modifiers, in case we missed the release of one
   // while page was loading.
-  WA.Keyboard.resetKeyboardModifiers();
+  WA.Keyboard.resetOnNewPage();
 
   // Reinitialize sound player.
   WA.Sound.resetSounds();
@@ -291,8 +301,8 @@ function newPage(e) {
   var nheadings = countNumHeadings();
   // @@need to update countNumLinks after get headings working
   var nlinks = countNumLinks(currentDoc);
-  var head = nheadings + ' ' + ((nheadings > 1) ? "Headings" : "Heading");
-  var link = nlinks + ' ' + ((nlinks > 1) ? "Links" : "Link");
+  var head = nheadings + ' ' + ((nheadings > 1 || nheadings==0) ? "Headings" : "Heading");
+  var link = nlinks + ' ' + ((nlinks > 1 || nlinks == 0) ? "Links" : "Link");
   WA.Sound.addSound(head + ' ' + link);
 
   // Set our browsing mode to READ after a short delay.
@@ -304,15 +314,6 @@ function newPage(e) {
   	  setBrowseMode(WA.READ)
      }
   	}, 50);
-
-  // Get and submit recorder if we're in debug mode.
-  var rec = getNavigationDocument().getElementById('recording');
-  if(rec && !(/debug/.test(top.document.location))) {
-    WA.Utils.postURL('recorder.php',
-                     'submit=submit&recording=' + rec.value,
-                     function(){});
-    rec.value = "";
-  }
 
   // Count number of pages loaded.
   WA.timesLoaded++;
@@ -630,7 +631,7 @@ function preVisit(node) {
   	}
   }
 
-  // Perform other optional preprocessing steps.
+  // Perform node preprocessing specified in extensions.
   WA.Extensions.preprocessNode(node);
 }
 
@@ -1547,8 +1548,6 @@ function isTagAttribute(node, tag, attrib) {
 }
 
 //----------------------- END ADVANCE TO TAG ---------------------
-
-var lastNode = null;
 
 /**
  * nextNode

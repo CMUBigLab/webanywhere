@@ -80,9 +80,10 @@ WA.Extensions.VisualSpotlighter = function() {
    * Reset the spotlight.
    */
   this.reset = function() {
-    if(this._nodeRecords) {
+    // Jeff: commented out because IE complains if node is no longer loaded.
+    /*if(this._nodeRecords) {
     	this.unspotlight();
-    }
+    }*/
   	this._nodeRecords = new Array();
   };
 
@@ -140,4 +141,7 @@ WA.Extensions.VisualSpotlighter = function() {
   // Add the function to add the style tag to each document to the list of
   // functions called for each document.
   WA.Extensions.oncePerDocument.push(newVS);
+
+  // Add this extension to the general list of extensions.
+  WA.Extensions.extensionList.push(newVS);
 })();
