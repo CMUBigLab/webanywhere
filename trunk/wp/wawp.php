@@ -98,7 +98,7 @@ $_system            = array
                         'gzip'         => extension_loaded('zlib') && !ini_get('zlib.output_compression'),
                         'stripslashes' => get_magic_quotes_gpc()
                     );
-$_proxify           = array('text/html' => 1, 'application/xml+xhtml' => 1, 'application/xhtml+xml' => 1, 'text/css' => 1);
+$_proxify           = array('text/html' => 1, 'application/xml+xhtml' => 1, 'application/xhtml+xml' => 1, 'application/x-javascript'=>1, 'text/css' => 1, 'text/javascript' => 1);
 $_version           = '0.5b2';
 $_http_host         = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
 $_script_url        = 'http' . ((isset($_ENV['HTTPS']) && $_ENV['HTTPS'] == 'on') || $_SERVER['SERVER_PORT'] == 443 ? 's' : '') . '://' . $_http_host . ($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443 ? ':' . $_SERVER['SERVER_PORT'] : '') . $_SERVER['PHP_SELF'];
@@ -544,7 +544,7 @@ if($limit_request_rate && !preg_match($address_pattern, $_url)) {
       $stmt->closeCursor();
 
       if(!$url_row) {
-	$url_insert->execute();
+        $url_insert->execute();
         $url_insert->closeCursor();
         $url_id = $dbh->lastInsertId();
       } else {
@@ -870,6 +870,8 @@ while($_retry);
 // OUTPUT RESPONSE IF NO PROXIFICATION IS NEEDED
 //  
 
+
+
 if(!isset($_proxify[$_content_type])) {
   @set_time_limit(0);
 
@@ -920,9 +922,10 @@ fclose($_socket);
 //
 // MODIFY AND DUMP RESOURCE
 //
-
 if($_content_type == 'text/css') {
   $_response_body = proxify_css($_response_body);
+} else if($_content_type == 'application/x-javascript') {
+  $_response_body = preg_replace('#window.self != window.top#', 'false', $_response_body);
 } else {
   // Modifiable requests count more.
   if($limit_request_rate === true) {
@@ -940,7 +943,7 @@ if($_content_type == 'text/css') {
   // Rewrite some Javascript that can cause WebAnywhere to lose focus.
   $_response_body = preg_replace('#top\\.#is', 'top.content_frame.', $_response_body);
   $_response_body = preg_replace('#(document\\.)?location=([\'"]?[^\'";]+[\'"]?)#is', 'top.content_frame.location=proxifyURL($2)', $_response_body);
-
+  $_response_body = preg_replace('#window.self != window.top#', 'false', $_response_body);
 
 
   // The text to speech engine doesn't like a lot of these specially-formatted characters.
@@ -1221,7 +1224,7 @@ if($_content_type == 'text/css') {
         }
     }
   
-
+    $_response_body = preg_replace('#(<head[^>]*>)#is', "$1<script src='wa_prep.js'></script>", $_response_body);
     //$_response_body = preg_replace('#(</head>)#is', "<base href='" . $url_retrieved . "'/>\n$1", $_response_body);
   
     if($_flags['include_form'] && !isset($_GET['nf']))
@@ -1267,18 +1270,12 @@ foreach ($_response_headers as $name => $array)
 /*
 preg_match_all('#([\'"])(https?:\\?/\\?/(?!webinsight\.)[^\'"]*)([\'"])#', $_response_body, $matches, PREG_SET_ORDER);
 for ($i = 0, $count_i = count($matches); $i < $count_i; ++$i) {
-  //$replacement = $matches[$i][1] . complete_url($matches[$i][2]) . $matches[$i][1];
-  //echo $matches[$i][1] . ' ' . complete_url($matches[$i][2]) . "|\n";
   $_response_body = str_replace($matches[$i][0], $matches[$i][1] .  complete_url($matches[$i][2]) . $matches[$i][3], $_response_body);
-  //$_response_body = str_replace($matches[$i][0], $replacement, $_response_body);
 }
 
 preg_match_all('#([\'"])(/(?!webinsight\.)[^\'"]*)[\'"]#', $_response_body, $matches, PREG_SET_ORDER);
 for ($i = 0, $count_i = count($matches); $i < $count_i; ++$i) {
-  //$replacement = $matches[$i][1] . complete_url($matches[$i][2]) . $matches[$i][1];
-  //echo $matches[$i][1] . ' ' . complete_url($matches[$i][2]) . "|\n";
   $_response_body = str_replace($matches[$i][0], "\"" .  complete_url($matches[$i][2]) . "\"", $_response_body);
-  //$_response_body = str_replace($matches[$i][0], $replacement, $_response_body);
 }
 */
 
