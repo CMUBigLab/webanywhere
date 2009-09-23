@@ -15,7 +15,6 @@
     * [http://httpd.apache.org/download.cgi]
   # Install PHP and make sure it is applied to the Webserver
     * [http://www.php.net/downloads.php]
-    * [http://www.expertsrt.com/tutorials/Matt/install-apache.html]
 
 ==Installing PHP==
 
