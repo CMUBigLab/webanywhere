@@ -23,7 +23,7 @@ if(!isset($_REQUEST['submit'])) {
 <div class="wa-outer-container">
 
 <div class="wa-heading-container">
-<h1><span class="hidden">WebAnywhere</a></h1>
+<h1><span class="hidden">WebAnywhere</span></h1>
 </div>
 
 <div class="wa-content-container">
@@ -79,15 +79,16 @@ Pressing SHIFT in combination with them reverses the direction of the search, se
 <p>
 We've recorded a short video with audio narration to introduce you to the system.
 <br/>
-<input type="button" id="webanywhere-audio-description" value="Play Audio Description">
+<input type="button" id="webanywhere-audio-description" value="Play Audio Description"></input>
 </p>
 <p>
-<object width="425" height="350">
-<param name="movie" value="http://www.youtube.com/v/wfjD06aOxts"></param>
-<script type="text/javascript">
-document.write('<embed sr'+'c="http://www.youtube.com/v/wfjD06aOxts" type="application/x-shockwave-flash" width="425" height="350"></embed>');
-</script>
-</object>
+<object width="425" height="344"><param name="movie" 
+value="http://www.youtube.com/v/wfjD06aOxts&hl=en&fs=1&"></param><param 
+name="allowFullScreen" value="true"></param><param 
+name="allowscriptaccess" value="always"></param><embed 
+src="http://www.youtube.com/v/wfjD06aOxts&hl=en&fs=1&" 
+type="application/x-shockwave-flash" allowscriptaccess="always" 
+allowfullscreen="true" width="425" height="344"></embed></object>
 </p>
 </div>
 
