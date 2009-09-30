@@ -17,6 +17,8 @@ After the following functions/issues are fixed, we will consider the project to 
   * If something is hidden, don't read it aloud.
   * Style of the "interface" - keep things together (bunched) and readable--all text in highlight. javascript->css.
 
+==Testing before/for release==
+
 We want to test WA on the following set of sites/applications:
 
   * google
@@ -25,7 +27,15 @@ We want to test WA on the following set of sites/applications:
   * facebook
   * bookshare
   * blackboard/moodle
+  * espn
+  * nytimes
   * others?
+  
+Platforms
+  * IE6, IE8, Firefox3 (win/mac), Safari (mac)
+
+Key combinations
+  * Test all combinations listed in keyboard.js (update list of commands on "welcome to anywhere") and document for in a matrix for each page/platform combination
 
 ==Feedback questions for beta==
   * How do you feel about the amount of space taken up by the "interface at the top?"
