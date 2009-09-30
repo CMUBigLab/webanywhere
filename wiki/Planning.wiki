@@ -37,5 +37,8 @@ Platforms
 Key combinations
   * Test all combinations listed in keyboard.js (update list of commands on "welcome to anywhere") and document for in a matrix for each page/platform combination
 
+Unit Testing
+Check out the unit tests and update as needed. 
+
 ==Feedback questions for beta==
   * How do you feel about the amount of space taken up by the "interface at the top?"
