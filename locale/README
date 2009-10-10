@@ -5,12 +5,12 @@ Procedures to add new locale:
 4. Create an empty locale file. `touch locale/de/LC_MESSAGES/WebAnywhere.po`
 5. Update locale template with `perl update_locale.pl`. Texts need to translage will be added to locale/de/LC_MESSAGES/WebAnywhere.po
 6. Edit locale/de/LC_MESSAGES/WebAnywhere.po to translate the texts.
-7. Run `perl update_locale.pl` to update *.php and *.js
+7. Run `perl update_locale.pl` to update *.php and *.js under locale directory.
 8. Change the locale you want to use in config.php. Add one line like this:
    $fixed_locale = 'de';
 
 Procedures to update existing locale:
-1. Wrap new string in PHP/JS file with wa_gettext('new text')
+1. Wrap new string in PHP/JS files with wa_gettext('new text')
 2. Change working directory to root of WA source code and run `perl update_locale.pl`. All files under locale directory will be updated. A new entry for 'new text' will be added to *.po files.
 3. Edit *.po files to translate 'new text'.
 4. Redo step 2. *.php and *.js files will be updated according to updated *.po files.
