@@ -19,6 +19,59 @@ WA.Extensions = {
   // Functions to be executed once at the load of each document.
   oncePerDocument: new Array(),
 
+  // Functions to run when the nothing is playing.
+  waitingForPauses: new Array(),
+
+  // Functions that need to be called periodically.
+  periodicFunctions: new Array(),
+
+  // List of all extensions.
+  extensionList: new Array(),
+
+  callPeriodics: function() {
+    // Call the functions that are to be called periodically.
+    var num = WA.Extensions.periodicFunctions.length;
+    WA.Utils.log(num + "PERIODICS");
+    for(var i=0; i<num; i++) {
+      WA.Extensions.periodicFunctions[i].runPeriodic();
+    }
+  },
+
+  // Are there actions waiting to be completed during pauses?
+  actionsWaiting: function() {
+    var num = this.waitingForPauses.length;
+    for(var i=0; i<num; i++) {
+      if(this.waitingForPauses[i].actionsWaiting()) {
+      	return true;
+      }
+    }
+    return false;
+  },
+
+  runActionsWaiting: function() {
+    var num = this.waitingForPauses.length;
+    for(var i=0; i<num; i++) {
+      this.waitingForPauses[i].playNext();
+    }
+  },
+
+  // Functions that specify what will be read next.
+  readNext: new Array(),
+
+  // 
+  actionsWaiting: function() {
+    var num = this.waitingForPauses.length;
+    for(var i=0; i<num; i++) {
+      if(this.waitingForPauses[i].actionsWaiting()) {
+        return true;
+      }
+    }
+    return false;
+  },
+  
+
+
+
   /**
    * SpotlightNodes:
    * Applies spotlighters to the supplied node.
@@ -53,15 +106,25 @@ WA.Extensions = {
   preprocessNode: function(node) {
     // Call the spotlight member function on each defined spotlighter extension.
     var num = this.nodePreprocessors.length;
+     //WA.Utils.log('Number of preprocessors '+num);
     for(var i=0; i<num; i++) {
       this.nodePreprocessors[i].preprocess(node);
     }
   },
 
   resetExtensions: function() {
-  	var num = this.nodeSpotlighters.length;
+  	var num = this.extensionList.length;
   	for(var i=0; i<num; i++) {
-      this.nodeSpotlighters[i].reset();
+  	  if(this.extensionList[i].reset) {
+        this.extensionList[i].reset();
+  	  }
   	}
+  },
+
+  runWaitingForPause: function() {
+    var num = this.waitingForPauses.length;
+    for(var i=0; i<num; i++) {
+      this.waitingForPauses[i].run();
+    }    
   }
 }

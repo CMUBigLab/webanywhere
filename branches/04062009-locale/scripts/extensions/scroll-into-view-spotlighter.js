@@ -6,10 +6,11 @@
  */
 WA.Extensions.ScrollIntoViewSpotlighter = function() {
   this.spotlight = function(node) {
+    if(node==null)
+      return;
+
   	if(node.nodeType != 1 || node.nodeName=="OPTION")
   	 node = node.parentNode;
-
-    var pos = WA.Utils.findPos(node);
 
     var win = getContentWindow();
 
@@ -22,18 +23,26 @@ WA.Extensions.ScrollIntoViewSpotlighter = function() {
     var view_left = soff[0];
     var view_right = (view_left + cdim[0] - node.offsetWidth);
 
+    var pos = WA.Utils.findPos(node);
+
     // If the current node is outside of the current viewport,
     // scroll it into view.
-    if(pos[1] < view_top || pos[0] < view_left) {
-      node.scrollIntoView(true);
-    } else if(pos[1] >  view_bottom || pos[0] > view_right) {
-    	node.scrollIntoView(false);
+    if(pos != null && pos.length == 2) {
+      if(pos[1] < view_top || pos[0] < view_left) {
+        node.scrollIntoView(true);
+      } else if(pos[1] >  view_bottom || pos[0] > view_right) {
+      	node.scrollIntoView(false);
+      }
     }
   }
 
   this.unspotlight = function() {}
   this.reset = function() {}
-}
+};
 
 // Add this extension to the node spotlighter extensions.
-WA.Extensions.nodeSpotlighters.push(new WA.Extensions.ScrollIntoViewSpotlighter());
+(function() {
+  var scrollSpotExt = new WA.Extensions.ScrollIntoViewSpotlighter();
+  WA.Extensions.nodeSpotlighters.push(scrollSpotExt);
+  WA.Extensions.extensionList.push(scrollSpotExt);
+})();

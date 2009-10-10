@@ -11,10 +11,16 @@
 var currentLoc = null;
 var currentDoc = null;
 
+// Array of Document objects currently in the system. 
+var nDocuments=new Array();
+
 // The current reading position (caret).
 var currentNode = null;
 var currentWord = 0;
 var currentChar = 0;
+
+// Last currentNode.
+var lastNode = null;
 
 // The last node to be played by the system.
 var lastNodePlayed = null;
@@ -46,33 +52,6 @@ var emulationType = 0;
 // Something like the clock tick of the system.
 var updatePlayingCount = 0;
 
-
-/**
- * Updates the information DIVs (used primarily for debugging).
- */
-function updatePlaying() {
-  var play_div = document.getElementById('playing_div');
-  if(play_div) {
-    play_div.innerHTML = (WA.Sound.playing!=null) ? WA.Sound.playing : "(null)";
-  }
-
-  var disp_div = document.getElementById('wa_text_display');
-  if(disp_div && WA.Sound.playing != null) {
-    disp_div.innerHTML = WA.Sound.playing;
-  }
-
-  var sound_div = document.getElementById('sound_div');
-  if(sound_div) {
-	  if(currentNode && currentNode.nodeType == 1) {
-	    sound_div.innerHTML = "curr: " +
-        (currentNode ? (currentNode.nodeName + ' ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' bMode:' + WA.browseMode;
-	  } else {
-	    sound_div.innerHTML = "curr: " +
-        (currentNode ? (currentNode.nodeName + ' (' + currentNode.data + ') ' + (((currentNode.parentNode) ? currentNode.parentNode.nodeName : ""))) : "nully") + " q: " + WA.Sound.soundQ.length + " b: " + WA.browseMode + ' focus: ' + focusedNode + ' las: ' + this.lastPath + ' threads: ' + this.free_threads + ' ' + (updatePlayingCount++) + ' ' + WA.Sound.soundQ + ' bMode:' + WA.browseMode;
-	  }
-  }
-}
-
 /**
  * Initializes the WebAnywhere browser.
  * Called when the frameset page loads.
@@ -84,22 +63,12 @@ function init_browser() {
   // Mark the browser as having been initialized.
   WA.browserInit = true;
 
-  // Updates the debugging panel.
-  setInterval('updatePlaying()', 200);
-
   // Hack for resetting the keyboard events, currently once every 45 seconds.
   // TODO:  Figure out what the underlying problem is that makes this necessary.
   setInterval(function() {WA.Keyboard.resetKeyboardModifiers();}, 45000);
 
-  // Event listeners for the location bar.
-  var location_field = document.getElementById('location');
-  if(location_field) {
-	  if(window.attachEvent) location_field.attachEvent('onfocus', locationFocus);
-	  else if(window.addEventListener) location_field.addEventListener('focus', locationFocus, false);
-	
-	  if(window.attachEvent) location_field.attachEvent('onblur', function() { getScriptWindow().textBoxFocused = false; });
-	  else if(window.addEventListener) location_field.addEventListener('blur', function() { getScriptWindow().textBoxFocused = false; }, false);
-  }
+  // Prepares the location bar, attaches events, etc.
+  WA.Interface.setupLocationBar();
 
   // GO button focus.
   var go_button = document.getElementById('location_go');
@@ -109,7 +78,7 @@ function init_browser() {
   }
 
   // Finder field focus.
-  var finder_field = document.getElementById('finder_field');
+  var finder_field = document.getElementById('wa_finder_field');
   if(finder_field) {
     if(window.attachEvent) finder_field.attachEvent('onfocus', browserElementFocus);
     else if(window.addEventListener) finder_field.addEventListener('focus', browserElementFocus, false);
@@ -146,8 +115,6 @@ function init_browser() {
   if(WA.Sound.soundMethod == WA.Sound.EMBED_SOUND_METHOD) {
     WA.Sound.soundPlayerLoaded = true;
     top.soundPlayerLoaded = true;
-
-    newPage();
   }
 
   // Time for the system to start looking for sounds to play.
@@ -155,21 +122,31 @@ function init_browser() {
 
   // Prefetch the letters.
   WA.Sound.Prefetch.prefetchLetters();
+
+  if(document.attachEvent)
+    document.getElementById('content_frame').attachEvent('onload', newPage);
+  else if(document.addEventListener)
+    document.getElementById('content_frame').addEventListener('load', newPage, false);
+  document.getElementById('content_frame').removeAttribute('onload');
+  document.getElementById('content_frame').setAttribute('onload', '');
+  document.getElementById('content_frame').onload = function() {};
 }
 
 /**
  * Called when a new page loads.
  * Adds event handlers, pre-processes content when appropriate.
  */
-function newPage() {
+function newPage(e) {
   setBrowseMode(WA.PAUSED);
 
   // Reset the last focused node since it no longer exists.
   lastFocused = null;
+  lastNode = null;
 
   var content_frame = top.document.getElementById("content_frame");
   if(content_frame) {
     var src = content_frame.src;
+    WA.Utils.log('In newPage, content_frame.src is: ' + src);
 
     if(src.indexOf(top.webanywhere_url)!=0) {
       var location_field = document.getElementById('location');
@@ -180,8 +157,14 @@ function newPage() {
     }
   }
 
+  try {
   var newDoc = getContentDocument();
+  } catch(e) {
+    return;
+  }
+
   var newLoc = String(newDoc.location);  // Document URL.
+  WA.Utils.log('In newPage, newLoc is: '+newLoc);
 
   // Sometimes we get multiple loads from the same page.
   var startNode = newDoc.getElementById('id');
@@ -195,13 +178,27 @@ function newPage() {
       }
 
       var enc_url = newLoc.replace(/^[^\?]+\?[^=]+=([^\&]+).*$/, '$1');
+      //WA.Utils.log('In newPage, enc_url is: '+enc_url);
       location_field.value = WA.Utils.Base64.decode64(unescape(enc_url.replace(/%253D/g, '=')));
     }
 
     // Update the current nodes.
     currentDoc = newDoc;
+    //setCurrentNode((currentDoc.body.firstChild != null) ? currentDoc.body.firstChild : currentDoc.body);
     setCurrentNode(currentDoc.body);
+
     currentLoc = newLoc;
+      
+    // @@ Create a stack of other document.body nodes to attach events to?
+    /* This only gathers the iframes that are children of the current document. Need to make this recursive to pick up nested iframes
+    
+    var iframes = newDoc.getElementsByTagName("IFRAME");
+     if(iframes.length >= 1) {
+       for(i=0; i<iframes.length; i++) {
+         iframes[0].contentDocument.attachEvent...
+         }
+       }
+    */
       
     // Capture key presses.
     if(window.attachEvent) currentDoc.attachEvent('onkeydown', handleKeyDown);
@@ -234,11 +231,21 @@ function newPage() {
       WA.Sound.Prefetch.incPrefetchIndex();
     }
 
+
+    //
+    // EXTENSIONS
+    //
+    
+    // Reset extensions.
+    WA.Extensions.resetExtensions();
+
     // Preprocess the page, including adding to the list of nodes
     // to be prefetched, and other preprocessing steps.
+    // Calls WA.Extensions.preprocessNode(node) to preprocess for extensions.
     WA.Nodes.treeTraverseRecursion(currentNode, preVisit, function(node){return WA.Nodes.leafNode(node);});
 
     // Run any extensions that requests to be run once per document.
+    // This is assumed to run prior to the node preprocessor.
     WA.Extensions.runOncePerDocument(currentDoc);
 
     // Create an artificial focusable start element containg the page title.
@@ -253,7 +260,7 @@ function newPage() {
 
     // Create an artificial focusable end element.
     var end_node = currentDoc.createElement('div');
-    end_node.innerHTML = "End of page";
+    end_node.innerHTML = "End of Page";
     if(end_node.tabIndex) { // IE.
       end_node.tabIndex = 0;
     }
@@ -269,7 +276,7 @@ function newPage() {
 
   // Reset the keyboard modifiers, in case we missed the release of one
   // while page was loading.
-  WA.Keyboard.resetKeyboardModifiers();
+  WA.Keyboard.resetOnNewPage();
 
   // Reinitialize sound player.
   WA.Sound.resetSounds();
@@ -283,32 +290,37 @@ function newPage() {
     WA.Sound.addSound(WA.initSound);
   }
 
+  // Populate the nDocuments array in prep for counting headings and links
+  // First, make sure nDocuments is zeroed out from previously loaded docs.
+  nDocuments.length = 0;
+  nDocuments.push(currentDoc);
+  buildDocumentStack(currentDoc);
+  
   // Speak the number of headings and links on the page.
-  var nheadings = countNumHeadings(currentDoc);
+  // var nheadings = countNumHeadings(currentDoc);
+  var nheadings = countNumHeadings();
+  // @@need to update countNumLinks after get headings working
   var nlinks = countNumLinks(currentDoc);
-  var head = nheadings + ' ' + ((nheadings > 1) ? "Headings" : "Heading");
-  var link = nlinks + ' ' + ((nlinks > 1) ? "Links" : "Link");
+  var head = nheadings + ' ' + ((nheadings > 1 || nheadings==0) ? "Headings" : "Heading");
+  var link = nlinks + ' ' + ((nlinks > 1 || nlinks == 0) ? "Links" : "Link");
   WA.Sound.addSound(head + ' ' + link);
 
-  // Reset extensions.
-  WA.Extensions.resetExtensions();
-
   // Set our browsing mode to READ after a short delay.
-  setTimeout(function() {setBrowseMode(WA.READ)}, 50);
-
-  // Get and submit recorder if we're in debug mode.
-  var rec = getNavigationDocument().getElementById('recording');
-  if(rec && !(/debug/.test(top.document.location))) {
-    WA.Utils.postURL('recorder.php',
-                     'submit=submit&recording=' + rec.value,
-                     function(){});
-    rec.value = "";
-  }
+  setTimeout(function() {
+     if(WA.Extensions.actionsWaiting()) {
+      WA.Sound.resetSounds();
+      setBrowseMode(WA.KEYBOARD);
+     } else {
+  	  setBrowseMode(WA.READ)
+     }
+  	}, 50);
 
   // Count number of pages loaded.
   WA.timesLoaded++;
 
   WA.Utils.log("finished new page load");
+
+  WA.Utils.log("PAGE HAS LOADED");
 }
 
 /**
@@ -325,33 +337,12 @@ function handleKeyPress(e) {
   WA.Keyboard.handleKeyPress(e);
 }
 
-
-/**
- * Called when the location bar gains focus.
- */
-function locationFocus(e) {
-  getScriptWindow().textBoxFocused = true;
-
-  var target;
-  if(!e) e = window.event;
-  if(e.target) target = e.target;
-  else if(e.srcElement) target = e.srcElement;
-  if(target.nodeType == 3) target = target.parentNode;
-
-  WA.Sound.resetSounds();
-
-  WA.Sound.addSound(gettext("Location field text area:"));
-  if(target.value) {
-    WA.Sound.addSound(target.value);
-  }
-}
-
 /**
  * Called when the finder box receives focus.
  */
 function finderBarFocus() {
   WA.Sound.resetSounds();
-  WA.Sound.addSound(gettext("Type a string to find in the current page"));
+  WA.Sound.addSound("Type a string to find in the current page");
 }
 
 /**
@@ -368,7 +359,7 @@ function goButtonFocus(e) {
 
   var text = WA.Nodes.handleNode(target, true);
   WA.Sound.resetSounds();
-  WA.Sound.addSound(gettext("Go"));
+  WA.Sound.addSound("Go");
 }
 
 /**
@@ -396,7 +387,7 @@ function browserElementFocus(e) {
 function tabEndNode(e) {
   var key = getNavigationDocument().keyString(e);
   if(key == 'tab') {
-    WA.Sound.addSound(gettext("End of page"));
+    WA.Sound.addSound("End of Page.");
     stopProp(e);
     return false;
   }
@@ -431,7 +422,7 @@ function tabLocation(e) {
     return false;
   } else if(key == 'shift tab') {
     WA.Sound.resetSounds();
-    WA.Sound.addSound(gettext("Start of page"));
+    WA.Sound.addSound("Start of Page.");
     stopProp(e);
     return false;
   }
@@ -458,24 +449,6 @@ function focusElement(doc, element_id) {
   }
 }
 
-/**
- * Places focus on an element in the browser frame.
- * @param element_id ID of the element to focus.
- **/
-function focusBrowserElement(element_id) {
-  var doc = getNavigationDocument();
-
-  var elem = doc.getElementById(element_id);
-
-  if(elem) {
-	  elem.blur();
-	  elem.focus();
-	  if(elem.select) {
-	  	elem.select();
-	  };
-  }
-}
-
 /** Sets focus to the content element with the specified id.
  * @param element_id  The id of the element to which focus will be set.
  **/
@@ -489,7 +462,8 @@ function focusContentElement(element_id) {
  * @return document Content document.
  */
 function getContentDocument() {
-  return getContentWindow().document;
+  var win = getContentWindow();
+  return win.document;
 }
 
 /**
@@ -553,18 +527,12 @@ function getNavigationDocument() {
  */
 function getScriptWindow() {
   	if("navigation_frame" in top) {
+  	  getScriptWindow = function() { return top.navigation_frame; }
   		return top.navigation_frame;
   	} else {
+      getScriptWindow = function() { return top; }
   		return top;
   	}
-}
-
-/**
- * Silence the system and stop automatic forward progression.
- */
-function silenceAll() {
-  setBrowseMode(WA.KEYBOARD);
-  WA.Sound.resetSounds();
 }
 
 /**
@@ -663,7 +631,7 @@ function preVisit(node) {
   	}
   }
 
-  // Perform other optional preprocessing steps.
+  // Perform node preprocessing specified in extensions.
   WA.Extensions.preprocessNode(node);
 }
 
@@ -714,7 +682,7 @@ function startNodeFocus(e) {
 function endNodeFocus(e) {
   if(currentDoc && currentDoc.title) {
     WA.Sound.resetSounds();
-    WA.Sound.addSound(gettext("End of page"));
+    WA.Sound.addSound("End of page");
   }
 }
 
@@ -755,13 +723,14 @@ function navigate(e) {
   } else if(loc_val.match(/\.pdf$/)) {
     loc_val = "http://www.google.com/search?q=cache:" + loc_val;
   }
-
+  WA.Utils.log('In navigate, loc_val is: '+loc_val);
   loc.value = loc_val;
+  WA.Utils.log('In navigate, loc.value is: '+loc.value);
 
   setContentLocation(loc_val);
 }
 
-var sameDomainRegExp = new RegExp("^(https?://)?" + top.webanywhere_url);
+var sameDomainRegExp = new RegExp("^(https?://)?" + top.webanywhere_domain);
 
 /**
  * Makes URL come from same domain as WebAnywhere using the web proxy.
@@ -773,17 +742,21 @@ var sameDomainRegExp = new RegExp("^(https?://)?" + top.webanywhere_url);
  **/
 function proxifyURL(loc, subdomain, rewrite) {
   var rewriteForSure = (typeof rewrite != 'undefined') && rewrite;
+  //WA.Utils.log('In proxifyURL. loc is: '+loc+'  subdomain is '+subdomain+' rewrite is: '+rewrite );
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
+  WA.Utils.log(loc + " ___ " + top.webanywhere_domain);
+
   if(rewriteForSure || !sameDomainRegExp.test(loc)) {
     loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
+    //WA.Utils.log('In proxifyURL after test for rewrite. loc is: '+loc);
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
       loc = loc.replace(top.webanywhere_domain,
-      			(subdomain + '.' + top.webanywhere_domain));
+      			  (subdomain + '.' + top.webanywhere_domain));
     }
   }
-
+  WA.Utils.log('Done proxifyURL: ' + loc);
   return loc;
 }
 
@@ -809,6 +782,8 @@ function setContentLocation(loc) {
   loc = proxifyURL(loc, domain_requested);
 
   WA.Utils.log('location is ' + loc);
+
+  setBrowseMode(WA.LOADING);
 
   // Set new location by setting the src attribute of the content frame.
   // Do not set the location of the frame document because WebAnywhere can
@@ -944,7 +919,8 @@ function matchByTag(tag, attrib) {
 
 // Determines if a tag is visible.
 // Tags that aren't visible, shouldn't be read.
-function isVisible(elem) {
+/*function isVisible(elem) {
+  WA.Utils.log('In isVisible');
   if(elem.nodeType == 1) {
   	if(elem.tagName == "INPUT") {
       var input_type = elem.getAttribute('type');
@@ -956,7 +932,7 @@ function isVisible(elem) {
 
   // Default is that it's visible.
   return true;  
-}
+}*/
 
 
 // Functions for navigating within a table.
@@ -1012,7 +988,7 @@ function navTableCell(node, row_offset, col_offset, edge_message) {
       }
     }	
   } else {
-  	WA.Sound.addSound(gettext("Not in a table"));
+  	WA.Sound.addSound('Not in a table.');
   	return null;
   }
 
@@ -1027,7 +1003,11 @@ var fucusableElementRegExp = /^A|SELECT|TEXTAREA|BUTTON|INPUT/;
 function matchByFocusFunc(elem) {
   if(elem && elem.nodeType == 1)  {
     var tindex = elem.getAttribute('tabindex');
-    if(fucusableElementRegExp.test(elem.nodeName)) {
+    if((tindex && tindex > 0) || (elem.tabIndex && elem.tabIndex > 0)) {
+      // Return false because this should be handled by the tabindex extension.
+      WA.Utils.log("Returning false because tindex=" + tindex);
+      return false;
+    } else if(fucusableElementRegExp.test(elem.nodeName) || ((tindex && tindex == 0) || (elem.tabIndex && elem.tabIndex == 0))) {
       if(elem.tagName == "INPUT") {
         var input_type = elem.getAttribute('type');
         if(input_type && /hidden/i.test(input_type)) {
@@ -1036,8 +1016,6 @@ function matchByFocusFunc(elem) {
       }
       
       return true;
-    } else if((tindex && tindex >=0) || (elem.tabIndex && elem.tabIndex >= 0)) {
-	  return true;
     }
   }
   return false;
@@ -1124,7 +1102,7 @@ function getFinderValue() {
 
 function getFinderBox() {
   var nav_doc = getNavigationDocument();
-  var find_text = nav_doc.getElementById('finder_field');
+  var find_text = nav_doc.getElementById('wa_finder_field');
 
   return find_text;
 }
@@ -1157,18 +1135,6 @@ function prevNodeContentFinder() {
     setBrowseMode(WA.PLAY_ONE);
   } else {
     setBrowseMode(WA.KEYBOARD);
-  }
-}
-
-/**
- * reload page with new locale
- */
-function changeLocale() {
-  var newlocale = getNavigationDocument().getElementById('locale_selection').value;
-  if (top.document.location.href.indexOf('?') > 0) {
-    top.document.location.href += '&locale=' + newlocale;
-  } else {
-    top.document.location.href += '?locale=' + newlocale;
   }
 }
 
@@ -1236,7 +1202,20 @@ function matchByFocus() {
  * Used to simulate TAB key press.
  * @return nextNodeByMatcher
  */
-function nextNodeFocus() { 
+function nextNodeFocus() {	
+	//if(typeof WA.Extensions.TabIndexExtension.getNextNode != 'undefined') {
+    WA.Utils.log('checking tabindex');
+    var next = tabIndexExt.getNextNode();
+    WA.Utils.log('next: ' + next);
+    if(next != null) {
+    	WA.Utils.log('next: ' + next.innerHTML);
+    	tabIndexExt.recordTabIndex(next);
+      setCurrentNode(next, true);
+    	return true;
+    }
+  //}
+  WA.Utils.log('NORMAL FOCUS');
+
   var matcher = matchByFocus();
   return nextNodeByMatcher(matcher, "");
 }
@@ -1302,7 +1281,7 @@ function nextNodeByMatcher(matcher, description) {
       result_id = result.getAttribute('id');
     }
     if(result_id == 'always_last_node' && description != "") {
-      WA.Sound.addSound(gettext("no ") + description);
+      WA.Sound.addSound('no ' + description);
       return false;
     } else {
       visit(result, true);
@@ -1310,7 +1289,7 @@ function nextNodeByMatcher(matcher, description) {
       return true;
     }
   } else if(description != "") {
-    WA.Sound.addSound(gettext("no ") + description);
+    WA.Sound.addSound('no ' + description);
     return false;
   }
 }
@@ -1361,6 +1340,8 @@ function nextNodeNoSound(node, matcher, first, num) {
     if(result != null)
       return result;
   }
+  
+  // Need to explore the contentDocument of an iFrame? @@
 
   // Explore Parent Tree
   while(node.parentNode) {
@@ -1398,8 +1379,27 @@ function prevNodeTagAttrib(tag, attrib) {
  * @return Node that was found.
  */
 function prevNodeFocus() { 
-  var matcher = matchByFocus();
-  return prevNodeByMatcher(matcher);
+  var middle = tabIndexExt.inMiddle();
+
+  if(!middle) {
+	  var matcher = matchByFocus();
+	  var prevresult = prevNodeByMatcher(matcher);
+	
+	  if(prevresult && getScriptWindow().currentNode != getFirstContent()) {
+	    return true;
+	  }
+  }
+
+  WA.Utils.log('checking ptabindex');
+  var prev = tabIndexExt.getPrevNode();
+  if(prev != null) {
+    WA.Utils.log('prev: ' + prev.innerHTML);
+    tabIndexExt.recordTabIndex(prev);
+    setCurrentNode(prev, true);
+    return true;
+  }
+
+  return prevresult;
 }
 
 /**
@@ -1549,8 +1549,6 @@ function isTagAttribute(node, tag, attrib) {
 
 //----------------------- END ADVANCE TO TAG ---------------------
 
-var lastNode = null;
-
 /**
  * nextNode
  * Advance to the next node.
@@ -1610,7 +1608,14 @@ function _nextNode() {
     setCurrentNode(currentNode.nextSibling);
   } else if(currentNode.nodeName == "BODY") {
     setCurrentNode(currentNode.firstChild);
-  } else {
+  } /*else if(currentNode.nodeName == "IFRAME") {
+    WA.Utils.log("In _nextNode. currentNode.nodeName is: "+currentNode.nodeName+"  currentNode.contentDocument.body is: "+currentNode.contentDocument.body);
+    // Push this iframe node onto the _iframeNodes stack so that we can 
+    // navigate back to this iframe when we are done with it.
+    WA.Nodes._iframeNodes.push(currentNode);
+    WA.Utils.log("_iframeNodes is "+WA.Nodes._iframeNodes.length+" nodes long.");
+    setCurrentNode(dfsNode(currentNode.contentDocument.body)); 
+  } */ else {
     goBackUp();
   }
   
@@ -1629,16 +1634,27 @@ function goBackUp() {
       setCurrentNode(currentNode.nextSibling);
       break;
     }
-    if(currentNode.nodeName == "BODY") { // At the last node.
-      setBrowseMode(WA.KEYBOARD);
-      var end_node = null;
-      if(currentDoc) {
-	    end_node = currentDoc.getElementById('always_last_node');
-      } else {
-	    end_node = oldCurrent;
-      }
-      setCurrentNode(end_node);
-      break;
+    if(currentNode.nodeName == "BODY") { 
+      if(currentDoc.body == currentNode) { // At the last node.
+		  setBrowseMode(WA.KEYBOARD);
+		  var end_node = null;
+		  if(currentDoc) {
+			end_node = currentDoc.getElementById('always_last_node');
+		  } else {
+			end_node = oldCurrent;
+		  }
+		  setCurrentNode(end_node);
+		  break;
+		} else { // At the end of an iframe.
+		    WA.Utils.log("In goBackUp, about to pop node from _iframeNodes.");
+		    var iframeNode = WA.Nodes._iframeNodes.pop();
+		    if (iframeNode.nextSibling) { 
+		      setCurrentNode(iframeNode.nextSibling);
+		      } else {
+		        setCurrentNode(iframeNode.parentNode.nextSibling);
+		      }
+		    break;
+		}
     }
   }
 }
@@ -1688,8 +1704,14 @@ function prevNode() {
   }  
 
   if(currentNode.tagName == "BODY") {
-    setBrowseMode(WA.KEYBOARD);
-    WA.Sound.addSound(gettext("Start of page"));
+    // If this is the BODY of an iframe element, set the currentNode
+    // to the iframe element in the parent window/DOM
+    if(WA.Nodes._iframeNodes.length > 0) {
+        setCurrentNode(WA.Nodes._iframeNodes.pop());
+    } else {
+        setBrowseMode(WA.KEYBOARD);
+        WA.Sound.addSound("Start of page.");
+    }
   } else if(currentNode.previousSibling) {
     setCurrentNode(currentNode.previousSibling);
     setCurrentNode(rdfsNode(currentNode));
@@ -1774,7 +1796,7 @@ function countNumLinks(doc) {
  * @param doc Document on which the number of headings should be counted.
  * @return cnt Count of the headings in the document.
  */
-function countNumHeadings(doc) {
+/* function countNumHeadings(doc) {
   var cnt = doc.getElementsByTagName('H1').length;
   cnt += doc.getElementsByTagName('H2').length;
   cnt += doc.getElementsByTagName('H3').length;
@@ -1782,7 +1804,38 @@ function countNumHeadings(doc) {
   cnt += doc.getElementsByTagName('H5').length;
   cnt += doc.getElementsByTagName('H6').length;
   return cnt;
+} */
+function countNumHeadings() {
+  var cnt = 0;
+  for(i=0; i<nDocuments.length; i++) {
+      cnt += nDocuments[i].getElementsByTagName('H1').length;
+	  cnt += nDocuments[i].getElementsByTagName('H2').length;
+	  cnt += nDocuments[i].getElementsByTagName('H3').length;
+	  cnt += nDocuments[i].getElementsByTagName('H4').length;
+	  cnt += nDocuments[i].getElementsByTagName('H5').length;
+	  cnt += nDocuments[i].getElementsByTagName('H6').length;
+  }
+  return cnt;
 }
+
+/**
+  * Populate the nDocuments array with all existing Document objects.
+  * At the moment, this is only testing for Document objects associated
+  * with iframe nodes. May need to broaden this to frames and ??
+  *
+  * @param docObject - A Document object to be traversed.
+  *
+  */
+  function buildDocumentStack(docObject) {
+    /*var iFrames = docObject.getElementsByTagName("IFRAME");
+    if(iFrames) {
+      for(i=0; i<iFrames.length; i++) {
+        nDocuments.push(iFrames[i].contentDocument);
+        buildDocumentStack(iFrames[i].contentDocument);
+      }
+    }
+    WA.Utils.log("Leaving buildDocumentStack. nDocuments.length is: "+nDocuments.length);*/
+  } 
 
 /**
  * Focus the supplied node if possible.

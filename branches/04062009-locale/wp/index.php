@@ -251,6 +251,7 @@ function complete_url($url, $proxify = true)
     
     $hash_pos = strrpos($url, '#');
     $fragment = $hash_pos !== false ? '#' . substr($url, $hash_pos) : '';
+    /* @@is it here that we're dropping and/or picking up the filename? */
     $sep_pos  = strpos($url, '://');
     
     if ($sep_pos === false || $sep_pos > 5)

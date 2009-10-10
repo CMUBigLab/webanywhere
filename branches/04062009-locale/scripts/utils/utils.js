@@ -110,6 +110,36 @@ WA.Utils = {
     prefetch_req.send(params);
   },
 
+  _delayPostQueue: null,
+  delayPostURL: function(args) {
+  	if(WA.Utils._delayPostQueue) {
+  		WA.Utils._delayPostQueue = new Array();
+  	}
+
+    var queue = WA.Utils._delayPostQueue;
+    queue.push(args);
+  },
+
+  /**
+   * Returns a string that should be delay-posted.
+   * @param maxlength The maximum length of the information to be returned.
+   */
+  getDelayPostInfo: function(maxlength) {
+    var queue = WA.Utils._delayPostQueue.length;
+  	var postInfo = "";
+
+    if(queue == null || queue.length < 1) {
+    	return "";
+    }
+
+    for(var i=0; tmp.length < maxlength && queue.length > 0; i++) {
+    	if(tmp.length > 0) { tmp += "&"; }
+      var tmp = "arg" + i + "=" + escape(queue.shift());
+    }
+
+    return postInfo;
+  },
+
   /** 
    * Returns an XPATH for the specified node, starting with its document element
    * as root.
@@ -265,21 +295,21 @@ WA.Utils = {
 	 * @param obj DOM element for which the position should be calculated.
 	 * @return [x,y] position of the supplied element.
 	 */
-	findPos: function(obj) {
-	  var curleft = curtop = 0;
-	  if(obj != null && obj.offsetParent) {
-	    curleft = obj.offsetLeft;
-	    curtop = obj.offsetTop;
-	    while (obj = obj.offsetParent) {
-	      curleft += obj.offsetLeft;
-	      curtop += obj.offsetTop;
-	    }
-	  } else {
-	  	return null;
-	  }
-
-	  return [curleft,curtop];
-	},
+  findPos: function(obj) {
+    var curleft = curtop = 0;
+    if(obj != null && obj.offsetParent) {
+      curleft = obj.offsetLeft;
+      curtop = obj.offsetTop;
+      while (obj = obj.offsetParent) {
+        curleft += obj.offsetLeft;
+        curtop += obj.offsetTop;
+      }
+    } else {
+    	return null;
+    }
+  
+    return [curleft,curtop];
+  },
 
   /**
    * Return the height/width of the visible portion of the supplied window.
@@ -327,8 +357,52 @@ WA.Utils = {
    * @param str String to log to the console.
    */
   log: function(str) {
-  	if(typeof console != 'undefined' && typeof console.log != 'undefined') {
-  		console.log(str);
-  	}
+    if(!(/debug=true/.test(document.location))) {
+      WA.Utils.log = function() {}      
+    } else {
+      WA.Utils.log = function(str) {
+      	if(typeof console != 'undefined' && typeof console.log != 'undefined') {
+      		console.log(str);
+      	}
+      }
+      WA.Utils.log(str);
+    }
+  },
+
+  /**
+   * Returns the currently selected text (if any).
+   * @return Currently selected text.
+   */
+  getSelection: function(doc) {
+    WA.Utils.log('getSelection');
+    if(doc.getSelection) {
+      WA.Utils.log('doc.getSelection');
+      return "" + doc.getSelection();
+    } else if(doc.selection) {
+      WA.Utils.log('doc.selection');
+      return "" + doc.selection.createRange().text;
+    } /* // commented out because we don't have ref to the right window.
+      else if(window.getSelection) {
+      WA.Utils.log('window.getSelection');
+      return "" + window.getSelection();
+    } */ else {
+      WA.Utils.log('nothing');
+      return "";
+    }
+  },
+
+  // Returns the target of the supplied event.
+  // Returns null on error.
+  getTarget: function(e) {
+    var target = null;
+  
+    if(e.target) target = e.target;
+    else if(e.srcElement) target = e.srcElement;
+    else return null;
+  
+    if(target.nodeType == 3)
+      target = target.parentNode;
+  
+    return target;
   }
 };

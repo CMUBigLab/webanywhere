@@ -8,18 +8,20 @@
 WA.Extensions.VisualSpotlighter = function() {
   /**
    * Spotlight the supplied node.
-   * @param node Node to be spotlighted.
+   * @param node Node to be spotlighted.  node=null unspotlights.
    */
   this.spotlight = function(node) {
     var self = this;
 
-    if(node.nodeType != 1 || node.nodeName == "OPTION") {
-    	node = node.parentNode;
+    if(this._nodeRecords != null && this._nodeRecords.length > 0) {
+      // Unspotlight the last node, then store this node.
+      this.unspotlight();
     }
 
-    if(this._nodeRecords != null && this._nodeRecords.length > 0) {
-    // Unspotlight the last node, then store this node.
-      this.unspotlight();
+    if(node == null) return;
+
+    if(node.nodeType != 1 || node.nodeName == "OPTION") {
+      node = node.parentNode;
     }
 
     this._nodeRecords = new Array();
@@ -58,7 +60,7 @@ WA.Extensions.VisualSpotlighter = function() {
     this._nodeRecords.push(new this.NodeRecord(node));
 
     if((node.className + "").length > 0) {
-      node.className += " wahighlight";
+      node.className = "wahighlight " + node.className;
     } else {
     	node.className = "wahighlight";
     }
@@ -78,9 +80,10 @@ WA.Extensions.VisualSpotlighter = function() {
    * Reset the spotlight.
    */
   this.reset = function() {
-    if(this._nodeRecords) {
+    // Jeff: commented out because IE complains if node is no longer loaded.
+    /*if(this._nodeRecords) {
     	this.unspotlight();
-    }
+    }*/
   	this._nodeRecords = new Array();
   };
 
@@ -117,7 +120,11 @@ WA.Extensions.VisualSpotlighter = function() {
   	var styleNode = doc.createElement('div');
     // Funky way of adding style required to make this work with IE.
     styleNode.innerHTML =
-      "<p>&nbsp;</p><style>.wahighlight {color: #FF0 !important; background-color: #000 !important;}</style>";
+      "<p>&nbsp;</p>" +
+      "<style>" +
+      ".wahighlight {-moz-border-radius: 2px; border-color: #FF0 !important; color: #FF0 !important; background-color: #000 !important;}" +
+      "a.wahighlight {color: #FF0 !important;}" +
+      "</style>";
     doc.body.appendChild(styleNode);
   };
 };
@@ -134,4 +141,7 @@ WA.Extensions.VisualSpotlighter = function() {
   // Add the function to add the style tag to each document to the list of
   // functions called for each document.
   WA.Extensions.oncePerDocument.push(newVS);
+
+  // Add this extension to the general list of extensions.
+  WA.Extensions.extensionList.push(newVS);
 })();

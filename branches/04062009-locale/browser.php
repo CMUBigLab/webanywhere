@@ -1,17 +1,14 @@
 <?php
 session_start();
-include('config.php');
 ?>
+<?php include('config.php'); ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
 <title>WebAnywhere Browser Frame</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
 <script type="text/javascript" src="<?php
 echo $script_path;
 ?>/js-config.php"></script>
-<?php include('locale.php'); ?>
 <?php
 // It's about a million times easier to debug Javascript when your source files
 // haven't been messed with.  Unfortunately, it's also slower and causes the
@@ -34,6 +31,7 @@ $scripts =
         '/startup/standalone.js',
         '/sound/prefetch.js',
         '/input/keyboard.js',
+        '/input/action-queue.js',
         '/interface/interface.js',
         '/extensions/extensions.js',
         '/wa.js',
@@ -78,30 +76,17 @@ if($_REQUEST[debug]==='true') {
   echo $script_path . implode(',' . $script_path, $scripts) . '"></script>';
 }
 ?>
-<script>
-function browserOnload() {
-  var browseWidth = document.getElementById('wa_browser_interface').offsetWidth;
-
-  var gWidth = document.getElementById('location_go').offsetWidth;
-  var nWidth = document.getElementById('find_next_button').offsetWidth;
-  var pWidth = document.getElementById('find_previous_button').offsetWidth;
-<?php if ($show_locale_selection) { ?>
-  var sWidth = document.getElementById('locale_selection').offsetWidth;
-<?php } ?>
-
-  var lBar = document.getElementById('location');
-  var lWidth = lBar.offsetWidth;
-
-  var fField = document.getElementById('finder_field');
-  var fWidth = fField.offsetWidth;
-
-  var extraWidth = browseWidth - (gWidth + nWidth + pWidth
-<?php if ($show_locale_selection) { echo "+ sWidth"; } ?>
-      + lWidth + fWidth);
-
-  lBar.style.width = (lWidth + 0.80*extraWidth - 15) + "px";
-  fField.style.width = (fWidth + 0.20*extraWidth - 15) + "px";
+<?php
+if(isset($_REQUEST['script'])) {?>
+<script type="text/javascript" src="http://webinsight.cs.washington.edu/wa/repository/getscript.php?scriptnum=<?php
+echo $_REQUEST['script'];
+?>"></script>
+<?php
 }
+?>
+<script type="text/javascript">
+WA.sessionid="<?php echo session_id(); ?>";
+function browserOnload() {}
 </script>
 <script type="text/javascript" src="<?php
 echo $script_path;
@@ -111,70 +96,51 @@ echo $script_path;
   body {font-family: Georgia, "Times New Roman", Times, serif;}
   #body {font-family: arial;}
   input {border: 1px solid #000; font-size: 1.7em; margin: 0; vertical-align: middle;}
-  .inputbox {height: 34px; padding: 0 2px 0 3px;}
+  .inputbox {height: 34px; padding: 0;}
   .inputbutton {height: 36px; padding: 0 3px 3px 3px; font-weight: bold;}
-  select {height: 36px; font-size: 1.7em; font-weight: bold;}
   td { margin: 0; padding: 0; text-align: center;}
-  tr { margin: 0; padding: 0; }
+  tr { margin: 0; padding: 0;}
   table { margin: 0; padding: 0; width: 100%;}
-  #wa_browser_interface {align: center;}
-  #wa_text_display {text-align: center;}
+  #wa_browser_interface {text-align: center; margin: 0; padding: 0;}
+  #wa_text_display {text-align: center}
+  #wa_finder_field {width: 100%;}
+  #location {width: 100%;}
 </style>
+
 </head>
 <?php
   // Flush what we have so far so the browser can start downloading/processing the scripts.
+  // Jeff: Not entirely convinced that this helps.
   flush();
 ?>
 <body bgcolor="#000000" style="margin: 0; padding: 0;" onload="browserOnload();">
 
-<div id="wa_browser_interface" style="margin: 0; padding: 0;">
+<div id="wa_browser_interface" style="">
 <form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;">
-<table>
-<tr>
-<td>
-<label for="location" style="position: absolute; top: -100px"><?php echo gettext('Location') ?>:&nbsp;</label>
+<table width="100%">
+<tr width="100%">
+<td width="70%">
+<label for="location" style="position: absolute; top: -100px">Location:&nbsp;</label>
 <input class="inputbox" type="text" id="location" value="http://webinsight.cs.washington.edu/wa/content.php"/>
 </td>
 <td>
-<input class="inputbutton" name="go" type="submit" value="<?php echo gettext('Go') ?>" id="location_go" onclick='navigate(this); return false;'/>
+<input class="inputbutton" name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
+</td>
+<td width="20%">
+<input class="inputbox" type="text" name="finder_field" id="wa_finder_field"/>
 </td>
 <td>
-<input class="inputbox" type="text" name="finder_field" id="finder_field"/>
+<input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="Next" onclick='nextNodeContentFinder(this); return false;'/>
 </td>
 <td>
-<input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="<?php echo gettext('Next') ?>" onclick='nextNodeContentFinder(this); return false;'/>
+<input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="Previous" onclick='prevNodeContentFinder(this); return false;'/>
 </td>
-<td>
-<input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="<?php echo gettext('Previous') ?>" onclick='prevNodeContentFinder(this); return false;'/>
-</td>
-<?php
-if ($show_locale_selection) {
-  echo '<td>';
-  echo '<select id="locale_selection" name="locale_selection" onchange="changeLocale()">';
-  if ($locale == 'en_EN') {
-    echo '<option selected value="en_EN">English</option>';
-  } else {
-    echo '<option value="en_EN">English</option>';
-  }
-  if ($locale == 'zh_CN') {
-    echo '<option selected value="zh_CN">简体中文</option>';
-  } else {
-    echo '<option value="zh_CN">简体中文</option>';
-  }
-  if ($locale == 'zh_TW') {
-    echo '<option selected value="zh_TW">繁体中文</option>';
-  } else {
-    echo '<option value="zh_TW">繁体中文</option>';
-  }
-  echo '</select></td>';
-}
-?>
 </tr>
 </table>
 </form>
 </div>
 
-<div id="wa_text_display" style="margin: 0; padding: 0.5em 0; font-size: 3em; color: #FF0; font-weight: bold;"><?php echo gettext('Welcome to WebAnywhere') ?></div>
+<div id="wa_text_display" style="margin: 0; padding: 0.1em; font-size: 3em; color: #FF0; font-weight: bold;">Welcome to WebAnywhere</div>
 
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: display;"'; } else { echo 'style="visibility: hidden"'; } ?>>Playing: <span id="playing_div"></span> Features: <span id="sound_div"></span></div>
 <div <?php if($_REQUEST[debug] === 'true') { echo 'style="visibility: hidden;"'; } else { echo 'style="visibility: hidden"'; }?>>

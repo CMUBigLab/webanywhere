@@ -34,21 +34,23 @@
 	// but you can use the WebAnywhere server for this purpose.
 	$sound_url_base = 'http://webanywhere.cs.washington.edu/cgi-bin/getsound.pl?text=$text$&cache=1&mtts=1';
 
-    // The URL that will load in WebAnywhere by default.
-    $default_content_url = 'http://webanywhere.cs.washington.edu/content.php';
+
+        // The URL that will load in WebAnywhere by default.
+        $default_content_url = "http://" . $webanywhere_domain . $root_path . '/content.php';
 
 	// To prevent malicious users from abusing the web proxy that is part of WebAnywhere,
 	// the system can optionally limit the rate at which users can request content.
-	$limit_request_rate = true;
+	$limit_request_rate = false;
 
-	// Limit rates per minute and per day.
-	$limit_rate_day = 20000;
-	$limit_rate_minute = 250;
+          // Limit rates per minute and per day.
+	  $limit_rate_day = 20000;
+	  $limit_rate_minute = 250;
 
-	// Filename for SQLite database used to limit requests -
-	// should not be accessible from the web.
-	// Despite the default, a unix-style path will also work on unix systems.
-	$sql_lite_filename = "C:/webanywhere-accesses.sdb";
+	  // Filename for SQLite database used to limit requests -
+	  // should not be accessible from the web.
+	  // Despite the default, a unix-style path will also work on unix systems.
+	  // $sql_lite_filename = "C:/webanywhere-accesses.sdb";
+	  $sql_lite_filename = "/wa/webanywhere-accesses.sdb";
 
     // Temporary directory where the cache of minimized scripts is stored.
     // Defaults to the default temporary directory on your system, which may
@@ -67,23 +69,28 @@
     // Comment individual extensions out to prevent their inclusion.
     $extensions = array(
       // Visually spotlights each node as it is being read.
-      '/extensions/visual-spotlighter.js'
+      'extensions/visual-spotlighter.js'
 
       // Scrolls each node into view as it is being read.
-      ,'/extensions/scroll-into-view-spotlighter.js'
+      ,'extensions/scroll-into-view-spotlighter.js'
 
       // Wraps phrases in SPAN tags so they will be read and highlighted
       // in small, logical chunks.
-      ,'/extensions/text-chunker-node-preprocessor.js'
+      ,'extensions/text-chunker-node-preprocessor.js'
 
       // Turns off auto-complete for forms on the page.
-      ,'/extensions/autocomplete-off-node-preprocessor.js'
+      ,'extensions/autocomplete-off-node-preprocessor.js'
 
       // Adds label for properties to input elements so the correct name
       // is read.
-      ,'/extensions/label-for-node-preprocessor.js'
+      ,'extensions/label-for-node-preprocessor.js'
 
       // Adds support for in-page links.
-      ,'/extensions/inpage-link-preprocessor.js'
+      ,'extensions/inpage-link-preprocessor.js'
+
+      // Adds support for tab-index.
+      ,'extensions/tabindex-preprocessor.js'
+
+      // Adds support for speaking selected text.
+      ,'extensions/selection-reading-extension.js'
     );
-?>
