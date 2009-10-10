@@ -8,6 +8,9 @@ if(isset($_REQUEST['debug']) && $_REQUEST['debug']==='true') {
 // Standard WebAnywhere configuration file.
 include('config.php');
 
+// Load locale functionality
+include('locale.php');
+
 // Prepare optional argument string.
 $arguments = "";
 if(isset($_REQUEST['debug'])) {
@@ -38,6 +41,7 @@ $start_url = str_replace('$url', $start_url, $wp_path);
 <HTML>
 <HEAD>
 <TITLE>WebAnywhere - Your Access Technology Anywhere</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <SCRIPT LANGUAGE="Javascript">
 /* <![CDATA[ */
 var old_open = window.open;
@@ -227,7 +231,7 @@ echo $script_path;
 	                      autocomplete="off" value="http://webinsight.cs.washington.edu/wa/content.php"/>
 	                </td>
 	                <td>
-	                    <input class="inputbutton" name="go" type="submit" value="Go" id="location_go" onclick='navigate(this); return false;'/>
+	                    <input class="inputbutton" name="go" type="submit" value="<?php echo wa_gettext('Go') ?>" id="location_go" onclick='navigate(this); return false;'/>
 	                  </td>
 	              </form>
 	              <form onSubmit="javascript:nextNodeContentFinder(this);return false;" style="margin: 0; padding: 0; display: inline;" autocomplete="off">
@@ -235,10 +239,10 @@ echo $script_path;
 	                    <input class="inputbox" type="text" name="finder_field" id="wa_finder_field"/>
 	                </td>
 	                <td>
-	                    <input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="Next" onclick='nextNodeContentFinder(this); return false;'/>
+	                    <input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="<?php echo wa_gettext('Next') ?>" onclick='nextNodeContentFinder(this); return false;'/>
 	                </td>
 	                <td>
-	                    <input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="Previous" onclick='prevNodeContentFinder(this); return false;'/>
+	                    <input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="<?php echo wa_gettext('Previous') ?>" onclick='prevNodeContentFinder(this); return false;'/>
 	                </td>
 	              </form>
 	            </tr>
