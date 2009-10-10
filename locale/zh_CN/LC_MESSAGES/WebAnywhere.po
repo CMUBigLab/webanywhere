@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-26 14:48+0800\n"
+"POT-Creation-Date: 2009-10-09 18:09+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,154 +16,150 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: browser.php:135 browser.php:146 browser.php:130 browser.php:133
+#: browser.php:124
 msgid "Location"
 msgstr "地址"
 
-#: browser.php:139 browser.php:150 browser.php:134 browser.php:137
-#: scripts/wa.js:371 scripts/wa.js:371
+#: scripts/wa.js:371 browser.php:128
 msgid "Go"
 msgstr "浏览"
 
-#: browser.php:145 browser.php:156 browser.php:140 browser.php:143
+#: browser.php:134
 msgid "Next"
 msgstr "向后"
 
-#: browser.php:148 browser.php:159 browser.php:143 browser.php:146
+#: browser.php:137
 msgid "Previous"
 msgstr "向前"
 
-#: browser.php:155 browser.php:166 browser.php:150 browser.php:153
 #: browser.php:177
 msgid "Welcome to WebAnywhere"
 msgstr "欢迎访问Web Anywhere"
 
-#: scripts/wa.js:343 scripts/wa.js:343
+#: scripts/wa.js:343
 msgid "Location field text area:"
 msgstr "地址栏"
 
-#: scripts/nodes.js:319 scripts/nodes.js:397 scripts/nodes.js:319
-#: scripts/nodes.js:397
+#: scripts/nodes.js:319 scripts/nodes.js:397
 msgid "Text Area "
 msgstr "文本框"
 
-#: scripts/sound/sounds.js:577 scripts/sound/sounds.js:577
+#: scripts/sound/sounds.js:577
 msgid "Welcome to Web Anywhere"
 msgstr "欢迎访问Web Anywhere"
 
-#: scripts/wa.js:354 scripts/wa.js:354
+#: scripts/wa.js:354
 msgid "Type a string to find in the current page"
 msgstr "请输入待查字符串"
 
-#: scripts/wa.js:434 scripts/wa.js:1692 scripts/wa.js:434 scripts/wa.js:1692
+#: scripts/wa.js:434 scripts/wa.js:1692
 msgid "Start of page"
 msgstr "页面开始"
 
-#: scripts/wa.js:717 scripts/wa.js:399 scripts/wa.js:399 scripts/wa.js:717
+#: scripts/wa.js:717 scripts/wa.js:399
 msgid "End of page"
 msgstr "页面结束"
 
-#: scripts/wa.js:1015 scripts/wa.js:1015
+#: scripts/wa.js:1015
 msgid "Not in a table"
 msgstr "不在表格中"
 
-#: scripts/wa.js:1305 scripts/wa.js:1313 scripts/wa.js:1305 scripts/wa.js:1313
+#: scripts/wa.js:1305 scripts/wa.js:1313
 msgid "no "
 msgstr "没有"
 
-#: scripts/nodes.js:284 scripts/nodes.js:284
+#: scripts/nodes.js:284
 msgid "Button: "
 msgstr "按钮："
 
-#: scripts/nodes.js:287 scripts/nodes.js:287
+#: scripts/nodes.js:287
 msgid "Checkbox "
 msgstr "多选框"
 
-#: scripts/nodes.js:292 scripts/nodes.js:292
+#: scripts/nodes.js:292
 msgid "File Input "
 msgstr "文件选择按钮"
 
-#: scripts/nodes.js:299 scripts/nodes.js:299
+#: scripts/nodes.js:299
 msgid "Image Input "
 msgstr "图片按钮"
 
-#: scripts/nodes.js:304 scripts/nodes.js:304
+#: scripts/nodes.js:304
 msgid "Password Textarea "
 msgstr "密码输入栏"
 
-#: scripts/nodes.js:308 scripts/nodes.js:308
+#: scripts/nodes.js:308
 msgid "Radio Button "
 msgstr "单选按钮"
 
-#: scripts/nodes.js:312 scripts/nodes.js:312
+#: scripts/nodes.js:312
 msgid "Reset Button "
 msgstr "重置按钮："
 
-#: scripts/nodes.js:315 scripts/nodes.js:315
+#: scripts/nodes.js:315
 msgid "Submit Button "
 msgstr "提交按钮："
 
-#: scripts/nodes.js:338 scripts/nodes.js:341 scripts/nodes.js:338
-#: scripts/nodes.js:341
+#: scripts/nodes.js:338 scripts/nodes.js:341
 msgid "link "
 msgstr "链接"
 
-#: scripts/nodes.js:345 scripts/nodes.js:345
+#: scripts/nodes.js:345
 msgid " button"
 msgstr "按钮"
 
-#: scripts/nodes.js:350 scripts/nodes.js:350
+#: scripts/nodes.js:350
 msgid "Heading 1"
 msgstr "1级标题"
 
-#: scripts/nodes.js:353 scripts/nodes.js:353
+#: scripts/nodes.js:353
 msgid "Heading 2"
 msgstr "2级标题"
 
-#: scripts/nodes.js:356 scripts/nodes.js:356
+#: scripts/nodes.js:356
 msgid "Heading 3"
 msgstr "4级标题"
 
-#: scripts/nodes.js:359 scripts/nodes.js:359
+#: scripts/nodes.js:359
 msgid "Heading 4"
 msgstr "4级标题"
 
-#: scripts/nodes.js:362 scripts/nodes.js:362
+#: scripts/nodes.js:362
 msgid "Heading 5"
 msgstr "5级标题"
 
-#: scripts/nodes.js:365 scripts/nodes.js:365
+#: scripts/nodes.js:365
 msgid "Heading 6"
 msgstr "6级标题"
 
-#: scripts/nodes.js:371 scripts/nodes.js:371
+#: scripts/nodes.js:371
 msgid "Image "
 msgstr "图片"
 
-#: scripts/nodes.js:383 scripts/nodes.js:383
+#: scripts/nodes.js:383
 msgid "Selection "
 msgstr "选择"
 
-#: scripts/nodes.js:390 scripts/nodes.js:390
+#: scripts/nodes.js:390
 msgid "Table "
 msgstr "表格"
 
-#: scripts/nodes.js:391 scripts/nodes.js:391
+#: scripts/nodes.js:391
 msgid " start "
 msgstr "开始"
 
-#: scripts/nodes.js:392 scripts/nodes.js:392
+#: scripts/nodes.js:392
 msgid " rows "
 msgstr "行"
 
-#: scripts/nodes.js:393 scripts/nodes.js:393
+#: scripts/nodes.js:393
 msgid " columns"
 msgstr "列"
 
-#: scripts/nodes.js:404 scripts/nodes.js:404
+#: scripts/nodes.js:404
 msgid "List with "
 msgstr "列表"
 
-#: scripts/nodes.js:404 scripts/nodes.js:404
+#: scripts/nodes.js:404
 msgid " items"
 msgstr "项"

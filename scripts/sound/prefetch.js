@@ -201,23 +201,12 @@ WA.Sound.Prefetch = {
 
   // Adds the sid (sound ID) to the prefetch queue.
   addToPrefetchQ: function(sid) {
-    if(this.Sound.splitSoundsByBoundaries) {
-      var matches = this.Sound.splitSoundsByBoundary(sid);
-      if(matches && matches.length > 0) {
-        for(var match_i=0, ml=matches.length; match_i<ml; match_i++) {
-          if(!WA.Sound.boundarySplitterRegExp.test(matches[match_i])) {
-            this._addIndividualToPrefetchQ(matches[match_i]);
-          }
-        }
-      }
-    } else { // TODO:  Is this needed?
-      this._addIndividualToPrefetchQ(sid);
-    }
+    WA.Sound._addSound(sid, this._addIndividualToPrefetchQ);
   },
 
   // Adds the sid (sound ID) to the prefetch queue.
   _addIndividualToPrefetchQ: function(sid) {
-    sid = this.Sound.prepareSound(sid);
+    sid = WA.Sound.prepareSound(sid);
     this.prefetch_array[this.prefetch_curr_index].push(sid);
   },
 
@@ -434,8 +423,8 @@ WA.Sound.Prefetch = {
   // Prefetch a the sound for the supplied text.
   numPrefetched: 0,
   prefetchText: function(text) {
-    var string = this.Sound.prepareSound(text);
-    var url = this.Sound.urlForString(string);
+    var string = WA.Sound.prepareSound(text);
+    var url = WA.Sound.urlForString(string);
     var sid = WA.Sound.getSoundID(text);
 
     if(typeof this.prefetchRecords[sid] == 'undefined') {
@@ -448,13 +437,14 @@ WA.Sound.Prefetch = {
       return false;
     }
 
-	return false;
+  	return false;
   },
 
   // Adds the textual representation of the node to the prefetch queue.
   prefetchNode: function(node) {
     if(node) {
       var text = WA.Nodes.handleNode(node, true);
+      // @@ only add to the queue if the node is visible?
       addToPrefetchQ(text);
     }
   },
@@ -522,7 +512,7 @@ WA.Sound.Prefetch = {
 
   // Initialize the system to prefetch letters and common symbols.
   // Letters are ordered according to a guess of their popularity in the web context.
-  lettersNotFetched: ['w','.','h','t','p','/','g','o','e','l','b','f','c','i','j','k','m','n','d','q','r','s','u','v','a','x','y','z','go','star','end of page','submit button'],
+  lettersNotFetched: ['w','.','h','t','p','/','g','o','e','l','b','f','c','i','j','k','m','n','d','q','r','s','u','v','a','x','y','z','go','star','end of page','submit button','link','start of page','invalid key press'],
 
   // Prefetches the letters, so that when the user begins typing,
   // they do not experience as much latency in echoing.

@@ -25,10 +25,14 @@ WA.Nodes = {
   // TODO: remove 20 level "fudge factor"
   //       turns out the recursion limits vary browser to browser...
   recursion_limit: 1000 - 20,
+  
+  // Stack of iframe nodes is populated as we encounter iframes. 
+  _iframeNodes: [],
 
   /**
    * Return true if we should treat this node as a leaf, false otherwise.
    * The only nodes that possibly aren't leaves are the element nodes (type 3).
+   * @@shouldn't this be s/element nodes/text nodes?
    * @param node Node to see if it's a leaf node or not.
    * @return Boolean Boolean indicating whether this is a leaf node.
    */
@@ -102,16 +106,17 @@ WA.Nodes = {
         }
       case 'AREA': // Image map region
       case 'BUTTON': // Button
-      case 'IFRAME':
       case 'IMG': // Inline image
       case 'LABEL': // <label>'s will be read at the input element.
       case 'NOSCRIPT':
       case 'SELECT':
-        return isVisible(elem);
+        return this.isVisible(elem);
       case 'HEAD':
       case 'SCRIPT':
       case 'STYLE':
         return true;
+      case 'IFRAME':
+        /* not sure what to return. Moved this from the above set with img and label... */
     }
   
     return !elem.hasChildNodes();
@@ -123,13 +128,44 @@ WA.Nodes = {
    * @return Boolean Is the node invisible.
    */
   isInvisible: function(node) {
-      if(node == null || typeof node == 'undefined' || node.nodeType != 1) {
-      	return false;
-      }
+    //var viz = WA.Nodes.isVisible(node);
+    //WA.Utils.log('Is VIZ (' + node.nodeName + ' ' + node.id + ') - ' + viz);
+ 
+    if(node == null || typeof node == 'undefined' || node.nodeType != 1 || node.nodeName == "BODY") {
+    	return false;
+    }
 
-      var disp = this.getNodeStyle(node, 'display', 'display');
-      var vis = this.getNodeStyle(node, 'visibility', 'visibility');
-      return (disp == 'none' || vis == 'hidden' || node.offsetWidth <= 0);
+    var disp = this.getNodeStyle(node, 'display', 'display');
+    var vis = this.getNodeStyle(node, 'visibility', 'visibility');
+    WA.Utils.log('In isInvisible (' + node.nodeName + ' ' + node.id + ') - disp: '+disp+' vis: '+vis);
+    if(disp == 'none' || vis == 'hidden' || node.offsetWidth <= 0 || !node.parentNode) return true;
+
+    return false; //WA.Nodes.isInvisible(node.parentNode);
+  },
+
+  isVisible: function(obj) {
+    if(obj.nodeName == "BODY") return true
+    
+    if(!obj) return false
+    else if(!obj.parentNode) return false
+    else if(obj.style) {
+      if (obj.style.display == 'none') return false
+      else if (obj.style.visibility == 'hidden') return false
+    }
+
+    if(window.getComputedStyle) {
+      var style = window.getComputedStyle(obj, "")
+      if (style.display == 'none') return false
+      if (style.visibility == 'hidden') return false
+    }
+    
+    var style = obj.currentStyle
+    if(style) {
+      if (style['display'] == 'none') return false
+      if (style['visibility'] == 'hidden') return false
+    }
+    
+    return WA.Nodes.isVisible(obj.parentNode)
   },
 
 	/**
@@ -165,6 +201,7 @@ WA.Nodes = {
    * @return String Text for this node.
    */
   handleNode: function(node, goingDown) {
+    WA.Utils.log('In handleNode: '+node.nodeName+"  "+node.nodeValue);
     if(!goingDown) {
       return null;
     }
@@ -174,7 +211,7 @@ WA.Nodes = {
     switch(node.nodeType) {
 	    case 1: // An HTML Element
 	      // Only speak elements that are displayed.
-	      if(this.isInvisible()) {
+	      if(this.isInvisible(node)) {
 	        return_val = "";
 	      } else {
 	        return_val = this.handleElement(node);
@@ -195,6 +232,7 @@ WA.Nodes = {
 	    case 8: // Comment
 	    case 9: // Document 
 	    case 10: // Document Type Definition
+	    // @@ need to handle document fragment? 11
 	    default:
 	      return_val = "";
     } 
@@ -281,42 +319,42 @@ WA.Nodes = {
 
     switch(elem.getAttribute('type')) {
       case 'button':
-        result += gettext("Button: ") + this.nodeTypeBreaker + elem.value;
+        result += "Button: " + this.nodeTypeBreaker + elem.value;
         break;
       case 'checkbox':
-        result += gettext("Checkbox ") + this.nodeTypeBreaker +
+        result += "Checkbox " + this.nodeTypeBreaker +
                     this.getLabelName(elem);
         result += ": " + ((elem.checked == true) ? "checked" : "unchecked");
         break;
       case 'file':
-        result += gettext("File Input ") + this.nodeTypeBreaker +
+        result += "File Input " + this.nodeTypeBreaker +
                     this.getLabelName(elem);
         result += ": " + elem.value;
         break;
       case 'hidden':
         break;
       case 'image':
-        result += gettext("Image Input ") + this.nodeTypeBreaker +
+        result += "Image Input " + this.nodeTypeBreaker +
                     this.getLabelName(elem) + ": ";
         result += elem.value;
         break;
       case 'password':
-        result += gettext("Password Textarea ") + this.nodeTypeBreaker +
+        result += "Password Textarea " + this.nodeTypeBreaker +
                     this.getLabelName(elem);
         break;
       case 'radio':
-        result += gettext("Radio Button ") + this.nodeTypeBreaker +
+        result += "Radio Button " + this.nodeTypeBreaker +
                     this.getLabelName(elem) + ": " + elem.value;
         break;
       case 'reset':
-        result += gettext("Reset Button ") + this.nodeTypeBreaker + elem.value;
+        result += "Reset Button: " + this.nodeTypeBreaker + elem.value;
         break;
       case 'submit':
-        result += gettext("Submit Button ") + this.nodeTypeBreaker + elem.value;
+        result += "Submit Button: " + this.nodeTypeBreaker + elem.value;
         break;
       case 'text':
       default:
-        result += gettext("Text Area ") + this.nodeTypeBreaker +
+        result += "Text Area " + this.nodeTypeBreaker +
                     this.getLabelName(elem) + ": " + elem.value;
     }
     return result;
@@ -335,40 +373,41 @@ WA.Nodes = {
     switch(elem.tagName) {
       case 'A': // Anchor
         if(this.hasAttribute(elem, 'href'))
-          result += gettext("link ") + this.nodeTypeBreaker + this.handleChildNodes(elem);
+          result += "link " + this.nodeTypeBreaker + this.handleChildNodes(elem);
+          WA.Utils.log('nodes.js result: '+result);
         break;
       case 'AREA': // Image map region
-        result += gettext("link ") + this.nodeTypeBreaker + this.handleAreaNode(elem); 
+        result += "link " + this.nodeTypeBreaker + this.handleAreaNode(elem); 
         break;
   
       case 'BUTTON': // Button
-        result += this.handleChildNodes(elem) + gettext(" button");
+        result += this.handleChildNodes(elem) + " button";
         break;
       
       // No this.nodeTypeBreaker because low number of possibilities, likely to be cached in full.
       case 'H1': // Level-one heading
-        result += gettext("Heading 1");
+        result += "Heading 1";
         break;
       case 'H2': // Level-two heading
-        result += gettext("Heading 2");
+        result += "Heading 2";
         break;
       case 'H3': // Level-three heading
-        result += gettext("Heading 3");
+        result += "Heading 3";
         break;
       case 'H4': // Level-four heading
-        result += gettext("Heading 4");
+        result += "Heading 4";
         break;
       case 'H5': // Level-five heading
-        result += gettext("Heading 5");
+        result += "Heading 5";
         break;
       case 'H6': // Level-six heading
-        result += gettext("Heading 6");
+        result += "Heading 6";
         break;
   
       case 'IMG': // Inline image
         var image_text = this.handleImageNode(elem);
         if(image_text && image_text.length > 0) {
-          result += gettext("Image ") + this.nodeTypeBreaker + image_text;
+          result += "Image " + this.nodeTypeBreaker + image_text;
         }
         break;
       case 'INPUT': // Form input
@@ -380,31 +419,31 @@ WA.Nodes = {
         break;
   
       case 'SELECT': // Option selector
-        result += gettext("Selection ") + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
+        result += "Selection " + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
         break;
   
       case 'TABLE': // Table e.g Table 2 <name> start # rows # columns
           var rows = elem.rows.length;
           var cols = this.getLargestRowLength(elem.rows);
           if(rows > 2 && cols > 2) {
-            result += gettext("Table ") + this.getTableNum(elem) + " " + this.getTableName(elem) +
-                                 gettext(" start ") +
-                                 rows + gettext(" rows ") +
-                                 cols + gettext(" columns");
+            result += "Table " + this.getTableNum(elem) + " " + this.getTableName(elem) +
+                                 " start " +
+                                 rows + " rows " +
+                                 cols + " columns";
           }
           break;
       case 'TEXTAREA': // Multi-line text input
-          result += gettext("Text Area ") + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
+          result += "Text Area " + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
           break;
   
       case 'UL': // Unordered List
       case 'OL': // Ordered List
         var numitems = this.getNumberOfListElements(elem);
         if(numitems > 0) {
-          result += gettext("List with ") + numitems + gettext(" items");
+          result += "List with " + numitems + " items";
         }
     }
-  
+
     if(elem.getAttribute('title')) {
       result = result + " " + elem.getAttribute('title');
     }
@@ -537,6 +576,22 @@ WA.Nodes = {
     if(node.nextSibling) {
       nodesToVisit.push(node.nextSibling);
     }
+    
+    // @@ if the current node is an iframe, push node.contentDocument.body 
+    // onto the stack? Also want to check that contentDocument.body exists?
+    // Check that the IFRAME isvisible or have we done that already? I think 
+    // we do that before we start traversing this node....
+    if(node.nodeName == 'IFRAME') {
+      // try/catch to make sure that we have permission to view the contents
+      // of this IFRAME.  This is a bit ugly, but necessary for the moment.
+      // Ideally, we would be able to explicitly test if accessing the iframe
+      // violates the same-origin policy.
+      try{
+        nodesToVisit.push(node.contentDocument.body);
+      } catch(e) {
+        // Nothing to do here, but IFRAME will be ignored.
+      }
+    }
 
     // Visit the node.
     if(depth!=this.recursion_limit && node) {
@@ -595,6 +650,16 @@ WA.Nodes = {
     } else {
       // This should not happen.
       return "";
+    }
+  },
+
+  getTextContent: function(node) {
+    if(node!=null) {
+      if(node.textContent) {
+        return node.textContent;
+      } else if(node.innerText) {
+        return node.innerText;
+      }
     }
   }
 };

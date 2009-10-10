@@ -22,31 +22,22 @@ if (empty($fixed_locale)) {
   $locale = $fixed_locale;
 }
 
-if (preg_match('/(.*)[.]UTF(-*)8$/i', $locale, $matchs)) {
-  $locale = $matchs[1];
+// set PHP locale
+$php_locale_file = "locale/$locale/LC_MESSAGES/WebAnywhere.php";
+`echo "$php_locale_file" >> /tmp/wa.log`;
+if (file_exists($php_locale_file)) {
+  include($php_locale_file);
+} else {
+  function wa_gettext($text) {
+      return $text;
+  }
 }
-
-/* for windows */
-putenv("LANG=$locale");
-putenv("LANGUAGE=$locale");
-
-/* for Linux, $locale must be exist in list of `locale -a` */
-$result = setlocale(LC_ALL, $locale,
-	$locale . '.utf8',
-	$locale . '.UTF8',
-	$locale . '.utf-8',
-	$locale . '.UTF-8');
-//`echo "setlocale($locale)" >> j:/temp/wa.log`;
-//`echo "locale: $result" >> j:/temp/wa.log`;
-bindtextdomain('WebAnywhere', 'locale');
-bind_textdomain_codeset('WebAnywhere', 'UTF-8');
-textdomain('WebAnywhere');
 
 // set Javascript locale
 $js_locale_file = "locale/$locale/LC_MESSAGES/WebAnywhere.js";
 if (file_exists($js_locale_file)) {
   echo "<script type='text/javascript' src='$js_locale_file'></script>";
 } else {
-  echo "<script type='text/javascript'>function gettext(text) { return text; }</script>";
+  echo "<script type='text/javascript'>function wa_gettext(text) { return text; }</script>";
 }
 ?>

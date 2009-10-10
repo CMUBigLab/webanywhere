@@ -22,11 +22,11 @@
    +------------------------------------------------------------------------------+
 */
 
-// Include the global WebAnywhere configuration file.
+// Include the global WebAnywhere configuration files.
 include('../config.php');
 
-//error_reporting(E_ALL);
-//ini_set('display_errors','On');
+error_reporting(E_ALL);
+ini_set('display_errors','On');
 
 //
 // CONFIGURABLE OPTIONS
@@ -98,7 +98,7 @@ $_system            = array
                         'gzip'         => extension_loaded('zlib') && !ini_get('zlib.output_compression'),
                         'stripslashes' => get_magic_quotes_gpc()
                     );
-$_proxify           = array('text/html' => 1, 'application/xml+xhtml' => 1, 'application/xhtml+xml' => 1, 'text/css' => 1);
+$_proxify           = array('text/html' => 1, 'application/xml+xhtml' => 1, 'application/xhtml+xml' => 1, 'application/x-javascript'=>1, 'text/css' => 1, 'text/javascript' => 1);
 $_version           = '0.5b2';
 $_http_host         = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
 $_script_url        = 'http' . ((isset($_ENV['HTTPS']) && $_ENV['HTTPS'] == 'on') || $_SERVER['SERVER_PORT'] == 443 ? 's' : '') . '://' . $_http_host . ($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443 ? ':' . $_SERVER['SERVER_PORT'] : '') . $_SERVER['PHP_SELF'];
@@ -265,7 +265,6 @@ function proxify_script($script) {
   // A common technique used by web sites to ensure that their pages are in the
   // top-most window is to set the location of top window.  This helps to make
   // sure that WebAnywhere is at the top.
-  echo "HEELLLOOO!"; //$script;
   $script = preg_replace('#\\.[^=\s]*location\s*=\s*[\'"]?[^\'"]+[\'"]?#is', 'top.content_frame.', $script);
 //location\s+=\s+['"][^'"]+['"]#is', 'top.content_frame.', $script);
 
@@ -455,8 +454,8 @@ There was a problem with your request, please try it again, or email <a href="ma
 //
 // IP-Based Throttle-Check
 //
-$wp_path_escaped = str_replace("/", "\/", $wp_path);
-$address_pattern = "/^https?:\/\/" . $webanywhere_domain . "(?!" . $wp_path_escaped . ")/";
+$wp_dir_escaped = str_replace("/", "\/", $wp_path);
+$address_pattern = "/^https?:\/\/" . $webanywhere_domain . "(?!" . $wp_dir_escaped . ")/";
 if($limit_request_rate && !preg_match($address_pattern, $_url)) {
   if(isset($_SERVER['REMOTE_ADDR'])) {
     $ipArr = explode('.',$_SERVER['REMOTE_ADDR']);
@@ -466,7 +465,8 @@ if($limit_request_rate && !preg_match($address_pattern, $_url)) {
           + $ipArr[3];
 
     // Get or create our new database.
-    $dbh = new PDO("sqlite:" . $sql_lite_filename);
+    $filename = "/projects/compression2/webinsight/www/wa/wp/webanywhere-accesses.sdb";
+    $dbh = new PDO("sqlite:" . $filename);
 
     if($dbh) {
       $array = getdate();
@@ -870,6 +870,8 @@ while($_retry);
 // OUTPUT RESPONSE IF NO PROXIFICATION IS NEEDED
 //  
 
+
+
 if(!isset($_proxify[$_content_type])) {
   @set_time_limit(0);
 
@@ -920,9 +922,10 @@ fclose($_socket);
 //
 // MODIFY AND DUMP RESOURCE
 //
-
 if($_content_type == 'text/css') {
   $_response_body = proxify_css($_response_body);
+} else if($_content_type == 'application/x-javascript') {
+  $_response_body = preg_replace('#window.self != window.top#', 'false', $_response_body);
 } else {
   // Modifiable requests count more.
   if($limit_request_rate === true) {
@@ -940,7 +943,7 @@ if($_content_type == 'text/css') {
   // Rewrite some Javascript that can cause WebAnywhere to lose focus.
   $_response_body = preg_replace('#top\\.#is', 'top.content_frame.', $_response_body);
   $_response_body = preg_replace('#(document\\.)?location=([\'"]?[^\'";]+[\'"]?)#is', 'top.content_frame.location=proxifyURL($2)', $_response_body);
-
+  $_response_body = preg_replace('#window.self != window.top#', 'false', $_response_body);
 
 
   // The text to speech engine doesn't like a lot of these specially-formatted characters.
@@ -974,6 +977,12 @@ if($_content_type == 'text/css') {
   if(!$_flags['show_images']) {
     $_response_body = preg_replace('#<(img|image)[^>]*?>#si', '', $_response_body);
   }
+
+  //$_response_body = preg_replace('#(function )(_)#is', '$1_$2', $_response_body);  
+  $_response_body = preg_replace('#\.replace\(([^\/])#is', '.rep($1', $_response_body);  
+
+
+  //$_response_body = preg_replace('#(<\s*/head\s*>)#is', '<script>if(window==top) document.location = "http://webanywhere.cs.washington.edu/content.php";</script>' . '$1', $_response_body);
     
   //
   // PROXIFY HTML RESOURCE
@@ -1215,8 +1224,8 @@ if($_content_type == 'text/css') {
         }
     }
   
-
-    $_response_body = preg_replace('#(</head>)#is', "<base href='" . $url_retrieved . "'/>\n$1", $_response_body);
+    $_response_body = preg_replace('#(<head[^>]*>)#is', "$1<script src='wa_prep.js'></script>", $_response_body);
+    //$_response_body = preg_replace('#(</head>)#is', "<base href='" . $url_retrieved . "'/>\n$1", $_response_body);
   
     if($_flags['include_form'] && !isset($_GET['nf']))
     {
@@ -1261,18 +1270,12 @@ foreach ($_response_headers as $name => $array)
 /*
 preg_match_all('#([\'"])(https?:\\?/\\?/(?!webinsight\.)[^\'"]*)([\'"])#', $_response_body, $matches, PREG_SET_ORDER);
 for ($i = 0, $count_i = count($matches); $i < $count_i; ++$i) {
-  //$replacement = $matches[$i][1] . complete_url($matches[$i][2]) . $matches[$i][1];
-  //echo $matches[$i][1] . ' ' . complete_url($matches[$i][2]) . "|\n";
   $_response_body = str_replace($matches[$i][0], $matches[$i][1] .  complete_url($matches[$i][2]) . $matches[$i][3], $_response_body);
-  //$_response_body = str_replace($matches[$i][0], $replacement, $_response_body);
 }
 
 preg_match_all('#([\'"])(/(?!webinsight\.)[^\'"]*)[\'"]#', $_response_body, $matches, PREG_SET_ORDER);
 for ($i = 0, $count_i = count($matches); $i < $count_i; ++$i) {
-  //$replacement = $matches[$i][1] . complete_url($matches[$i][2]) . $matches[$i][1];
-  //echo $matches[$i][1] . ' ' . complete_url($matches[$i][2]) . "|\n";
   $_response_body = str_replace($matches[$i][0], "\"" .  complete_url($matches[$i][2]) . "\"", $_response_body);
-  //$_response_body = str_replace($matches[$i][0], $replacement, $_response_body);
 }
 */
 
