@@ -24,7 +24,6 @@ if (empty($fixed_locale)) {
 
 // set PHP locale
 $php_locale_file = "locale/$locale/LC_MESSAGES/WebAnywhere.php";
-`echo "$php_locale_file" >> /tmp/wa.log`;
 if (file_exists($php_locale_file)) {
   include($php_locale_file);
 } else {

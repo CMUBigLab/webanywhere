@@ -60,6 +60,7 @@ function wa_gettext(text) {
 
     print PHP_FILE '
 function wa_gettext($text) {
+    global $wa_text;
     return $wa_text[$text];
 }
 ?>';

@@ -15,6 +15,9 @@
 	// scripting concerns.
 	$webanywhere_domain = 'localhost';
 
+    // uncommented following line will change locale to Simplified Chinese
+    // $fixed_locale = 'zh_CN';
+
 	// The relative path to WebAnywhere on the web server.
 	$root_path = '/wa';
 
