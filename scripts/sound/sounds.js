@@ -71,7 +71,7 @@ WA.Sound = {
     this.soundPlayerLoaded = false;
   
     this.soundQ = new Array();
-    this.playing = null;
+    WA.Sound.setWhatsPlaying(null);
   
     this.soundMethod = 1;
     this.soundsLoaded = new Array();
@@ -79,12 +79,19 @@ WA.Sound = {
     setBrowseMode(WA.READ);   
   },
 
+  setWhatsPlaying: function(playing) {
+    WA.Sound.playing = playing;
+    WA.Interface.updatePlaying();
+  },
+
   // Prepare a string for playing sound.
   // This includes normalizing the string by making it all lowercase, removing
   // punctuation, etc.
   prepareSound: function(sid) {
+    sid = String(sid);
     if(sid && sid.length > 1) {
       sid = sid.toLowerCase();
+      if(sid==".") { sid = "dot"; }
       sid = sid.replace(/(^\s*[\.\?!,\-:]*\s*)|(\s*[\.\?!,:]+\s*$)/g, "");
     }
     return sid;
@@ -126,25 +133,39 @@ WA.Sound = {
 
   // Adds a new sound to the queue of sounds to be played.
   addSound: function(sid) {
+    this._addSound(sid, this._addIndividualSound);
+  },
+
+  // Adds a new sound to the queue of sounds to be played.
+  _addSound: function(sid, func) {
     // Split sounds into multiple pieces to improve latency of sound retrieval.
-    if(this.splitSoundsByBoundaries) {
-      var matches = this.splitSoundsByBoundary(sid);
+    if(WA.Sound.splitSoundsByBoundaries) {
+      var matches = WA.Sound.splitSoundsByBoundary(sid);
       if(matches && matches.length > 0) {
         for(var match_i=0, ml=matches.length; match_i<ml; match_i++) {
-          if(!this.boundarySplitterRegExp.test(matches[match_i])) {
-            this._addIndividualSound(matches[match_i]);
+          if(!WA.Sound.boundarySplitterRegExp.test(matches[match_i])) {
+            func(matches[match_i]);
           }
         }
       }
     } else { // TODO:  Is this needed?
-      this._addIndividualSound(sid);
+      func(sid);
     }
+  },
+
+
+  /**
+   * Silence the system and stop automatic forward progression.
+   */
+  silenceAll: function() {
+    setBrowseMode(WA.KEYBOARD);
+    WA.Sound.resetSounds();
   },
 
   // Adds a single sound (one that does not get split) to the sound queue.
   _addIndividualSound: function(sid) {
-    sid = this.prepareSound(sid);
-    this.soundQ.unshift(sid);  
+    //sid = WA.Sound.prepareSound(sid);
+    WA.Sound.soundQ.unshift(sid);  
   },
 
   // Gets the next sound in the queue that should be played.
@@ -177,7 +198,7 @@ WA.Sound = {
     this.stopAllSounds();
     this.soundQ = null;
     this.soundQ = new Array();
-    this.playing = null;
+    WA.Sound.setWhatsPlaying(null);
   },
 
   /**
@@ -213,11 +234,17 @@ WA.Sound = {
       this.lastPath = 1;
       var sid = this.getSound();
       this.lastPath = 3;
-      this.playing = sid;
+      WA.Sound.setWhatsPlaying(sid);
       this.playSound(sid, false);
       if(WA.prefetchStrategy > 1) {
         this.prefetchFromSoundQ();
       }
+    } else if(!this.playing && WA.browseMode != WA.LOADING &&
+                WA.Keyboard.ActionQueue.queueSize() > 0) {
+
+    	WA.Keyboard.ActionQueue.playFromQueue();
+    	WA.Sound.playWaiting();
+
     } else if(!this.playing && (WA.browseMode == WA.READ || WA.browseMode == WA.PLAY_ONE || WA.browseMode == WA.PLAY_ONE_BACKWARD || WA.browseMode == WA.PLAY_TWO_BACKWARD || WA.browseMode == WA.PREV_CHAR || WA.browseMode == WA.PREV_CHAR_BACKONE)) {
       this.lastPath = 2;
       //alert('notplaying');
@@ -233,7 +260,7 @@ WA.Sound = {
       var is_playing = this.isPlaying(this.playing);
       //WA.Utils.log('playing ' + this.playing + ' ' + is_playing);
       if(!is_playing) {
-        this.playing = null;
+        WA.Sound.setWhatsPlaying(null);
       }
     }
     this.inPlayWaiting = false;
@@ -249,10 +276,8 @@ WA.Sound = {
   // Play the sound.
   playSound: function(string, bm) {
     var playdone = true;
-    string = this.prepareSound(string);
-    url = this.urlForString(string);
-
-	//WA.Utils.log('url: ' + url);
+    string = WA.Sound.prepareSound(string);
+    url = WA.Sound.urlForString(string);
 
     switch(this.soundMethod) {
       case this.FLASH_SOUND_METHOD: this._prefetchFlash(string, url, playdone, bm); break;
@@ -511,7 +536,8 @@ WA.Sound = {
 
   _onSoundFinish: function(sound) {
     if(sound && sound.duration) {
-      this.timingArray[sound.sID].length = sound.duration;
+      var string = sound.sID;
+      this.timingArray[string].length = sound.duration;
       WA.Utils.log('finished sound: ' + this.timingArray[string].playStart.getTime() + ' ' + sound.duration + ' ' + this.timingArray[string].orig_string);
     } else {
       WA.Utils.log('finished sound: ' + this.timingArray[string].end.getTime() + ' ' + sound.durationEstimate + ' ' + this.timingArray[string].orig_string);
@@ -533,7 +559,7 @@ WA.Sound = {
   // Called after the system believes that it should be done playing a sound.
   _donePlayingEmbedSound: function() {
     WA.Utils.log('done playing: ' + this.playing);
-    this.playing = null;
+    WA.Sound.setWhatsPlaying(null);
   },
 
 
@@ -574,6 +600,6 @@ WA.Sound = {
         WA.Utils.log('Error loading sound player');
       }
     }
-    this.addSound(gettext("Welcome to Web Anywhere"));
+    this.addSound("Welcome to Web Anywhere");
   }
 };
