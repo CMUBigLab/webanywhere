@@ -21,14 +21,15 @@ After the following functions/issues are fixed, we will consider the project to 
 
 We want to test WA on the following set of sites/applications:
 
-  * google
-  * gmail
-  * university of washington
-  * facebook
-  * bookshare
-  * blackboard/moodle
-  * espn
-  * nytimes
+  * [http://www.google.com/ google]
+  * [http://gmail.com/ gmail]
+  * [http://www.washington.edu/ university of washington]
+  * [http://facebook.com facebook]
+  * [http://www.bookshare.org/ bookshare]
+  * [http://www.blackboard.com/ blackboard/moodle]
+  * [http://espn.go.com/ espn]
+  * [http://nytimes.com/ nytimes]
+  * [http://www.w3.org/WAI/ W3C/WAI]
   * others?
   
 Platforms
