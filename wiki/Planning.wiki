@@ -37,7 +37,43 @@ Platforms
   * IE6, IE8, Firefox3 (win/mac), Safari (mac)
 
 Key combinations
-  * Test all combinations listed in keyboard.js (update list of commands on "welcome to anywhere") and document for in a matrix for each page/platform combination
+Test all combinations listed in keyboard.js (update list of commands on "welcome to anywhere") and document for in a matrix for each page/platform combination
+  * ctrl--stop talking
+  * tab--next active element
+  * ctrl forward slash--show list of keyboard shortcuts
+  * esc--??
+  * shift tab--previous active element
+  * ctrl a--??
+  * alt leftarrow--back one page?
+  * alt rightarrow--forward one page?
+  * ctrl n--??
+  * ctrl l--move focus to location input element
+  * ctrl tab & shift ctrl tab--(in there twice up here and last)
+  * ctrl r--move to next row in a table
+  * ctrl f--move focus to find input element
+  * ctrl d--move to next column in a table
+  * ctrl t--move to next table
+  * ctrl shift t--move to previous table
+  * ctrl h--next heading
+  * ctrl shift h--previous heading
+  * ctrl shift f5--??
+  * ctrl shift f6--??
+  * ctrl shift f7--reset timing array?
+  * ctrl shift r--previous table row
+  * ctrl shift d--previous table column
+  * ctrl p--next paragraph
+  * ctrl i--next input element
+  * ctrl shift i--previous input element
+  * ctrl 6--??
+  * ctrl 7--??
+  * ctrl 8--??
+  * pagedown--read continuously from the current position
+  * home--read continuously, starting over from the beginning of the page
+  * ctrl shift r--reload?
+  * ctrl shift tab--shift forward tabs (ala browser functionality)
+  * ctrl tab--backwards through tabs
+  * arrow down--read the next element
+  * arrow up--read the previous element
 
 Unit Testing
 Check out the unit tests and update as needed. 
