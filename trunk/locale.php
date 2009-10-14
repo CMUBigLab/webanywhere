@@ -1,9 +1,8 @@
 <?php
 // load locale from GET
 if (empty($fixed_locale)) {
-  $locale = $_REQUEST['locale'];
-  if (empty($locale)) {
-    if (isset($_COOKIE['userlocale'])) {
+  if (! array_key_exists('locale', $_REQUEST)) {
+    if (array_key_exists('userlocale', $_COOKIE)) {
       // load locale from cookie
       $locale = $_COOKIE['userlocale'];
     } else {
@@ -15,6 +14,7 @@ if (empty($fixed_locale)) {
       }
     }
   } else {
+    $locale = $_REQUEST['locale'];
     // save new locale to cookie
     echo "<meta http-equiv='Set-Cookie' content='userlocale=$locale;expires=Friday, 31-Dec-2099 23:59:59 GMT;'>";    
   }
