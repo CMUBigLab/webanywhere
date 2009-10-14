@@ -15,4 +15,7 @@ Procedures to update existing locale:
 3. Edit *.po files to translate 'new text'.
 4. Redo step 2. *.php and *.js files will be updated according to updated *.po files.
 
+How to change locale at runtime:
+If $fixed_local is not specified in config.php, we can chage locale at runtime with something like "http://<WA-host>/index.php?locale=de"
+
 Please contact Cameron Wong (hgneng at gmail.com) if you get problems with instructions above.
