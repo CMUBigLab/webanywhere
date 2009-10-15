@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-10 18:59+0800\n"
+"POT-Creation-Date: 2009-10-15 23:35+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: index.php:234
+#: index.php:234 scripts/wa.js:362 scripts/wa.js:362
 msgid "Go"
 msgstr ""
 
@@ -26,4 +26,68 @@ msgstr ""
 
 #: index.php:245
 msgid "Previous"
+msgstr ""
+
+#: scripts/wa.js:345 scripts/wa.js:345
+msgid "Type a string to find in the current page"
+msgstr ""
+
+#: scripts/wa.js:425
+msgid "Start of Page."
+msgstr ""
+
+#: scripts/interface/interface.js:34 scripts/interface/interface.js:34
+msgid "Location field text area:"
+msgstr ""
+
+#: scripts/input/keyboard.js:419 scripts/input/keyboard.js:419
+msgid "Invalid key press"
+msgstr ""
+
+#: scripts/sound/sounds.js:603 scripts/sound/sounds.js:603
+msgid "Welcome to Web Anywhere"
+msgstr ""
+
+#: scripts/wa.js:304 scripts/wa.js:304
+msgid "Headings"
+msgstr ""
+
+#: scripts/wa.js:304 scripts/wa.js:304
+msgid "Heading"
+msgstr ""
+
+#: scripts/wa.js:305 scripts/wa.js:305
+msgid "Links"
+msgstr ""
+
+#: scripts/wa.js:305 scripts/wa.js:305
+msgid "Link"
+msgstr ""
+
+#: scripts/wa.js:390
+msgid "End of Page."
+msgstr ""
+
+#: scripts/wa.js:685 scripts/wa.js:390 scripts/wa.js:390 scripts/wa.js:685
+msgid "End of page"
+msgstr ""
+
+#: scripts/wa.js:1713
+msgid "Start of page."
+msgstr ""
+
+#: scripts/wa.js:991 scripts/wa.js:991
+msgid "Not in a table."
+msgstr ""
+
+#: scripts/wa.js:1284 scripts/wa.js:1292 scripts/wa.js:1284 scripts/wa.js:1292
+msgid "no"
+msgstr ""
+
+#: scripts/wa.js:425 scripts/wa.js:1713 scripts/wa.js:425 scripts/wa.js:1713
+msgid "Start of page"
+msgstr ""
+
+#: index.php:253
+msgid "Welcome to WebAnywhere"
 msgstr ""

@@ -4,13 +4,14 @@ Procedures to add new locale:
 3. Add new directories. Take German for example: `mkdir -p locale/de/LC_MESSAGES`
 4. Create an empty locale file. `touch locale/de/LC_MESSAGES/WebAnywhere.po`
 5. Update locale template with `perl update_locale.pl`. Texts need to translage will be added to locale/de/LC_MESSAGES/WebAnywhere.po
-6. Edit locale/de/LC_MESSAGES/WebAnywhere.po to translate the texts.
+6. Edit locale/de/LC_MESSAGES/WebAnywhere.po to translate the texts. Don't add your name, email etc. in the file because it will be changed back to default after executing update_locale.pl. Change following line to declare this file is encoded in UTF-8.
+   "Content-Type: text/plain; charset=UTF-8\n"
 7. Run `perl update_locale.pl` to update *.php and *.js under locale directory.
 8. Change the locale you want to use in config.php. Add one line like this:
    $fixed_locale = 'de';
 
 Procedures to update existing locale:
-1. Wrap new string in PHP/JS files with wa_gettext('new text')
+1. Wrap new string in PHP/JS files with wa_gettext("new text"). (Please make sure it's a double quote not single quote)
 2. Change working directory to root of WA source code and run `perl update_locale.pl`. All files under locale directory will be updated. A new entry for 'new text' will be added to *.po files.
 3. Edit *.po files to translate 'new text'.
 4. Redo step 2. *.php and *.js files will be updated according to updated *.po files.

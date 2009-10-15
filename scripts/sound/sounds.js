@@ -600,6 +600,6 @@ WA.Sound = {
         WA.Utils.log('Error loading sound player');
       }
     }
-    this.addSound("Welcome to Web Anywhere");
+    this.addSound(wa_gettext("Welcome to Web Anywhere"));
   }
 };
