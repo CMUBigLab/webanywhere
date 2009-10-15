@@ -416,7 +416,7 @@ WA.Keyboard = {
         } else if(source == 'key press') {
         } else if(source == 'key down') {}
   
-        WA.Sound.addSound("Invalid key press");
+        WA.Sound.addSound(wa_gettext("Invalid key press"));
         this.resetKeyboardModifiers();
   
         this.suppressKeys(e);	

@@ -14,7 +14,7 @@ my @files = split(/\n/, $filelist);
 
 foreach my $file (@files) {
   `find -name "*.php" | xargs xgettext -j -kwa_gettext -o $file`;
-  `find -name "*.js" | xargs xgettext -j -L C -kwa_gettext -o $file`;
+  `find -name "*.js" | xargs xgettext -j -LC -kwa_gettext -o $file`;
 }
 
 # Generate *.php and *.js from *.po

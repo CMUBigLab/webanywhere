@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-10 18:59+0800\n"
+"POT-Creation-Date: 2009-10-15 23:35+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: index.php:234
+#: index.php:234 scripts/wa.js:362 scripts/wa.js:362
 msgid "Go"
 msgstr "浏览"
 
@@ -27,3 +27,55 @@ msgstr "前进"
 #: index.php:245
 msgid "Previous"
 msgstr "后退"
+
+#: scripts/wa.js:345 scripts/wa.js:345
+msgid "Type a string to find in the current page"
+msgstr "输入字符串，在本页中查找"
+
+#: scripts/interface/interface.js:34 scripts/interface/interface.js:34
+msgid "Location field text area:"
+msgstr "地址栏："
+
+#: scripts/input/keyboard.js:419 scripts/input/keyboard.js:419
+msgid "Invalid key press"
+msgstr "无效按键"
+
+#: scripts/sound/sounds.js:603 scripts/sound/sounds.js:603
+msgid "Welcome to Web Anywhere"
+msgstr "欢迎访问Web Anywhere"
+
+#: scripts/wa.js:304 scripts/wa.js:304
+msgid "Headings"
+msgstr "标题"
+
+#: scripts/wa.js:304 scripts/wa.js:304
+msgid "Heading"
+msgstr "标题"
+
+#: scripts/wa.js:305 scripts/wa.js:305
+msgid "Links"
+msgstr "链接"
+
+#: scripts/wa.js:305 scripts/wa.js:305
+msgid "Link"
+msgstr "链接"
+
+#: scripts/wa.js:685 scripts/wa.js:390 scripts/wa.js:390 scripts/wa.js:685
+msgid "End of page"
+msgstr "页末"
+
+#: scripts/wa.js:1713 scripts/wa.js:425 scripts/wa.js:425 scripts/wa.js:1713
+msgid "Start of page"
+msgstr "页首"
+
+#: scripts/wa.js:991 scripts/wa.js:991
+msgid "Not in a table."
+msgstr "不在表格中"
+
+#: scripts/wa.js:1284 scripts/wa.js:1292 scripts/wa.js:1284 scripts/wa.js:1292
+msgid "no"
+msgstr "没有"
+
+#: index.php:253
+msgid "Welcome to WebAnywhere"
+msgstr "欢迎访问Web Anywhere"

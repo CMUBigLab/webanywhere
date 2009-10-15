@@ -31,7 +31,7 @@ WA.Interface = {
 
       WA.Sound.resetSounds();
 
-      WA.Sound.addSound("Location field text area:");
+      WA.Sound.addSound(wa_gettext("Location field text area:"));
       if(target.value) {
         WA.Sound.addSound(target.value);
       }

@@ -301,8 +301,8 @@ function newPage(e) {
   var nheadings = countNumHeadings();
   // @@need to update countNumLinks after get headings working
   var nlinks = countNumLinks(currentDoc);
-  var head = nheadings + ' ' + ((nheadings > 1 || nheadings==0) ? "Headings" : "Heading");
-  var link = nlinks + ' ' + ((nlinks > 1 || nlinks == 0) ? "Links" : "Link");
+  var head = nheadings + ' ' + ((nheadings > 1 || nheadings==0) ? wa_gettext("Headings") : wa_gettext("Heading"));
+  var link = nlinks + ' ' + ((nlinks > 1 || nlinks == 0) ? wa_gettext("Links") : wa_gettext("Link"));
   WA.Sound.addSound(head + ' ' + link);
 
   // Set our browsing mode to READ after a short delay.
@@ -342,7 +342,7 @@ function handleKeyPress(e) {
  */
 function finderBarFocus() {
   WA.Sound.resetSounds();
-  WA.Sound.addSound("Type a string to find in the current page");
+  WA.Sound.addSound(wa_gettext("Type a string to find in the current page"));
 }
 
 /**
@@ -359,7 +359,7 @@ function goButtonFocus(e) {
 
   var text = WA.Nodes.handleNode(target, true);
   WA.Sound.resetSounds();
-  WA.Sound.addSound("Go");
+  WA.Sound.addSound(wa_gettext("Go"));
 }
 
 /**
@@ -387,7 +387,7 @@ function browserElementFocus(e) {
 function tabEndNode(e) {
   var key = getNavigationDocument().keyString(e);
   if(key == 'tab') {
-    WA.Sound.addSound("End of Page.");
+    WA.Sound.addSound(wa_gettext("End of page"));
     stopProp(e);
     return false;
   }
@@ -422,7 +422,7 @@ function tabLocation(e) {
     return false;
   } else if(key == 'shift tab') {
     WA.Sound.resetSounds();
-    WA.Sound.addSound("Start of Page.");
+    WA.Sound.addSound(wa_gettext("Start of page"));
     stopProp(e);
     return false;
   }
@@ -682,7 +682,7 @@ function startNodeFocus(e) {
 function endNodeFocus(e) {
   if(currentDoc && currentDoc.title) {
     WA.Sound.resetSounds();
-    WA.Sound.addSound("End of page");
+    WA.Sound.addSound(wa_gettext("End of page"));
   }
 }
 
@@ -988,7 +988,7 @@ function navTableCell(node, row_offset, col_offset, edge_message) {
       }
     }	
   } else {
-  	WA.Sound.addSound('Not in a table.');
+  	WA.Sound.addSound(wa_gettext("Not in a table."));
   	return null;
   }
 
@@ -1281,7 +1281,7 @@ function nextNodeByMatcher(matcher, description) {
       result_id = result.getAttribute('id');
     }
     if(result_id == 'always_last_node' && description != "") {
-      WA.Sound.addSound('no ' + description);
+      WA.Sound.addSound(wa_gettext("no") + ' ' + description);
       return false;
     } else {
       visit(result, true);
@@ -1289,7 +1289,7 @@ function nextNodeByMatcher(matcher, description) {
       return true;
     }
   } else if(description != "") {
-    WA.Sound.addSound('no ' + description);
+    WA.Sound.addSound(wa_gettext("no") + ' ' + description);
     return false;
   }
 }
@@ -1710,7 +1710,7 @@ function prevNode() {
         setCurrentNode(WA.Nodes._iframeNodes.pop());
     } else {
         setBrowseMode(WA.KEYBOARD);
-        WA.Sound.addSound("Start of page.");
+        WA.Sound.addSound(wa_gettext("Start of page"));
     }
   } else if(currentNode.previousSibling) {
     setCurrentNode(currentNode.previousSibling);
