@@ -18,7 +18,6 @@ top.webanywhere_url=top.webanywhere_location+'<?php echo $root_path; ?>';
 
 top.script_home='<?php echo $root_path; ?>';
 
-top.sound_url_base='<?php echo $sound_url_base; ?>';
 top.web_proxy_url='<?php echo $wp_path; ?>';
 top.cross_domain_security = '<?php echo $cross_domain_security; ?>';
 
