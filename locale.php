@@ -39,4 +39,17 @@ if (file_exists($js_locale_file)) {
 } else {
   echo "<script type='text/javascript'>function wa_gettext(text) { return text; }</script>";
 }
+
+// set voice
+if (empty($sound_url_base)) {
+    if (array_key_exists($locale, $voices)) {
+        $sound_url_base = $voices[$locale];
+    } else {
+        $sound_url_base = $voices["en"];
+    }
+}
+
+echo "<script type='text/javascript'>top.sound_url_base='$sound_url_base';</script>";
+
+
 ?>

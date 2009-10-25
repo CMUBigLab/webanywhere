@@ -35,8 +35,13 @@
 	// $text$ will be replaced with the URL Escaped text to fetch.
 	// Currently it is not straightforward to run your own speech server,
 	// but you can use the WebAnywhere server for this purpose.
-	$sound_url_base = 'http://webanywhere.cs.washington.edu/cgi-bin/getsound.pl?text=$text$&cache=1&mtts=1';
+	//$sound_url_base = 'http://webanywhere.cs.washington.edu/cgi-bin/getsound.pl?text=$text$&cache=1&mtts=1';
 
+    // if $sound_url_base is not set. It will be automatically set to one of following voices according to the locale.
+	$voices["en"] = 'http://webanywhere.cs.washington.edu/cgi-bin/getsound.pl?text=$text$&cache=1&mtts=1';
+    $voices["zh_CN"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=mandarin&text=$text$';
+    $voices["de"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=de&text=$text$';
+    $voices["fr"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=fr&text=$text$';
 
         // The URL that will load in WebAnywhere by default.
         $default_content_url = "http://" . $webanywhere_domain . $root_path . '/content.php';
@@ -97,3 +102,4 @@
       // Adds support for speaking selected text.
       ,'extensions/selection-reading-extension.js'
     );
+?>
