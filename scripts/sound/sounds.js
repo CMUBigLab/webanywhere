@@ -107,28 +107,7 @@ WA.Sound = {
   splitSoundsByBoundaries: true,
   boundarySplitterRegExp: /aaaaaa[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+)+[\.!\?:;\s]*/,
   splitSoundsByBoundary: function(sid) {
-    sid += "";
-    var ascii_str = "";
-    var strings = new Array();
-
-    for(var i=0, len=sid.length; i<len; i++) {
-      if(sid.charCodeAt(i) < 128) {
-        ascii_str += sid.charAt(i);
-      } else {
-        strings.push(ascii_str.split(this.boundarySplitterRegExp));
-        // Each non-ascii Unicode character is treated as one sound unit.
-        // This is a temporary solution for Chinese.
-        // Need to be improved in future.
-        strings.push(sid.charAt(i));
-        ascii_str = "";
-      }
-    }
-
-    if (ascii_str) {
-      strings.push(ascii_str.split(this.boundarySplitterRegExp));
-    }
-
-    return strings;
+    return (sid + "").split(this.boundarySplitterRegExp);
   },
 
   // Adds a new sound to the queue of sounds to be played.
