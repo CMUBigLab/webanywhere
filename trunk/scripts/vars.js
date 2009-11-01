@@ -67,12 +67,6 @@ var WA = {
   // by scripts in startup folder.
   start: function() {},
 
-  // Start up sounds.
-  initSound: "WebAnywhere has loaded.",
-
-  // Page has loaded sound.
-  pageLoadedSound: "Page has loaded.",
-
   // String to speak when WebAnywhere loads in-site.
   inSiteInit: "Press t at any time for this page to speak to you."
 };

@@ -157,7 +157,33 @@ WA.Interface = {
 
   _nodeToReturn: null,
 
-  addBlocker: function() {
+  _keyboardHelpString:  "<div id='wa_keyboard_shortcuts'>" +
+                    "<h2 id='wa_keyboard_shortcuts_heading'>Keyboard Shortcuts</h2>" +
+                    "<p>The following keyboard shortcuts are available. Press escape to exit this menu.</p>" +
+                    "<ul>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-L</b> - move the cursor to the location box where you can type a URL to visit.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>Arrow Down</b> - read the next element on the page.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>Arrow Up</b> - read the previous element on the page.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>TAB</b> - skip to the next link or form control.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-H</b> - skip to the next heading.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-I</b> - skip to the next input element.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-R</b> - skip to the next row by cell when in a table.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-D</b> - skip to the next column by cell when in a table.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>Page Down</b> - read continuously from the current position.</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>Home</b> - read continuously, starting over from the beginning of the page.</li>" +
+                    "<li style=' margin: 0; padding: 0.1em;'><b>CTRL</b> - silence WebAnywhere and pause the system.</li>" +
+                    "</ul>" +
+                    "</div>",
+
+  addKeyboardHelp: function() {
+    this.addBlocker(this._keyboardHelpString);
+  },
+
+  addLanguageChanger: function() {
+    this.addBlocker(wa_gettext("Select a language to switch to"));
+  },
+
+  addBlocker: function(innerHTML) {
     WA.Sound.silenceAll();
     WA.Extensions.spotlightNode(null);
     setBrowseMode(WA.KEYBOARD);
@@ -177,23 +203,7 @@ WA.Interface = {
     bcontent_div.style.height = blocker_div.style.height;
     bcontent_div.style.top = blocker_div.style.top;
 
-    bcontent_div.innerHTML = "<div id='wa_keyboard_shortcuts'>" +
-                    "<h2 id='wa_keyboard_shortcuts_heading'>Keyboard Shortcuts</h2>" +
-                    "<p>The following keyboard shortcuts are available. Press escape to exit this menu.</p>" +
-                    "<ul>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-L</b> - move the cursor to the location box where you can type a URL to visit.</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>Arrow Down</b> - read the next element on the page.</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>Arrow Up</b> - read the previous element on the page.</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>TAB</b> - skip to the next link or form control.</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-H</b> - skip to the next heading.</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-I</b> - skip to the next input element.</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-R</b> - skip to the next row by cell when in a table.</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>CTRL-D</b> - skip to the next column by cell when in a table.</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>Page Down</b> - read continuously from the current position.</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>Home</b> - read continuously, starting over from the beginning of the page.</li>" +
-                    "<li style=' margin: 0; padding: 0.1em;'><b>CTRL</b> - silence WebAnywhere and pause the system.</li>" +
-                    "</ul>" +
-                    "</div>";
+    bcontent_div.innerHTML = innerHTML;
 
     setCurrentNode(document.getElementById('wa_keyboard_shortcuts_heading').firstChild);
     setBrowseMode(WA.READ);

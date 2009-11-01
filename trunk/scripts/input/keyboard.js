@@ -122,7 +122,7 @@ WA.Keyboard = {
       }
       break;
     case 'ctrl forward slash':
-      WA.Interface.addBlocker();
+      WA.Interface.addKeyboardHelp();
       break;
     case 'esc':
       WA.Interface.removeBlocker();
@@ -422,7 +422,7 @@ WA.Keyboard = {
         this.suppressKeys(e);	
       }
     }
-  
+
     // Should move to separate Markov prediction object.
     this.recordObservation(key_string, new_node, lastNode);
   

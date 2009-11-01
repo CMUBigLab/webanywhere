@@ -105,7 +105,7 @@ WA.Sound = {
   // Processes a sound by breaking it up according to punctuation,
   // then adds the resulting sound(s) to the queue of sounds to play.
   splitSoundsByBoundaries: true,
-  boundarySplitterRegExp: /aaaaaa[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+)+[\.!\?:;\s]*/,
+  boundarySplitterRegExp: /[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+)+[\.!\?:;\s]*/,
   splitSoundsByBoundary: function(sid) {
     return (sid + "").split(this.boundarySplitterRegExp);
   },
