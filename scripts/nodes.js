@@ -168,31 +168,31 @@ WA.Nodes = {
     return WA.Nodes.isVisible(obj.parentNode)
   },
 
-	/**
-	 * Boolean: can this node receive focus?
-	 * @param node DOM node.
-	 * @return Boolean Is the node focusable?
-	 */
-	isFocusable: function(node) {
-	  if(!node || node == null) return false;
-	  if(node.nodeType == 1) {
-	    if(node.tagName == "INPUT") {
-	      var input_type = node.getAttribute('type');
-	      if(!input_type || input_type != 'hidden') {
-	        return true;
-	      }     
-	    } else if((node.tagName == "A" && WA.Nodes.hasAttribute(node, 'href')) || 
-	       node.tagName == "SELECT" ||
-	       node.tagName == "TEXTAREA") {
-	      return true;
-	    }
-	    var tabindex = node.getAttribute('tabindex');
-	    if(tabindex) {
-	      return true;
-	    }
-	  }
-	  return false;
-	},
+  /**
+   * Boolean: can this node receive focus?
+   * @param node DOM node.
+   * @return Boolean Is the node focusable?
+   */
+  isFocusable: function(node) {
+    if(!node || node == null) return false;
+    if(node.nodeType == 1) {
+      if(node.tagName == "INPUT") {
+	var input_type = node.getAttribute('type');
+	if(!input_type || input_type != 'hidden') {
+	  return true;
+	}     
+      } else if((node.tagName == "A" && WA.Nodes.hasAttribute(node, 'href')) || 
+		node.tagName == "SELECT" ||
+		node.tagName == "TEXTAREA") {
+	return true;
+      }
+      var tabindex = node.getAttribute('tabindex');
+      if(tabindex) {
+	return true;
+      }
+    }
+    return false;
+  },
 
   /**
    * Returns a string for this node.
