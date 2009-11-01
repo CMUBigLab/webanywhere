@@ -179,8 +179,42 @@ WA.Interface = {
     this.addBlocker(this._keyboardHelpString);
   },
 
-  addLanguageChanger: function() {
-    this.addBlocker(wa_gettext("Select a language to switch to"));
+  _languageChanger: "<form method='get' target='_top'>" +
+                    "<select name='locale'>" +
+                    "<option value='af'>Afrikanns</option>" +
+                    "<option value='zh_CN'>Chinese (Simplified)</option>" +
+                    "<option value='zh_TW'>Chinese (Traditional)</option>" +
+                    "<option value='de'>German</option>" +
+                    "<option value='fr'>French</option>" +
+                    "<option value='bs'>Bosnian</option>" +
+                    "<option value='ca'>Catalan</option>" +
+                    "<option value='cs'>Czech</option>" +
+                    "<option value='el'>Greek</option>" +
+                    "<option value='eo'>Esperanto</option>" +
+                    "<option value='es'>Spanish</option>" +
+                    "<option value='fi'>Finnish</option>" +
+                    "<option value='hr'>Croatian</option>" +
+                    "<option value='hu'>Hungarian</option>" +
+                    "<option value='it'>Italian</option>" +
+                    "<option value='ku'>Kurdish</option>" +
+                    "<option value='lv'>Latvian</option>" +
+                    "<option value='pt'>Portuguese (Brazil)</option>" +
+                    "<option value='pt-pt'>Portguese (European)</option>" +
+                    "<option value='ro'>Romanian</option>" +
+                    "<option value='sk'>Slovak</option>" +
+                    "<option value='sr'>Serbian</option>" +
+                    "<option value='sv'>Swedish</option>" +
+                    "<option value='sw'>Swahili</option>" +
+                    "<option value='ta'>Tamil</option>" +
+                    "<option value='tr'>Turkish</option>" +
+                    "<option value='en' SELECTED>English</option>" +
+                    "</select>" +
+                    "<br>" +
+                    "<input type='submit' value='Submit'/>" +
+                    "</form>",
+
+  addLanguageChanger: function() {    
+    this.addBlocker(wa_gettext("Select a language to switch to: <br> " + this._languageChanger));
   },
 
   addBlocker: function(innerHTML) {
@@ -205,7 +239,7 @@ WA.Interface = {
 
     bcontent_div.innerHTML = innerHTML;
 
-    setCurrentNode(document.getElementById('wa_keyboard_shortcuts_heading').firstChild);
+    setCurrentNode(document.getElementById('wa_blocker_content_div').firstChild);
     setBrowseMode(WA.READ);
   },
 

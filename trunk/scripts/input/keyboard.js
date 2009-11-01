@@ -121,6 +121,9 @@ WA.Keyboard = {
 	        setBrowseMode(WA.PLAY_ONE);        
       }
       break;
+    //case 'ctrl shift':
+    //  WA.Interface.addLanguageChanger();
+    //  break;
     case 'ctrl forward slash':
       WA.Interface.addKeyboardHelp();
       break;
@@ -166,6 +169,7 @@ WA.Keyboard = {
     case 'ctrl l':
       this.suppressKeys(e);
       WA.Interface.focusBrowserElement('location');
+      setBrowseMode(WA.KEYBOARD);
       break;
     case 'ctrl tab':
     case 'ctrl shift tab':
@@ -180,7 +184,7 @@ WA.Keyboard = {
         setCurrentNode(new_node);
         setBrowseMode(WA.PLAY_ONE);
       } else {
-        broseMode = WA.KEYBOARD;
+        setBrowseMode(WA.KEYBOARD);
       }
       break;
     case 'ctrl f':
@@ -343,10 +347,10 @@ WA.Keyboard = {
   
     // Special handling for SELECT nodes.
     if(target_type == "SELECT") {
-    	select_chosen = true;
       if(key_string.match(/ctrl arrow(up|down)/)) {
         return_val = false;
         default_case = false;
+        select_chosen = true;
         selectChange(key_string, target);
       } else if(key_string.match(/arrow/)) {
         this.suppressSelect(e, target, true);

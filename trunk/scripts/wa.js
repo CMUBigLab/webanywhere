@@ -657,7 +657,7 @@ function selectChange(key_string, target) {
         target.selectedIndex = sindex;
       }
 
-      var text_value = target.options[sindex].value;
+      var text_value = target.options[sindex].innerHTML; //value;
       WA.Sound.addSound(text_value);
     }
   }
