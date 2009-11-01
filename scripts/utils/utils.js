@@ -289,12 +289,12 @@ WA.Utils = {
   },
 
 
-	/**
-	 * This function returns the [x, y] position of the supplied object.
-	 * This can be slow since it requires tracing the element back to the root.
-	 * @param obj DOM element for which the position should be calculated.
-	 * @return [x,y] position of the supplied element.
-	 */
+  /**
+   * This function returns the [x, y] position of the supplied object.
+   * This can be slow since it requires tracing the element back to the root.
+   * @param obj DOM element for which the position should be calculated.
+   * @return [x,y] position of the supplied element.
+   */
   findPos: function(obj) {
     var curleft = curtop = 0;
     if(obj != null && obj.offsetParent) {

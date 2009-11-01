@@ -222,7 +222,7 @@ WA.Nodes = {
         break;
 	    case 3: // Text -- Read the Text
 	      var ret_val = node.data;
-	      if(ret_val.length > 0 && ret_val.match(/\w/)) {
+	      if(ret_val.length > 0 && ret_val.match(/[^\s,\.\?!:\-]/)) {
 	        ret_val = ret_val.replace(/&#\d+;/, "");
 	        return_val = ret_val;
 	      } else {
@@ -319,42 +319,42 @@ WA.Nodes = {
 
     switch(elem.getAttribute('type')) {
       case 'button':
-        result += "Button: " + this.nodeTypeBreaker + elem.value;
+        result += wa_gettext("Button") + ": " + this.nodeTypeBreaker + elem.value;
         break;
       case 'checkbox':
-        result += "Checkbox " + this.nodeTypeBreaker +
+        result += wa_gettext("Checkbox") + " " + this.nodeTypeBreaker +
                     this.getLabelName(elem);
         result += ": " + ((elem.checked == true) ? "checked" : "unchecked");
         break;
       case 'file':
-        result += "File Input " + this.nodeTypeBreaker +
+        result += wa_gettext("File Input") + " " + this.nodeTypeBreaker +
                     this.getLabelName(elem);
         result += ": " + elem.value;
         break;
       case 'hidden':
         break;
       case 'image':
-        result += "Image Input " + this.nodeTypeBreaker +
+        result += wa_gettext("Image Input") + " " + this.nodeTypeBreaker +
                     this.getLabelName(elem) + ": ";
         result += elem.value;
         break;
       case 'password':
-        result += "Password Textarea " + this.nodeTypeBreaker +
+        result += wa_gettext("Password Textarea") + " " + this.nodeTypeBreaker +
                     this.getLabelName(elem);
         break;
       case 'radio':
-        result += "Radio Button " + this.nodeTypeBreaker +
+        result += wa_gettext("Radio Button") + " " + this.nodeTypeBreaker +
                     this.getLabelName(elem) + ": " + elem.value;
         break;
       case 'reset':
-        result += "Reset Button: " + this.nodeTypeBreaker + elem.value;
+        result += wa_gettext("Reset Button") + ": " + this.nodeTypeBreaker + elem.value;
         break;
       case 'submit':
-        result += "Submit Button: " + this.nodeTypeBreaker + elem.value;
+        result += wa_gettext("Submit Button") + ": " + this.nodeTypeBreaker + elem.value;
         break;
       case 'text':
       default:
-        result += "Text Area " + this.nodeTypeBreaker +
+        result += wa_gettext("Text Area") + " " + this.nodeTypeBreaker +
                     this.getLabelName(elem) + ": " + elem.value;
     }
     return result;
@@ -373,41 +373,41 @@ WA.Nodes = {
     switch(elem.tagName) {
       case 'A': // Anchor
         if(this.hasAttribute(elem, 'href'))
-          result += "link " + this.nodeTypeBreaker + this.handleChildNodes(elem);
+          result += wa_gettext("link") + " " + this.nodeTypeBreaker + this.handleChildNodes(elem);
           WA.Utils.log('nodes.js result: '+result);
         break;
       case 'AREA': // Image map region
-        result += "link " + this.nodeTypeBreaker + this.handleAreaNode(elem); 
+        result += wa_gettext("link") + " " + this.nodeTypeBreaker + this.handleAreaNode(elem); 
         break;
   
       case 'BUTTON': // Button
-        result += this.handleChildNodes(elem) + " button";
+        result += this.handleChildNodes(elem) + " " + wa_gettext("button");
         break;
       
       // No this.nodeTypeBreaker because low number of possibilities, likely to be cached in full.
       case 'H1': // Level-one heading
-        result += "Heading 1";
+        result += wa_gettext("Heading 1");
         break;
       case 'H2': // Level-two heading
-        result += "Heading 2";
+        result += wa_gettext("Heading 2");
         break;
       case 'H3': // Level-three heading
-        result += "Heading 3";
+        result += wa_gettext("Heading 3");
         break;
       case 'H4': // Level-four heading
-        result += "Heading 4";
+        result += wa_gettext("Heading 4");
         break;
       case 'H5': // Level-five heading
-        result += "Heading 5";
+        result += wa_gettext("Heading 5");
         break;
       case 'H6': // Level-six heading
-        result += "Heading 6";
+        result += wa_gettext("Heading 6");
         break;
   
       case 'IMG': // Inline image
         var image_text = this.handleImageNode(elem);
         if(image_text && image_text.length > 0) {
-          result += "Image " + this.nodeTypeBreaker + image_text;
+          result += wa_gettext("Image") + " " + this.nodeTypeBreaker + image_text;
         }
         break;
       case 'INPUT': // Form input
@@ -419,28 +419,28 @@ WA.Nodes = {
         break;
   
       case 'SELECT': // Option selector
-        result += "Selection " + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
+        result += wa_gettext("Selection") + " " + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
         break;
   
       case 'TABLE': // Table e.g Table 2 <name> start # rows # columns
           var rows = elem.rows.length;
           var cols = this.getLargestRowLength(elem.rows);
           if(rows > 2 && cols > 2) {
-            result += "Table " + this.getTableNum(elem) + " " + this.getTableName(elem) +
-                                 " start " +
-                                 rows + " rows " +
-                                 cols + " columns";
+            result += wa_gettext("Table") + " " + this.getTableNum(elem) + " " + this.getTableName(elem) +
+                                 " " + wa_gettext(start) + " " +
+                                 rows + " " + wa_gettext(rows) + " " +
+                                 cols + " " + wa_gettext(columns) + " ";
           }
           break;
       case 'TEXTAREA': // Multi-line text input
-          result += "Text Area " + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
+          result += wa_gettext("Text Area") + " " + this.getLabelName(elem) + ": " + this.nodeTypeBreaker + elem.value;
           break;
   
       case 'UL': // Unordered List
       case 'OL': // Ordered List
         var numitems = this.getNumberOfListElements(elem);
         if(numitems > 0) {
-          result += "List with " + numitems + " items";
+          result += wa_gettext("List with") + " " + numitems + " " + wa_gettext("items");
         }
     }
 

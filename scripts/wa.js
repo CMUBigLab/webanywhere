@@ -260,7 +260,7 @@ function newPage(e) {
 
     // Create an artificial focusable end element.
     var end_node = currentDoc.createElement('div');
-    end_node.innerHTML = "End of Page";
+    end_node.innerHTML = wa_gettext("End of page");
     if(end_node.tabIndex) { // IE.
       end_node.tabIndex = 0;
     }
@@ -284,10 +284,10 @@ function newPage(e) {
 
   // Normally, say that a page has loaded and announce its title.
   if(WA.timesLoaded > 0) {
-    WA.Sound.addSound(WA.pageLoadedSound);
+    WA.Sound.addSound(wa_gettext("Page has loaded."));
   } else {
     // Handle the first load specially.
-    WA.Sound.addSound(WA.initSound);
+    WA.Sound.addSound(wa_gettext("WebAnywhere has loaded."));
   }
 
   // Populate the nDocuments array in prep for counting headings and links
