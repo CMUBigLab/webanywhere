@@ -925,7 +925,7 @@ fclose($_socket);
 if($_content_type == 'text/css') {
   $_response_body = proxify_css($_response_body);
 } else if($_content_type == 'application/x-javascript') {
-  $_response_body = preg_replace('#window.self != window.top#', 'false', $_response_body);
+  $_response_body = str_replace('window.self != window.top', 'false', $_response_body);
 } else {
   // Modifiable requests count more.
   if($limit_request_rate === true) {
