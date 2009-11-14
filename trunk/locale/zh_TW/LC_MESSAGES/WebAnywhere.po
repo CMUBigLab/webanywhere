@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-15 23:35+0800\n"
+"POT-Creation-Date: 2009-11-14 11:24+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,11 +40,13 @@ msgstr ""
 msgid "Location field text area:"
 msgstr ""
 
-#: scripts/input/keyboard.js:419 scripts/input/keyboard.js:419
+#: scripts/input/keyboard.js:419 scripts/input/keyboard.js:423
+#: scripts/input/keyboard.js:423
 msgid "Invalid key press"
 msgstr ""
 
-#: scripts/sound/sounds.js:603 scripts/sound/sounds.js:603
+#: scripts/sound/sounds.js:603 scripts/sound/sounds.js:582
+#: scripts/sound/sounds.js:582
 msgid "Welcome to Web Anywhere"
 msgstr ""
 
@@ -68,7 +70,8 @@ msgstr ""
 msgid "End of Page."
 msgstr ""
 
-#: scripts/wa.js:685 scripts/wa.js:390 scripts/wa.js:390 scripts/wa.js:685
+#: scripts/wa.js:685 scripts/wa.js:390 scripts/wa.js:263 scripts/wa.js:263
+#: scripts/wa.js:390 scripts/wa.js:685
 msgid "End of page"
 msgstr ""
 
@@ -90,4 +93,130 @@ msgstr ""
 
 #: index.php:253
 msgid "Welcome to WebAnywhere"
+msgstr ""
+
+#: scripts/vars.js:44
+msgid "forward"
+msgstr ""
+
+#: scripts/vars.js:71 scripts/wa.js:290 scripts/wa.js:290
+msgid "WebAnywhere has loaded."
+msgstr ""
+
+#: scripts/vars.js:74 scripts/wa.js:287 scripts/wa.js:287
+msgid "Page has loaded."
+msgstr ""
+
+#: scripts/vars.js:77
+msgid "Press t at any time for this page to speak to you."
+msgstr ""
+
+#: scripts/nodes.js:376 scripts/nodes.js:380 scripts/nodes.js:376
+#: scripts/nodes.js:380
+msgid "link"
+msgstr ""
+
+#: scripts/nodes.js:384 scripts/nodes.js:384
+msgid "button"
+msgstr ""
+
+#: scripts/nodes.js:389 scripts/nodes.js:389
+msgid "Heading 1"
+msgstr ""
+
+#: scripts/nodes.js:392 scripts/nodes.js:392
+msgid "Heading 2"
+msgstr ""
+
+#: scripts/nodes.js:395 scripts/nodes.js:395
+msgid "Heading 3"
+msgstr ""
+
+#: scripts/nodes.js:398 scripts/nodes.js:398
+msgid "Heading 4"
+msgstr ""
+
+#: scripts/nodes.js:401 scripts/nodes.js:401
+msgid "Heading 5"
+msgstr ""
+
+#: scripts/nodes.js:404 scripts/nodes.js:404
+msgid "Heading 6"
+msgstr ""
+
+#: scripts/nodes.js:410 scripts/nodes.js:410
+msgid "Image"
+msgstr ""
+
+#: scripts/nodes.js:422 scripts/nodes.js:422
+msgid "Selection"
+msgstr ""
+
+#: scripts/nodes.js:429 scripts/nodes.js:429
+msgid "Table"
+msgstr ""
+
+#: scripts/nodes.js:430 scripts/nodes.js:430
+msgid "start"
+msgstr ""
+
+#: scripts/nodes.js:431 scripts/nodes.js:431
+msgid "rows"
+msgstr ""
+
+#: scripts/nodes.js:432 scripts/nodes.js:432
+msgid "columns"
+msgstr ""
+
+#: scripts/nodes.js:436 scripts/nodes.js:357 scripts/nodes.js:357
+#: scripts/nodes.js:436
+msgid "Text Area"
+msgstr ""
+
+#: scripts/nodes.js:443 scripts/nodes.js:443
+msgid "List with"
+msgstr ""
+
+#: scripts/nodes.js:443 scripts/nodes.js:443
+msgid "items"
+msgstr ""
+
+#: scripts/interface/interface.js:217
+msgid "Select a language to switch to: <br> "
+msgstr ""
+
+#: scripts/nodes.js:322 scripts/nodes.js:322
+msgid "Button"
+msgstr ""
+
+#: scripts/nodes.js:325 scripts/nodes.js:325
+msgid "Checkbox"
+msgstr ""
+
+#: scripts/nodes.js:330 scripts/nodes.js:330
+msgid "File Input"
+msgstr ""
+
+#: scripts/nodes.js:337 scripts/nodes.js:337
+msgid "Image Input"
+msgstr ""
+
+#: scripts/nodes.js:342 scripts/nodes.js:342
+msgid "Password Textarea"
+msgstr ""
+
+#: scripts/nodes.js:346 scripts/nodes.js:346
+msgid "Radio Button"
+msgstr ""
+
+#: scripts/nodes.js:350 scripts/nodes.js:350
+msgid "Reset Button"
+msgstr ""
+
+#: scripts/nodes.js:353 scripts/nodes.js:353
+msgid "Submit Button"
+msgstr ""
+
+#: scripts/interface/interface.js:217 scripts/interface/interface.js:217
+msgid "Select a language to switch to"
 msgstr ""

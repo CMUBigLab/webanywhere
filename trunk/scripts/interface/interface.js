@@ -214,7 +214,7 @@ WA.Interface = {
                     "</form>",
 
   addLanguageChanger: function() {    
-    this.addBlocker(wa_gettext("Select a language to switch to: <br> " + this._languageChanger));
+    this.addBlocker(wa_gettext("Select a language to switch to" + ": <br> " + this._languageChanger));
   },
 
   addBlocker: function(innerHTML) {
