@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-14 11:24+0800\n"
+"POT-Creation-Date: 2009-11-14 11:37+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,7 +93,7 @@ msgstr "欢迎访问WebAnywhere"
 
 #: scripts/vars.js:74 scripts/wa.js:287 scripts/wa.js:287
 msgid "Page has loaded."
-msgstr "页面已载"
+msgstr "页面已载入"
 
 #: scripts/vars.js:77
 msgid "Press t at any time for this page to speak to you."
