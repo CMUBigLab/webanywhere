@@ -30,7 +30,7 @@
 
   // The path to the web proxy.
   // $url$ will be replaced with the URL Escaped URL to fetch.
-  $wp_path = $root_path . '/wp/wawp.php?q=$url$';
+  $wp_path = $root_path . '/wp/wawp.php?proxy_url=$url$';
 
   // The URL from which sounds should be retrieved.
   // $text$ will be replaced with the URL Escaped text to fetch.
