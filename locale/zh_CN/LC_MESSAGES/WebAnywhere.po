@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-15 23:35+0800\n"
+"POT-Creation-Date: 2009-11-14 11:24+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -36,11 +36,13 @@ msgstr "输入字符串，在本页中查找"
 msgid "Location field text area:"
 msgstr "地址栏："
 
-#: scripts/input/keyboard.js:419 scripts/input/keyboard.js:419
+#: scripts/input/keyboard.js:419 scripts/input/keyboard.js:423
+#: scripts/input/keyboard.js:423
 msgid "Invalid key press"
 msgstr "无效按键"
 
-#: scripts/sound/sounds.js:603 scripts/sound/sounds.js:603
+#: scripts/sound/sounds.js:603 scripts/sound/sounds.js:582
+#: scripts/sound/sounds.js:582
 msgid "Welcome to Web Anywhere"
 msgstr "欢迎访问Web Anywhere"
 
@@ -60,7 +62,8 @@ msgstr "链接"
 msgid "Link"
 msgstr "链接"
 
-#: scripts/wa.js:685 scripts/wa.js:390 scripts/wa.js:390 scripts/wa.js:685
+#: scripts/wa.js:685 scripts/wa.js:390 scripts/wa.js:263 scripts/wa.js:263
+#: scripts/wa.js:390 scripts/wa.js:685
 msgid "End of page"
 msgstr "页末"
 
@@ -79,3 +82,125 @@ msgstr "没有"
 #: index.php:253
 msgid "Welcome to WebAnywhere"
 msgstr "欢迎访问Web Anywhere"
+
+#: scripts/vars.js:44
+msgid "forward"
+msgstr "前进"
+
+#: scripts/vars.js:71 scripts/wa.js:290 scripts/wa.js:290
+msgid "WebAnywhere has loaded."
+msgstr "欢迎访问WebAnywhere"
+
+#: scripts/vars.js:74 scripts/wa.js:287 scripts/wa.js:287
+msgid "Page has loaded."
+msgstr "页面已载"
+
+#: scripts/vars.js:77
+msgid "Press t at any time for this page to speak to you."
+msgstr "任何时候按t就发"
+
+#: scripts/nodes.js:376 scripts/nodes.js:380 scripts/nodes.js:376
+#: scripts/nodes.js:380
+msgid "link"
+msgstr "链接"
+
+#: scripts/nodes.js:384 scripts/nodes.js:384
+msgid "button"
+msgstr "按钮"
+
+#: scripts/nodes.js:389 scripts/nodes.js:389
+msgid "Heading 1"
+msgstr "1级标题"
+
+#: scripts/nodes.js:392 scripts/nodes.js:392
+msgid "Heading 2"
+msgstr "2级标题"
+
+#: scripts/nodes.js:395 scripts/nodes.js:395
+msgid "Heading 3"
+msgstr "3级标题"
+
+#: scripts/nodes.js:398 scripts/nodes.js:398
+msgid "Heading 4"
+msgstr "4级标题"
+
+#: scripts/nodes.js:401 scripts/nodes.js:401
+msgid "Heading 5"
+msgstr "5级标题"
+
+#: scripts/nodes.js:404 scripts/nodes.js:404
+msgid "Heading 6"
+msgstr "6级标题"
+
+#: scripts/nodes.js:410 scripts/nodes.js:410
+msgid "Image"
+msgstr "图片"
+
+#: scripts/nodes.js:422 scripts/nodes.js:422
+msgid "Selection"
+msgstr "选择"
+
+#: scripts/nodes.js:429 scripts/nodes.js:429
+msgid "Table"
+msgstr "表格"
+
+#: scripts/nodes.js:430 scripts/nodes.js:430
+msgid "start"
+msgstr "开始"
+
+#: scripts/nodes.js:431 scripts/nodes.js:431
+msgid "rows"
+msgstr "行"
+
+#: scripts/nodes.js:432 scripts/nodes.js:432
+msgid "columns"
+msgstr "列"
+
+#: scripts/nodes.js:436 scripts/nodes.js:357 scripts/nodes.js:357
+#: scripts/nodes.js:436
+msgid "Text Area"
+msgstr "文本框"
+
+#: scripts/nodes.js:443 scripts/nodes.js:443
+msgid "List with"
+msgstr "列表"
+
+#: scripts/nodes.js:443 scripts/nodes.js:443
+msgid "items"
+msgstr "项"
+
+#: scripts/nodes.js:322 scripts/nodes.js:322
+msgid "Button"
+msgstr "按钮"
+
+#: scripts/nodes.js:325 scripts/nodes.js:325
+msgid "Checkbox"
+msgstr "多选按钮"
+
+#: scripts/nodes.js:330 scripts/nodes.js:330
+msgid "File Input"
+msgstr "文件选择按钮"
+
+#: scripts/nodes.js:337 scripts/nodes.js:337
+msgid "Image Input"
+msgstr "图片按钮"
+
+#: scripts/nodes.js:342 scripts/nodes.js:342
+msgid "Password Textarea"
+msgstr "密码输入框"
+
+#: scripts/nodes.js:346 scripts/nodes.js:346
+msgid "Radio Button"
+msgstr "单选按钮"
+
+#: scripts/nodes.js:350 scripts/nodes.js:350
+msgid "Reset Button"
+msgstr "重置按钮"
+
+#: scripts/nodes.js:353 scripts/nodes.js:353
+msgid "Submit Button"
+msgstr "提交按钮"
+
+#: scripts/interface/interface.js:217 scripts/interface/interface.js:217
+msgid "Select a language to switch to"
+msgstr "选择切换到一种新的语言"

@@ -427,9 +427,9 @@ WA.Nodes = {
           var cols = this.getLargestRowLength(elem.rows);
           if(rows > 2 && cols > 2) {
             result += wa_gettext("Table") + " " + this.getTableNum(elem) + " " + this.getTableName(elem) +
-                                 " " + wa_gettext(start) + " " +
-                                 rows + " " + wa_gettext(rows) + " " +
-                                 cols + " " + wa_gettext(columns) + " ";
+                                 " " + wa_gettext("start") + " " +
+                                 rows + " " + wa_gettext("rows") + " " +
+                                 cols + " " + wa_gettext("columns") + " ";
           }
           break;
       case 'TEXTAREA': // Multi-line text input
