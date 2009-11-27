@@ -138,7 +138,7 @@ $sound_url_base = 'http://localhost/perl/espeak.pl?text=$text$&lang=cantonese';
 
 }}}
 
-=Deploy Ekho TTS server=
+=Deploy Ekho TTS server (optional)=
 Ekho is a Chinese(Cantonese/Mandarin) TTS engine. It can also speak English through Festival.
 
 ==Install Ekho==
