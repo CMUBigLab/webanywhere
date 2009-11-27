@@ -107,7 +107,7 @@ The festival server will by default accept connections to localhost.  If you wan
 (defvar server_access_list '(localhost "[^\\.\\\\]+\\.cs\\.washington\\.edu")
 }}}
 
-==Config config.php==
+==Configure config.php==
 We may need to change following lines. Please make sure web server has writing permission on the directory of webanywhere-accesses.sdb.
 {{{
 $sound_url_base = 'http://localhost/perl/getsound.pl?text=$text$&cache=1&mtts=1';
@@ -136,6 +136,37 @@ Like Festival, we need to set following line: (espeak.pl is a copy of getsound.p
 
 $sound_url_base = 'http://localhost/perl/espeak.pl?text=$text$&lang=cantonese';
 
+}}}
+
+=Deploy Ekho TTS server=
+Ekho is a Chinese(Cantonese/Mandarin) TTS engine. It can also speak English through Festival.
+
+==Install Ekho==
+Please refer to http://www.eguidedog.net/ekho.php
+The TTS server function works since verion 2.1 for Linux.
+
+==Launch Ekho TTS server==
+{{{
+ekho --server -v Mandarin
+}}}
+
+To test whether Ekho server works:
+{{{
+ekho --request "123" -o output.mp3
+}}}
+
+A file output.mp3 should be generated.
+
+==Configure ekho_agent.pl==
+We need to copy tts/ekho/ekho_agent.pl to some path. This path is hard code in the script. So we need to change following line:
+{{{
+my $base_dir = '/var/www/cache/';
+}}}
+
+==Config config.php==
+Like Festival, we need to set following line:
+{{{
+$sound_url_base = 'http://localhost/perl/ekho_agent.pl?text=$text$&cache=1&mtts=1';
 }}}
 
 =Deploy Webanywhere=
