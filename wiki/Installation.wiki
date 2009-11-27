@@ -28,7 +28,7 @@ For windows PHP installer, SQLite 2 is the default. To install SQLite 3, You may
   # edit php.ini. change "extension=php_sqlite.dll" to "extension=php_pdo_sqlite.dll"
   # restart Apache
 
-==Config Apache for Perl==
+==Configure Apache for Perl==
 *This is only needed if you want to deploy Festival TTS server on Linux*
 
 Install following modules:
@@ -85,7 +85,7 @@ sub DESTROY
 }
 }}}
 
-==Config getsound.pl==
+==Configure getsound.pl==
 The original version of getsound.pl locates at tts/festival/. We should copy it to the right path, /var/www/perl/ for example.
 
 getsound.pl need lame and sox application. Make a symbol link to them under the path of getsound.pl.
@@ -122,7 +122,7 @@ eSpeak can speak many languages. And it's easy to deploy.
 Please refer to http://espeak.sf.net
 We don't need to launch a eSpeak server like Festival. We just need to make sure command `espeak` can be run.
 
-==Config getsound.pl==
+==Configure getsound.pl==
 We need to copy tts/espeak/getsound.pl to some path. This path is hard code in the script. So we need to change following line:
 {{{
 my $base_dir = '/home/hgneng/www-perl';
@@ -130,7 +130,7 @@ my $base_dir = '/home/hgneng/www-perl';
 
 In getsound.pl of espeak, we add a "lang" variable to specify voice in espeak.
 
-==Config config.php==
+==Configure config.php==
 Like Festival, we need to set following line: (espeak.pl is a copy of getsound.pl)
 {{{
 
@@ -163,7 +163,7 @@ We need to copy tts/ekho/ekho_agent.pl to some path. This path is hard code in t
 my $base_dir = '/var/www/cache/';
 }}}
 
-==Config config.php==
+==Configure config.php==
 Like Festival, we need to set following line:
 {{{
 $sound_url_base = 'http://localhost/perl/ekho_agent.pl?text=$text$&cache=1&mtts=1';
