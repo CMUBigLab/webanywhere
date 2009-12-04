@@ -112,12 +112,15 @@ WA.Extensions.VisualSpotlighter = function() {
   /**
    * Adds the CSS class used for highlighting.
    * @param doc Document to have the CSS style tag added to it.
+   * @param docs Array of documents to have the CSS style tag added to each of them.
    */
-  this.oncePerDocument = function(doc) {
+  //this.oncePerDocument = function(doc) {
+  this.oncePerDocument = function(docs) {
+          
     // Avoid highlighting nodes no longer in existence.
     this._nodeRecords = null;
 
-  	var styleNode = doc.createElement('div');
+  	/* var styleNode = doc.createElement('div');
     // Funky way of adding style required to make this work with IE.
     styleNode.innerHTML =
       "<p>&nbsp;</p>" +
@@ -125,8 +128,25 @@ WA.Extensions.VisualSpotlighter = function() {
       ".wahighlight {-moz-border-radius: 2px; border-color: #FF0 !important; color: #FF0 !important; background-color: #000 !important;}" +
       "a.wahighlight {color: #FF0 !important;}" +
       "</style>";
-    doc.body.appendChild(styleNode);
-  };
+    doc.body.appendChild(styleNode); */
+    
+      
+    // Add the style to each document. If no iframes, then should only add
+    // this to the base document.
+    for(var i=0; i<nDocuments.length; i++) {
+      var styleNode = docs[i].createElement('div');
+      // Funky way of adding style required to make this work with IE.
+      styleNode.innerHTML =
+          "<p>&nbsp;</p>" +
+          "<style>" +
+          ".wahighlight {-moz-border-radius: 2px; border-color: #FF0 !important; color: #FF0 !important; background-color: #000 !important;}" +
+          "a.wahighlight {color: #FF0 !important;}" +
+          "</style>";
+      docs[i].body.appendChild(styleNode);
+     }
+   } 
+    
+  //};
 };
 
 // Initialize the visual spotlighter and add it to the extensions
