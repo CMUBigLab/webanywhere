@@ -108,7 +108,7 @@ function init_browser() {
   else if(window.addEventListener) document.addEventListener('keyup', handleKeyUp, false);
 
   if(window.attachEvent) document.attachEvent('onkeypress', handleKeyPress);
-  else if(window.addEventListener) document.addEventListener('keypress', handleKeyPress, false);
+  else if(window.addEventListener) document.addEventListener('keypress', handleKeyPress, false); 
 
   // For Flash, the system waits until the Flash movie has loaded.
   // For embedded sounds, the system can proceed immediately.
@@ -189,17 +189,6 @@ function newPage(e) {
 
     currentLoc = newLoc;
       
-    // @@ Create a stack of other document.body nodes to attach events to?
-    /* This only gathers the iframes that are children of the current document. Need to make this recursive to pick up nested iframes
-    
-    var iframes = newDoc.getElementsByTagName("IFRAME");
-     if(iframes.length >= 1) {
-       for(i=0; i<iframes.length; i++) {
-         iframes[0].contentDocument.attachEvent...
-         }
-       }
-    */
-      
     // Capture key presses.
     if(window.attachEvent) currentDoc.attachEvent('onkeydown', handleKeyDown);
     else if(window.addEventListener) currentDoc.addEventListener('keydown', handleKeyDown, false);
@@ -231,6 +220,11 @@ function newPage(e) {
       WA.Sound.Prefetch.incPrefetchIndex();
     }
 
+    // Populate the nDocuments array in prep for counting headings and links
+    // First, make sure nDocuments is zeroed out from previously loaded docs.
+    nDocuments.length = 0;
+    nDocuments.push(currentDoc);
+    buildDocumentStack(currentDoc);
 
     //
     // EXTENSIONS
@@ -246,7 +240,8 @@ function newPage(e) {
 
     // Run any extensions that requests to be run once per document.
     // This is assumed to run prior to the node preprocessor.
-    WA.Extensions.runOncePerDocument(currentDoc);
+    // WA.Extensions.runOncePerDocument(currentDoc);
+    WA.Extensions.runOncePerDocument(nDocuments);
 
     // Create an artificial focusable start element containg the page title.
     var start_node = currentDoc.createElement('div');
@@ -292,9 +287,11 @@ function newPage(e) {
 
   // Populate the nDocuments array in prep for counting headings and links
   // First, make sure nDocuments is zeroed out from previously loaded docs.
-  nDocuments.length = 0;
+  /* nDocuments.length = 0;
   nDocuments.push(currentDoc);
-  buildDocumentStack(currentDoc);
+  buildDocumentStack(currentDoc); 
+  @@Moved it up before calls to extensions.
+  */
   
   // Speak the number of headings and links on the page.
   // var nheadings = countNumHeadings(currentDoc);
@@ -1608,14 +1605,14 @@ function _nextNode() {
     setCurrentNode(currentNode.nextSibling);
   } else if(currentNode.nodeName == "BODY") {
     setCurrentNode(currentNode.firstChild);
-  } /*else if(currentNode.nodeName == "IFRAME") {
+  } else if(currentNode.nodeName == "IFRAME") {
     WA.Utils.log("In _nextNode. currentNode.nodeName is: "+currentNode.nodeName+"  currentNode.contentDocument.body is: "+currentNode.contentDocument.body);
     // Push this iframe node onto the _iframeNodes stack so that we can 
     // navigate back to this iframe when we are done with it.
     WA.Nodes._iframeNodes.push(currentNode);
     WA.Utils.log("_iframeNodes is "+WA.Nodes._iframeNodes.length+" nodes long.");
     setCurrentNode(dfsNode(currentNode.contentDocument.body)); 
-  } */ else {
+  } else {
     goBackUp();
   }
   
@@ -1796,15 +1793,6 @@ function countNumLinks(doc) {
  * @param doc Document on which the number of headings should be counted.
  * @return cnt Count of the headings in the document.
  */
-/* function countNumHeadings(doc) {
-  var cnt = doc.getElementsByTagName('H1').length;
-  cnt += doc.getElementsByTagName('H2').length;
-  cnt += doc.getElementsByTagName('H3').length;
-  cnt += doc.getElementsByTagName('H4').length;
-  cnt += doc.getElementsByTagName('H5').length;
-  cnt += doc.getElementsByTagName('H6').length;
-  return cnt;
-} */
 function countNumHeadings() {
   var cnt = 0;
   for(i=0; i<nDocuments.length; i++) {
@@ -1827,14 +1815,23 @@ function countNumHeadings() {
   *
   */
   function buildDocumentStack(docObject) {
-    /*var iFrames = docObject.getElementsByTagName("IFRAME");
+    var iFrames = docObject.getElementsByTagName("IFRAME");
     if(iFrames) {
-      for(i=0; i<iFrames.length; i++) {
+      for(var i=0; i<iFrames.length; i++) {
         nDocuments.push(iFrames[i].contentDocument);
         buildDocumentStack(iFrames[i].contentDocument);
+        // @@ attach keypress events to each document as we build the stack?
+        // what happens if new iframes are inserted after the fact?
+        if(iFrames[i].addEventListener) {
+          iFrames[i].contentDocument.addEventListener('keypress',handleKeyPress,true);
+        }
+        else if(iFrames[i].attachEvent) {
+          iFrames[i].contentDocument.attachEvent('onkeypress',handleKeyPress);
+        } 
+        // Even adding them here gives me an echo that I can't stop.
       }
     }
-    WA.Utils.log("Leaving buildDocumentStack. nDocuments.length is: "+nDocuments.length);*/
+    WA.Utils.log("Leaving buildDocumentStack. nDocuments.length is: "+nDocuments.length);
   } 
 
 /**
