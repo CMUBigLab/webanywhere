@@ -284,14 +284,6 @@ function newPage(e) {
     // Handle the first load specially.
     WA.Sound.addSound(wa_gettext("WebAnywhere has loaded."));
   }
-
-  // Populate the nDocuments array in prep for counting headings and links
-  // First, make sure nDocuments is zeroed out from previously loaded docs.
-  /* nDocuments.length = 0;
-  nDocuments.push(currentDoc);
-  buildDocumentStack(currentDoc); 
-  @@Moved it up before calls to extensions.
-  */
   
   // Speak the number of headings and links on the page.
   // var nheadings = countNumHeadings(currentDoc);
@@ -1822,13 +1814,24 @@ function countNumHeadings() {
         buildDocumentStack(iFrames[i].contentDocument);
         // @@ attach keypress events to each document as we build the stack?
         // what happens if new iframes are inserted after the fact?
-        if(iFrames[i].addEventListener) {
+        if(iFrames[i].attachEvent) iFrames[i].contentDocument.attachEvent('onkeydown', handleKeyDown);
+        else if(iFrames[i].addEventListener) iFrames[i].contentDocument.addEventListener('keydown', handleKeyDown, false);
+  
+        if(iFrames[i].attachEvent) iFrames[i].contentDocument.attachEvent('onkeyup', handleKeyUp);
+        else if(iFrames[i].addEventListener) iFrames[i].contentDocument.addEventListener('keyup', handleKeyUp, false);
+  
+        if(iFrames[i].attachEvent) iFrames[i].contentDocument.attachEvent('onkeypress', handleKeyPress);
+        else if(iFrames[i].addEventListener) iFrames[i].contentDocument.addEventListener('keypress', handleKeyPress, false);
+        
+        /* if(iFrames[i].addEventListener) {
           iFrames[i].contentDocument.addEventListener('keypress',handleKeyPress,true);
         }
         else if(iFrames[i].attachEvent) {
           iFrames[i].contentDocument.attachEvent('onkeypress',handleKeyPress);
-        } 
-        // Even adding them here gives me an echo that I can't stop.
+        }  
+        */
+        // Even adding them here gives me an echo that I can't stop. (wrote on windows machine)
+        // with jus the onkeypress event handlers, did not get the echo on the mac--when moved the files over here from the win machine.
       }
     }
     WA.Utils.log("Leaving buildDocumentStack. nDocuments.length is: "+nDocuments.length);
