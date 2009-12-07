@@ -111,8 +111,8 @@ WA.Utils = {
   },
 
   _delayPostQueue: null,
-  delayPostURL: function(args) {
-  	if(WA.Utils._delayPostQueue) {
+  delayProxyPost: function(args) {
+  	if(WA.Utils._delayPostQueue == null) {
   		WA.Utils._delayPostQueue = new Array();
   	}
 
@@ -120,24 +120,53 @@ WA.Utils = {
     queue.push(args);
   },
 
+  postDelayPostInfo: function() {    
+    var dp = this.getDelayPostInfo(16000);
+    var url = top.web_proxy_url.replace(/\$url\$/, "");
+    if((""+dp).length > 0) {
+      postURL(url, dp);
+    }
+  },
+
   /**
    * Returns a string that should be delay-posted.
    * @param maxlength The maximum length of the information to be returned.
    */
   getDelayPostInfo: function(maxlength) {
-    var queue = WA.Utils._delayPostQueue.length;
+    maxlength -= ("&sid="+top.sessionid).length;
+
+    var queue = WA.Utils._delayPostQueue;
   	var postInfo = "";
 
     if(queue == null || queue.length < 1) {
     	return "";
     }
 
-    for(var i=0; tmp.length < maxlength && queue.length > 0; i++) {
-    	if(tmp.length > 0) { tmp += "&"; }
-      var tmp = "arg" + i + "=" + escape(queue.shift());
+    for(var i=0; postInfo.length < maxlength && queue.length > 0; i++) {
+    	if(postInfo.length > 0) {postInfo += "&";}
+      postInfo += "dp" + i + "=" + escape(queue.shift());
     }
 
+    /*if(postInfo.length > 0) {
+      postInfo += "&sid=" + top.sessionid;
+    }*/
+
     return postInfo;
+  },
+
+  /**
+   *  Augments the supplied URL with delayed information to be posted.
+   * @param URL to be rewritten
+   * @return rewritten URL.
+   */
+  addDelayPost: function(url) {
+    var len = (""+url).length;
+    var dp = this.getDelayPostInfo(2048 - len);
+    if((dp+"").length > 0) {
+      url = url.replace(/\$dp\$/, dp);
+    }
+
+    return url;
   },
 
   /** 
@@ -147,78 +176,78 @@ WA.Utils = {
    * @return A string of the XPATH that was created.
    */
   getXPath: function(node) {
-   if(!node) {
-   	return "(none)";
-   }
+    if(!node) {
+    	return "(none)";
+    }
 
-   var xpath = "";
+    var xpath = "";
 
-   var namespace = node.ownerDocument.documentElement.namespaceURI;
-   var prefix = namespace ? "x:" : "";
+    var namespace = node.ownerDocument.documentElement.namespaceURI;
+    var prefix = namespace ? "x:" : "";
+
+    var node2 = node;
+    var doc = node.ownerDocument;
+
+    var node_id = null;
+    if(node.getAttribute) {
+      node_id = node.getAttribute('id');
+    }
+
+    for(var i=0; node2 && node2 != doc; i++) {
+      if(!node2.tagName || !node2.parentNode) {
+        return "";
+      }
+
+      var tag = node2.tagName.toLowerCase();
+      var id = node2.id;
+      var className = node2.className;
+
+      var segment = prefix + tag;
+      if(tag.length > 0) {
+        var cl = node2.getAttribute('class');
+        if(id && id != "" && false) {
+          xpath = "//" + segment + '[@id="' + id + '"]' + xpath;
+          break;
+        } else {
+          var par_childs = node2.parentNode.childNodes;
+          var node_num = 1;
   
-   var node2 = node;
-   var doc = node.ownerDocument;
+          for(var j=0, pcl=par_childs.length; j<pcl; j++) {
+            var child_tag = par_childs[j].tagName;
+            if(!child_tag) {
+              continue;
+            }
+            child_tag = par_childs[j].tagName.toLowerCase();
+            if(par_childs[j] == node2) {
+              break;
+            }
+            if(child_tag == tag) {
+              node_num++;
+            }
+          }
+          segment += '[' + node_num + ']';
+        }
+      } else if(tag == "tr") {
+        var rowCount = node2.parentNode.rows.length;
+        if(rowCount > 1 && rowCount < 5) {
+          segment += '[' + (node2.rowIndex+1) + ']';
+        }
+      } else if(tag == "td") {
+        var cellCount = node2.parentNode.cells.length;
+        if(cellCount > 1 && cellCount < 5) {
+          segment += '[' + (node2.cellIndex+1) + ']';
+        }
+      }
 
-   var node_id = null;
-   if(node.getAttribute) {
-     node_id = node.getAttribute('id');
-   }
+      xpath = "/" + segment + xpath;
 
-   for(var i=0; node2 && node2 != doc; i++) {
-     if(!node2.tagName || !node2.parentNode) {
-       return "";
-     }
+      node2 = node2.parentNode;
+    }
 
-     var tag = node2.tagName.toLowerCase();
-     var id = node2.id;
-     var className = node2.className;
-  
-     var segment = prefix + tag;
-     if(tag.length > 0) {
-       var cl = node2.getAttribute('class');
-       if(id && id != "" && false) {
-         xpath = "//" + segment + '[@id="' + id + '"]' + xpath;
-         break;
-       } else {
-         var par_childs = node2.parentNode.childNodes;
-         var node_num = 1;
-  
-         for(var j=0, pcl=par_childs.length; j<pcl; j++) {
-           var child_tag = par_childs[j].tagName;
-           if(!child_tag) {
-             continue;
-           }
-           child_tag = par_childs[j].tagName.toLowerCase();
-           if(par_childs[j] == node2) {
-             break;
-           }
-           if(child_tag == tag) {
-             node_num++;
-           }
-         }
-         segment += '[' + node_num + ']';
-       }
-     } else if(tag == "tr") {
-       var rowCount = node2.parentNode.rows.length;
-       if(rowCount > 1 && rowCount < 5) {
-         segment += '[' + (node2.rowIndex+1) + ']';
-       }
-     } else if(tag == "td") {
-       var cellCount = node2.parentNode.cells.length;
-       if(cellCount > 1 && cellCount < 5) {
-         segment += '[' + (node2.cellIndex+1) + ']';
-       }
-     }
-
-     xpath = "/" + segment + xpath;
-  
-     node2 = node2.parentNode;
-   }
-
-   if(node_id) {
-     xpath += '#' + node_id;
-   }
-   return xpath;
+    if(node_id) {
+      xpath += '#' + node_id;
+    }
+    return xpath;
   },
 
   /**

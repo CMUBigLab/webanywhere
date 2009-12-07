@@ -1,5 +1,4 @@
 <?php
-
   // This file contains the configurable paths and options
   // made available by WebAnywhere.
   // The default configuration assumes installation on your local machine:
@@ -30,7 +29,10 @@
 
   // The path to the web proxy.
   // $url$ will be replaced with the URL Escaped URL to fetch.
-  $wp_path = $root_path . '/wp/wawp.php?proxy_url=$url$';
+  $wp_path = $root_path . '/wp/wawp.php?q=$url$&$dp$';
+
+  // Path to the sounds folder.
+  $sounds_path = $root_path . '/sounds/';
 
   // The URL from which sounds should be retrieved.
   // $text$ will be replaced with the URL Escaped text to fetch.
@@ -80,8 +82,8 @@
   // Filename for SQLite database used to limit requests -
   // should not be accessible from the web.
   // Despite the default, a unix-style path will also work on unix systems.
-  // $sql_lite_filename = "C:/webanywhere-accesses.sdb";
-  $sql_lite_filename = "/wa/webanywhere-accesses.sdb";
+  $sqlite_filename = "C:/webanywhere-accesses.sdb";
+  //$sqlite_filename = "/wa/webanywhere-accesses.sdb";
 
   // Temporary directory where the cache of minimized scripts is stored.
   // Defaults to the default temporary directory on your system, which may
@@ -95,6 +97,11 @@
   // This should be enabled if using a fast connection or when untrusted sites
   // may be visited.
   $cross_domain_security = false;
+
+  // Will anonymized interaction histories be recorded?
+  // This records only the paths taken through content and not the content itself.
+  $record_interactions = false;
+  $record_file = "interactions.rc";
 
   // Extensions files.
   // Comment individual extensions out to prevent their inclusion.
@@ -124,5 +131,8 @@
 
     // Adds support for speaking selected text.
     ,'extensions/selection-reading-extension.js'
+
+    // Adds support for recording user interactions.
+    ,'extensions/recorder-extension.js'
   );
 ?>

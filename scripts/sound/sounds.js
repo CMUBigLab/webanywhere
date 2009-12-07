@@ -34,7 +34,7 @@ WA.Sound = {
   // Constants related to sound playback.
   free_threads: 25,
   soundPlayerLoaded: false,
-  
+
   // The queue of sounds that are waiting to play.
   soundQ: new Array(),
   
@@ -46,7 +46,6 @@ WA.Sound = {
   playWaitingInterval: 50,
 
   // State variables.
-  inPlayWaiting: false,
   lastPath: -1,
   soundState: -1,
   readyState: -1,
@@ -165,6 +164,13 @@ WA.Sound = {
 
   // Resets all sounds.
   stopAllSounds: function() {
+    if(this.playing != null) {
+      var stats = this._currentTimeAndTotalFlash(this.playing);
+      var done_frac = stats[0]/stats[1];
+
+      WA.Extensions.soundFinished(this.playing, done_frac);
+    }
+
     if(this.soundMethod == this.FLASH_SOUND_METHOD) {
       soundManager.stopAll();
     } else {
@@ -197,17 +203,11 @@ WA.Sound = {
 
   //  Main function called that actually plays sounds when it's supposed to.
   playWaiting: function() {
-    if(this.inPlayWaiting) {
-      return;
-    }
-    this.inPlayWaiting = true;
-
     if(this.playing!=null)
       WA.Utils.log(this.soundPlayerLoaded + '||' + this.playing + '||' + this.soundQ.length + '||' + WA.browseMode);
 
     if(!this.soundPlayerLoaded) {
       this.lastPath = 0;
-      this.inPlayWaiting = false;
       return;
     } else if(!this.playing && this.soundQ.length > 0) {
       this.lastPath = 1;
@@ -218,15 +218,15 @@ WA.Sound = {
       if(WA.prefetchStrategy > 1) {
         this.prefetchFromSoundQ();
       }
-    } else if(!this.playing && WA.browseMode != WA.LOADING &&
+    } else if(!this.playing && WA.browseMode != WA.LOADING && WA.browseMode != WA.LOOPING &&
                 WA.Keyboard.ActionQueue.queueSize() > 0) {
 
     	WA.Keyboard.ActionQueue.playFromQueue();
     	WA.Sound.playWaiting();
-
-    } else if(!this.playing && (WA.browseMode == WA.READ || WA.browseMode == WA.PLAY_ONE || WA.browseMode == WA.PLAY_ONE_BACKWARD || WA.browseMode == WA.PLAY_TWO_BACKWARD || WA.browseMode == WA.PREV_CHAR || WA.browseMode == WA.PREV_CHAR_BACKONE)) {
+    } else if(!this.playing && (WA.browseMode == WA.READ || WA.browseMode == WA.PLAY_ONE ||
+                                  WA.browseMode == WA.PLAY_ONE_BACKWARD || WA.browseMode == WA.PLAY_TWO_BACKWARD ||
+                                  WA.browseMode == WA.PREV_CHAR || WA.browseMode == WA.PREV_CHAR_BACKONE)) {
       this.lastPath = 2;
-      //alert('notplaying');
       if(WA.browseMode == WA.PLAY_ONE_BACKWARD || WA.browseMode == WA.PLAY_TWO_BACKWARD || WA.browseMode == WA.PREV_CHAR || WA.browseMode == WA.PREV_CHAR_BACKONE) {
         this.lastPath = 99;
         //this.Prefetch.addObservation(this.Prefetch.prefetchTypes.PREVNODE, lastNode, WA.Keyboard.last_action);
@@ -237,18 +237,28 @@ WA.Sound = {
       }
     } else if(this.playing) {
       var is_playing = this.isPlaying(this.playing);
-      //WA.Utils.log('playing ' + this.playing + ' ' + is_playing);
       if(!is_playing) {
         WA.Sound.setWhatsPlaying(null);
       }
     }
-    this.inPlayWaiting = false;
   },
 
   // Returns the URL for the sound file for this string.
   urlForString: function(string) {
     var url = top.sound_url_base.replace(/\$text\$/, escape(string));
-    url = proxifyURL(url, "");
+
+    if(/^waspecialstringname:/.test(string)) {
+      var s = string.replace(/^waspecialstringname:/, '');
+      switch(s) {
+        case "waiting":
+          url = top.sounds_path + s + '.mp3';
+          break;
+        default:
+      }      
+    }
+
+    url = proxifyURL(url, "", true);
+
     return url;
   },
 
@@ -273,7 +283,7 @@ WA.Sound = {
     }
   
     var url = '/cgi-bin/getsound.pl?text=' + escape(speak); // BUG: should not hard code TTS engine path here. - Cameron, 2009.3.14
-    url = proxifyURL(url, "");
+    url = proxifyURL(url, "", true);
   
     switch(this.soundMethod) {
       case this.FLASH_SOUND_METHOD: this._prefetchFlash("keycode_" + keycode, url, false, false); break;
@@ -363,6 +373,17 @@ WA.Sound = {
     }
   },
 
+  _currentTimeAndTotalFlash: function(string) {
+    string = this.prepareSound(string);
+    string = this.getSoundID(string);
+    var sound = soundManager.getSoundById(string);
+
+    var stats = [1.0, 1.0];
+    if(sound && sound.durationEstimate > 0) stats = [sound.position, sound.durationEstimate];
+
+    return stats;
+  },
+
   // Stores timing information useful when conducting studies.
   timingArray: new Object(),
   getTimingList: function() {
@@ -443,13 +464,13 @@ WA.Sound = {
         this.free_threads--;
         soundManager.createSound({
           id: string,
-    	  url: url,
+          url: url,
           autoLoad: true,
-    	  stream: playdone,
+          stream: playdone,
           autoPlay: playdone,
           onload: function() {WA.Sound._onSoundLoad(this)},
           onplay: function() {
-    	      valPath += this.sID;
+    	      this.valPath += this.sID;
     	      WA.Sound.soundsPlayed++;
           },
           whileplaying: function() {
@@ -469,7 +490,10 @@ WA.Sound = {
       sound.onjustbeforefinish = function(){WA.Sound._onSoundFinish()};
       var duration = (WA.Sound.Prefetch.prefetchRecords[string] && WA.Sound.Prefetch.prefetchRecords[string].soundlength) ? WA.Sound.Prefetch.prefetchRecords[string].soundlength : this.timingArray[string].length; 
       WA.Utils.log('finished sound: ' + this.timingArray[string].playStart.getTime() + ' ' + duration + ' ' + this.timingArray[string].orig_string);
+
+      // Actually play the sound.
       sound.play();
+
       if(typeof sound.play == 'string') {
         WA.Utils.log('playing sound: ' + sound.play);
       }
@@ -521,10 +545,16 @@ WA.Sound = {
     } else {
       WA.Utils.log('finished sound: ' + this.timingArray[string].end.getTime() + ' ' + sound.durationEstimate + ' ' + this.timingArray[string].orig_string);
     }
+
     if(WA.Sound.playing != null) {
+      WA.Extensions.soundFinished(WA.Sound.playing, 1.0);
+
       var is_playing = WA.Sound.isPlaying(WA.Sound.playing);
       if(is_playing) {
         setTimeout(function(){_onsoundfinish()}, 100);
+      } else if(WA.browseMode == WA.LOOPING) {
+        WA.Sound.add(this.playing);
+        this.playing = null;
       } else {
         this.playing = null;
         // Don't wait for timed event if there's something else to read right now.
