@@ -33,7 +33,7 @@ ini_set('display_errors','On');
 //
 $_config            = array
                     (
-                        'url_var_name'             => 'proxy_url',
+                        'url_var_name'             => 'q',
                         'flags_var_name'           => 'hl',
                         'get_form_name'            => '____pgfa',
                         'basic_auth_var_name'      => '____pbavn',
@@ -298,6 +298,24 @@ function proxify_css_url($url) {
   return $delim . preg_replace('#([\(\),\s\'"\\\])#', '\\$1', complete_url(trim(preg_replace('#\\\(.)#', '$1', trim($url, $delim))))) . $delim;
 }
 
+
+//
+// SET UP and RECORD INTERACTIONS.
+//
+
+if($record_interactions) {
+  session_start();
+
+  $id = strtoupper(substr(session_id(), 0, 8));
+
+  $myFile = $record_file;
+  $fh = fopen($myFile, 'a+') or die("can't open file");
+  for($i=0; isset($_REQUEST["dp".$i]); $i++) {
+    fwrite($fh, $id . "\t" . $_REQUEST["dp".$i] . "\n");
+  }
+  fclose($fh);
+}
+
 //
 // SET FLAGS
 //
@@ -465,8 +483,7 @@ if($limit_request_rate && !preg_match($address_pattern, $_url)) {
           + $ipArr[3];
 
     // Get or create our new database.
-    $filename = "/projects/compression2/webinsight/www/wa/wp/webanywhere-accesses.sdb";
-    $dbh = new PDO("sqlite:" . $filename);
+    $dbh = new PDO("sqlite:" . $sqlite_filename);
 
     if($dbh) {
       $array = getdate();
@@ -1259,12 +1276,10 @@ $_response_keys      = array_filter($_response_keys);
 header(array_shift($_response_keys));
 array_shift($_response_headers);
 
-foreach ($_response_headers as $name => $array)
-{
-    foreach ($array as $value)
-    {
-        header($_response_keys[$name] . ': ' . $value, false);
-    }
+foreach ($_response_headers as $name => $array) {
+  foreach ($array as $value) {
+    header($_response_keys[$name] . ': ' . $value, false);
+  }
 }
 
 /*
@@ -1278,6 +1293,7 @@ for ($i = 0, $count_i = count($matches); $i < $count_i; ++$i) {
   $_response_body = str_replace($matches[$i][0], "\"" .  complete_url($matches[$i][2]) . "\"", $_response_body);
 }
 */
+
 
 echo $_response_body;
 ?>

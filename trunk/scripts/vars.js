@@ -30,6 +30,7 @@ var WA = {
   PLAY_TWO_BACKWARD: 6,
   PREV_CHAR: 7,
   PREV_CHAR_BACKONE: 8,
+  LOOPING: 9,
 
   FORWARD: 1,
   BACKWARD: -1,
@@ -68,5 +69,5 @@ var WA = {
   start: function() {},
 
   // String to speak when WebAnywhere loads in-site.
-  inSiteInit: "Press t at any time for this page to speak to you."
+  inSiteInit: "Press t at any time for this page to speak to you.",
 };

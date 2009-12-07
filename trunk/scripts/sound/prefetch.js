@@ -129,7 +129,7 @@ WA.Sound.Prefetch = {
         if(text_to_fetch) {
           // A little hack to give the speech being played more bandwidth.
           // TODO:  Make this more systematic.
-          if(WA.playing != null && 
+          if(WA.Sound.playing != null && 
               WA.browseMode == WA.READ && Math.random() > 0.5) {
             setTimeout("WA.Sound.Prefetch.prefetchNext();", 550);
           } else if(/\S/.test(text_to_fetch)) {
@@ -139,6 +139,13 @@ WA.Sound.Prefetch = {
             setTimeout("WA.Sound.Prefetch.prefetchNext();", 200);
           }
         } else {
+          // All done prefetching,
+          // If there's nothing playing (indicating active browsing),
+          // see if there's something that should be run in the background.
+          if(WA.Sound.playing == null) {
+            WA.Utils.postDelayPostInfo();
+          }
+  
           // Nothing in the prefetch queue.  Wait longer before trying again.
           setTimeout("WA.Sound.Prefetch.prefetchNext();", 200);
         }

@@ -5,7 +5,10 @@
  * This script sets the main configuration variables for use in WebAnywhere.
  */
 
-<?php include('../config.php'); ?>
+<?php
+session_start();
+include('../config.php');
+?>
 
 // Global variables used by WebAnywhere.
 var hasConsole =
@@ -21,4 +24,8 @@ top.script_home='<?php echo $root_path; ?>';
 top.web_proxy_url='<?php echo $wp_path; ?>';
 top.cross_domain_security = '<?php echo $cross_domain_security; ?>';
 
+top.sounds_path='<?php echo $sounds_path; ?>';
+
 if(hasConsole) console.log(top.sound_url_base + ' ' + top.web_proxy_url);
+
+top.sessionid = "<?php echo strtoupper(substr(session_id(), 0, 10)); ?>";

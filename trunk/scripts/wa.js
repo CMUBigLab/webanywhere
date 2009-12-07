@@ -137,8 +137,6 @@ function init_browser() {
  * Adds event handlers, pre-processes content when appropriate.
  */
 function newPage(e) {
-  setBrowseMode(WA.PAUSED);
-
   // Reset the last focused node since it no longer exists.
   lastFocused = null;
   lastNode = null;
@@ -163,8 +161,7 @@ function newPage(e) {
     return;
   }
 
-  var newLoc = String(newDoc.location);  // Document URL.
-  WA.Utils.log('In newPage, newLoc is: '+newLoc);
+  var newLoc = WA.Interface.getLocationFromDoc(newDoc);  // Document URL.
 
   // Sometimes we get multiple loads from the same page.
   var startNode = newDoc.getElementById('id');
@@ -177,9 +174,7 @@ function newPage(e) {
         setContentLocation('https://mail.google.com/mail/?ui=html&zy=f');
       }
 
-      var enc_url = newLoc.replace(/^[^\?]+\?[^=]+=([^\&]+).*$/, '$1');
-      //WA.Utils.log('In newPage, enc_url is: '+enc_url);
-      location_field.value = WA.Utils.Base64.decode64(unescape(enc_url.replace(/%253D/g, '=')));
+      location_field.value = WA.Interface.getURLFromProxiedDoc(newDoc);
     }
 
     // Update the current nodes.
@@ -302,7 +297,7 @@ function newPage(e) {
      } else {
   	  setBrowseMode(WA.READ)
      }
-  	}, 50);
+  	}, 1);
 
   // Count number of pages loaded.
   WA.timesLoaded++;
@@ -310,6 +305,10 @@ function newPage(e) {
   WA.Utils.log("finished new page load");
 
   WA.Utils.log("PAGE HAS LOADED");
+
+  // Stop the waiting sound, which is still looping.
+  WA.Sound.stopAllSounds();
+  setBrowseMode(WA.PAUSED);
 }
 
 /**
@@ -726,26 +725,29 @@ var sameDomainRegExp = new RegExp("^(https?://)?" + top.webanywhere_domain);
  * The subdomain (if supplied) is tacked on to the front.
  * @param loc String location to proxify.
  * @param subdomain
+ * @param cacheable Can the location be cached?
  * @param rewrite Should loc be rewritten.
  * @return String of rewritten location.
  **/
-function proxifyURL(loc, subdomain, rewrite) {
+function proxifyURL(loc, subdomain, cacheable, rewrite) {
   var rewriteForSure = (typeof rewrite != 'undefined') && rewrite;
-  //WA.Utils.log('In proxifyURL. loc is: '+loc+'  subdomain is '+subdomain+' rewrite is: '+rewrite );
+
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
-  WA.Utils.log(loc + " ___ " + top.webanywhere_domain);
-
-  if(rewriteForSure || !sameDomainRegExp.test(loc)) {
+  if((rewriteForSure || !sameDomainRegExp.test(loc)) && !(/^\//.test(loc))) {
     loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
-    //WA.Utils.log('In proxifyURL after test for rewrite. loc is: '+loc);
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
       loc = loc.replace(top.webanywhere_domain,
       			  (subdomain + '.' + top.webanywhere_domain));
     }
   }
-  WA.Utils.log('Done proxifyURL: ' + loc);
+
+  if(!cacheable) {
+    // Add delay post information.
+    loc = WA.Utils.addDelayPost(loc);
+  }
+
   return loc;
 }
 
@@ -768,11 +770,13 @@ function setContentLocation(loc) {
     }
   }
 
-  loc = proxifyURL(loc, domain_requested);
+  loc = proxifyURL(loc, domain_requested, false);
 
   WA.Utils.log('location is ' + loc);
 
-  setBrowseMode(WA.LOADING);
+  WA.Sound.stopAllSounds();
+  WA.Sound.playSound("WASPECIALSTRINGNAME:WAITING");
+  setBrowseMode(WA.LOOPING);
 
   // Set new location by setting the src attribute of the content frame.
   // Do not set the location of the frame document because WebAnywhere can

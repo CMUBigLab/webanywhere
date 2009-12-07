@@ -95,6 +95,11 @@ WA.Interface = {
 
 
   updateCurrentlyPlayingSize: function(time, total) {
+    // Not the best way to handle whatever problem is happening with IE.
+    if(WA.Utils.isIE()) {
+      return;
+    }
+
     var width = WA.Utils.contentWidthHeight(top)[0];
     var text_disp = document.getElementById('wa_text_display');
     var curr_width = text_disp.offsetWidth;
@@ -125,7 +130,26 @@ WA.Interface = {
     }
   },
 
+  /**
+   * Returns the actual underlying URL based on a proxied, 64encoded address.
+   * @param url Proxied URL.
+   * @return Original URL of the page.
+   */
+  getURLFromProxiedDoc: function(doc) {
+    var url = this.getLocationFromDoc(doc);
 
+    url = unescape(url.replace(/^[^\?]+\?[^=]+=([^\&]+).*$/, '$1'));
+    url = url.replace(/(%(25)?3D(?=%|$))/g, '=');
+    url = WA.Utils.Base64.decode64(url);
+
+    return url;
+  },
+
+  getLocationFromDoc: function(doc) {
+    var url = ""+((typeof doc.location == "undefined") ? doc[0].location : doc.location);
+    return url;
+  },
+ 
   /**
    * Updates the information DIVs that say what's playing (deprecated: also used for debugging).
    */
