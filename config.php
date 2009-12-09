@@ -131,8 +131,10 @@
 
     // Adds support for speaking selected text.
     ,'extensions/selection-reading-extension.js'
-
-    // Adds support for recording user interactions.
-    ,'extensions/recorder-extension.js'
   );
+
+  // Adds support for recording user interactions.
+  if($record_interactions) {
+    array_push($extensions, 'extensions/recorder-extension.js');
+  }
 ?>
