@@ -379,7 +379,20 @@ WA.Sound = {
     var sound = soundManager.getSoundById(string);
 
     var stats = [1.0, 1.0];
-    if(sound && sound.durationEstimate > 0) stats = [sound.position, sound.durationEstimate];
+    if(sound && sound.durationEstimate > 0 && sound.durationEstimate != sound.position) {
+      var pos = sound.position;
+      var dur = sound.durationEstimate;
+
+      if(this.soundQ.length > 0) {
+        var slen = string.length;
+
+        for(var i=0; i<this.soundQ.length; i++) {
+          dur += sound.durationEstimate * (this.soundQ[i]+"").length;
+        }
+      }
+
+      stats = [pos, dur];
+    }
 
     return stats;
   },

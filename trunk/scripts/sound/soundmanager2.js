@@ -1791,16 +1791,20 @@ function SoundManager(smURL,smID) {
 
   // register a few event handlers
   if (window.addEventListener) {
-    window.addEventListener('focus',_s.handleFocus,false);
+    //window.addEventListener('focus',_s.handleFocus,false);
     window.addEventListener('load',_s.beginDelayedInit,false);
-    window.addEventListener('unload',_s.destruct,false);
-    if (_s._tryInitOnFocus) {
-      window.addEventListener('mousemove',_s.handleFocus,false); // massive Safari focus hack
-    }
+    window.addEventListener('load',function(){soundManager.createMovie(top.script_home + '/components/soundmanager2.swf')},false);
+
+    //window.addEventListener('unload',_s.destruct,false);
+    //if (_s._tryInitOnFocus) {
+    //  window.addEventListener('mousemove',_s.handleFocus,false); // massive Safari focus hack
+    //}
   } else if (window.attachEvent) {
-    window.attachEvent('onfocus',_s.handleFocus);
+    //window.attachEvent('onfocus',_s.handleFocus);
     window.attachEvent('onload',_s.beginDelayedInit);
-    window.attachEvent('unload',_s.destruct);
+    window.attachEvent('onload',function(){soundManager.createMovie(top.script_home + '/components/soundmanager2.swf')},false);
+
+    //window.attachEvent('unload',_s.destruct);
   } else {
     // no add/attachevent support - safe to assume no JS -> Flash either.
     _s._debugTS('onload',false);
@@ -1809,21 +1813,13 @@ function SoundManager(smURL,smID) {
   }
 
   if (document.addEventListener) {
-  document.addEventListener('DOMContentLoaded',_s.domContentLoaded,false);
+    document.addEventListener('DOMContentLoaded',_s.domContentLoaded,false);
+    window.addEventListener('DOMContentLoaded',function(){soundManager.createMovie(top.script_home + '/components/soundmanager2.swf')},false);
   }
 
 } // SoundManager()
 
 // set var SM2_DEFER = true; in your own script to prevent auto start-up
-/*if (typeof SM2_DEFER == 'undefined' || !SM2_DEFER) {
-  soundManager = new SoundManager();
-}*/
-
-//var soundManager = new SoundManager();
-
-// Initialize soundManager2.
-var soundManager =
-  new SoundManager(top.script_home + '/components/soundmanager2.swf');
-
-// Added to create the movie as soon as this is loaded.
-soundManager.createMovie(top.script_home + '/components/soundmanager2.swf');
+if (typeof SM2_DEFER == 'undefined' || !SM2_DEFER) {
+  soundManager = new SoundManager(top.script_home + '/components/soundmanager2.swf');
+}
