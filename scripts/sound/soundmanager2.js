@@ -78,7 +78,7 @@ function SoundManager(smURL,smID) {
   this.version = null;
   this.versionNumber = 'V2.95a.20090717';
   this.movieURL = null;
-  this.url = null;
+  this.url = (smURL ? smURL : null);
   this.altURL = null;
   this.swfLoaded = false;
   this.enabled = false;
@@ -1793,8 +1793,6 @@ function SoundManager(smURL,smID) {
   if (window.addEventListener) {
     //window.addEventListener('focus',_s.handleFocus,false);
     window.addEventListener('load',_s.beginDelayedInit,false);
-    window.addEventListener('load',function(){soundManager.createMovie(top.script_home + '/components/soundmanager2.swf')},false);
-
     //window.addEventListener('unload',_s.destruct,false);
     //if (_s._tryInitOnFocus) {
     //  window.addEventListener('mousemove',_s.handleFocus,false); // massive Safari focus hack
@@ -1802,9 +1800,6 @@ function SoundManager(smURL,smID) {
   } else if (window.attachEvent) {
     //window.attachEvent('onfocus',_s.handleFocus);
     window.attachEvent('onload',_s.beginDelayedInit);
-    window.attachEvent('onload',function(){soundManager.createMovie(top.script_home + '/components/soundmanager2.swf')},false);
-
-    //window.attachEvent('unload',_s.destruct);
   } else {
     // no add/attachevent support - safe to assume no JS -> Flash either.
     _s._debugTS('onload',false);
@@ -1814,7 +1809,6 @@ function SoundManager(smURL,smID) {
 
   if (document.addEventListener) {
     document.addEventListener('DOMContentLoaded',_s.domContentLoaded,false);
-    window.addEventListener('DOMContentLoaded',function(){soundManager.createMovie(top.script_home + '/components/soundmanager2.swf')},false);
   }
 
 } // SoundManager()
