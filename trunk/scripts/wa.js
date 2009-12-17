@@ -1602,12 +1602,18 @@ function _nextNode() {
   } else if(currentNode.nodeName == "BODY") {
     setCurrentNode(currentNode.firstChild);
   } else if(currentNode.nodeName == "IFRAME") {
-    WA.Utils.log("In _nextNode. currentNode.nodeName is: "+currentNode.nodeName+"  currentNode.contentDocument.body is: "+currentNode.contentDocument.body);
+    //WA.Utils.log("In _nextNode. currentNode.nodeName is: "+currentNode.nodeName+"  currentNode.contentDocument.body is: "+currentNode.contentDocument.body);
     // Push this iframe node onto the _iframeNodes stack so that we can 
     // navigate back to this iframe when we are done with it.
     WA.Nodes._iframeNodes.push(currentNode);
     WA.Utils.log("_iframeNodes is "+WA.Nodes._iframeNodes.length+" nodes long.");
-    setCurrentNode(dfsNode(currentNode.contentDocument.body)); 
+    // If IE, use currentNode.document.body, otherwise currentNode.contentDocument.body
+    if(WA.Utils.isIE()) {
+      setCurrentNode(dfsNode(currentNode.document.body));
+    } 
+    else {
+      setCurrentNode(dfsNode(currentNode.contentDocument.body)); 
+    }
   } else {
     goBackUp();
   }
@@ -1814,28 +1820,40 @@ function countNumHeadings() {
     var iFrames = docObject.getElementsByTagName("IFRAME");
     if(iFrames) {
       for(var i=0; i<iFrames.length; i++) {
-        nDocuments.push(iFrames[i].contentDocument);
-        buildDocumentStack(iFrames[i].contentDocument);
-        // @@ attach keypress events to each document as we build the stack?
+         if(iFrames[i].contentDocument) 
+         // Firefox, Opera
+         {
+            nDocuments.push(iFrames[i].contentDocument);
+            buildDocumentStack(iFrames[i].contentDocument);
+         }
+         else if(iFrames[i].contentWindow)
+         // Internet Explorer
+         {
+            nDocuments.push(iFrames[i].contentWindow.document);
+            buildDocumentStack(iFrames[i].contentWindow.document);
+         }
+         else 
+         // Others?
+         {
+           nDocuments.push(iFrames[i].document);
+           buildDocumentStack(iFrames[i].document);
+         }  
+        
         // what happens if new iframes are inserted after the fact?
-        if(iFrames[i].attachEvent) iFrames[i].contentDocument.attachEvent('onkeydown', handleKeyDown);
-        else if(iFrames[i].addEventListener) iFrames[i].contentDocument.addEventListener('keydown', handleKeyDown, false);
+        if(iFrames[i].attachEvent) {
+          iFrames[i].contentDocument.attachEvent('onkeydown', handleKeyDown);
+        }
+        else if(iFrames[i].addEventListener) 
+        {
+          iFrames[i].contentDocument.addEventListener('keydown', handleKeyDown, false);
+        }
   
         if(iFrames[i].attachEvent) iFrames[i].contentDocument.attachEvent('onkeyup', handleKeyUp);
         else if(iFrames[i].addEventListener) iFrames[i].contentDocument.addEventListener('keyup', handleKeyUp, false);
   
         if(iFrames[i].attachEvent) iFrames[i].contentDocument.attachEvent('onkeypress', handleKeyPress);
         else if(iFrames[i].addEventListener) iFrames[i].contentDocument.addEventListener('keypress', handleKeyPress, false);
-        
-        /* if(iFrames[i].addEventListener) {
-          iFrames[i].contentDocument.addEventListener('keypress',handleKeyPress,true);
-        }
-        else if(iFrames[i].attachEvent) {
-          iFrames[i].contentDocument.attachEvent('onkeypress',handleKeyPress);
-        }  
-        */
-        // Even adding them here gives me an echo that I can't stop. (wrote on windows machine)
-        // with jus the onkeypress event handlers, did not get the echo on the mac--when moved the files over here from the win machine.
+       
       }
     }
     WA.Utils.log("Leaving buildDocumentStack. nDocuments.length is: "+nDocuments.length);
