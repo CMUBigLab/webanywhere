@@ -1851,17 +1851,17 @@ function countNumHeadings() {
         
         // what happens if new iframes are inserted after the fact?
         if(iFrames[i].attachEvent) {
-          iFrames[i].contentDocument.attachEvent('onkeydown', handleKeyDown);
+          iFrames[i].contentWindow.document.attachEvent('onkeydown', handleKeyDown);
         }
         else if(iFrames[i].addEventListener) 
         {
           iFrames[i].contentDocument.addEventListener('keydown', handleKeyDown, false);
         }
   
-        if(iFrames[i].attachEvent) iFrames[i].contentDocument.attachEvent('onkeyup', handleKeyUp);
+        if(iFrames[i].attachEvent) iFrames[i].contentWindow.document.attachEvent('onkeyup', handleKeyUp);
         else if(iFrames[i].addEventListener) iFrames[i].contentDocument.addEventListener('keyup', handleKeyUp, false);
   
-        if(iFrames[i].attachEvent) iFrames[i].contentDocument.attachEvent('onkeypress', handleKeyPress);
+        if(iFrames[i].attachEvent) iFrames[i].contentWindow.document.attachEvent('onkeypress', handleKeyPress);
         else if(iFrames[i].addEventListener) iFrames[i].contentDocument.addEventListener('keypress', handleKeyPress, false);
        
       }
