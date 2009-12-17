@@ -587,7 +587,21 @@ WA.Nodes = {
       // Ideally, we would be able to explicitly test if accessing the iframe
       // violates the same-origin policy.
       try{
-        nodesToVisit.push(node.contentDocument.body);
+        if(node.contentDocument) 
+        // Firefox, Opera
+        {
+          nodesToVisit.push(node.contentDocument.body);
+        }
+        else if(node.contentWindow)
+        // Internet explorer
+        {
+          nodesToVisit.push(node.contentWindow.document.body);
+        }
+        else if(node.document)
+        // Others?
+        {
+          nodesToVisit.push(node.document.body);
+        }
       } catch(e) {
         // Nothing to do here, but IFRAME will be ignored.
       }
