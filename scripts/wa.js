@@ -1608,12 +1608,22 @@ function _nextNode() {
     WA.Nodes._iframeNodes.push(currentNode);
     WA.Utils.log("_iframeNodes is "+WA.Nodes._iframeNodes.length+" nodes long.");
     // If IE, use currentNode.document.body, otherwise currentNode.contentDocument.body
-    if(WA.Utils.isIE()) {
-      setCurrentNode(dfsNode(currentNode.document.body));
-    } 
-    else {
+    if(currentNode.contentDocument) 
+    // Firefox, Opera
+    {
       setCurrentNode(dfsNode(currentNode.contentDocument.body)); 
     }
+    else if(currentNode.contentWindow)
+    // Internet Explorer
+    {
+      setCurrentNode(dfsNode(currentNode.contentWindow.document.body));
+    }
+    else if(currentNode.document)
+    // Others?
+    {
+      setCurrentNode(dfsNode(currentNode.document.body));
+    }
+    
   } else {
     goBackUp();
   }
