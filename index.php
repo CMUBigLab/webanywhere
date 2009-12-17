@@ -90,12 +90,10 @@ function unload_webanywhere() {
 
 // Called onload and onresize to resize the 
 function resizeContentFrame() {
+
   var newHeight = WA.Utils.contentWidthHeight(top)[1] -
                     (document.getElementById('wa_navigator').offsetHeight);
-  if(newHeight < 0)
-  {
-    newHeight = newHeight * -1;
-  }
+
   document.getElementById('content_frame').style.height = newHeight + 'px';
   document.getElementById('wa_iframe_div').style.height = newHeight + 'px';
 }
