@@ -349,7 +349,8 @@ WA.Utils = {
 		if(self.innerWidth != undefined) {
 		  return [win.innerWidth, win.innerHeight];
     } else {
-  		var docelem = win.document.documentElement;
+  		// var docelem = win.document.documentElement;
+  		var docelem = win.document.body;
   		return [docelem.clientWidth, docelem.clientHeight];
 		}
   },
