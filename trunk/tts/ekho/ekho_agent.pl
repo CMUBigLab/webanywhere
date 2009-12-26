@@ -12,6 +12,7 @@ my $base_dir = '/var/www/cache/';
 
 # Available servers that are capable of running TTS.
 my @servers = ('localhost');
+my $port = 2046;
 
 # By default, use both caching and multiple TTS servers when available.
 my $cache = 1;
@@ -32,6 +33,7 @@ if(!param()) {
   $text = "There was an error with the request to the speech server.";
 } else {
   $text = param('text');
+  $port = param('port') if (defined param('port'));
 #  my $success = utf8::downgrade($text);
 
   $cache = param('cache') if (defined param('cache'));
@@ -100,9 +102,10 @@ sub sendTTSToClient($$$) {
         }
     }
 
-    system("ekho --request \"$text\" -o $final_filename"); # add $tts_server as argument in future
+    system("ekho --port $port --request \"$text\" -o $final_filename"); # add $tts_server as argument in future
   }
 
+#  `echo $final_filename >> /tmp/ekho_agent.log`;
   # Write the file back to the user.
   writeFileToClient($final_filename);
 }
