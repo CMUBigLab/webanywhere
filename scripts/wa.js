@@ -711,7 +711,6 @@ function navigate(e) {
   } else if(loc_val.match(/\.pdf$/)) {
     loc_val = "http://www.google.com/search?q=cache:" + loc_val;
   }
-  WA.Utils.log('In navigate, loc_val is: '+loc_val);
   loc.value = loc_val;
   WA.Utils.log('In navigate, loc.value is: '+loc.value);
 
