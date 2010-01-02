@@ -15,7 +15,7 @@ var soundManager = null;
 function SoundManager(smURL,smID) {
 
   this.flashVersion = 8;           // version of flash to require, either 8 or 9. Some API features require Flash 9.
-  this.debugMode = true;           // enable debugging output (div#soundmanager-debug, OR console if available + configured)
+  this.debugMode = false;           // enable debugging output (div#soundmanager-debug, OR console if available + configured)
   this.useConsole = true;          // use firebug/safari console.log()-type debug console if available
   this.consoleOnly = true;        // if console is being used, do not create/write to #soundmanager-debug
   this.waitForWindowLoad = false;  // force SM2 to wait for window.onload() before trying to call soundManager.onload()
