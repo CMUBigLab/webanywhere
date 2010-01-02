@@ -120,11 +120,13 @@ WA.Utils = {
     queue.push(args);
   },
 
-  postDelayPostInfo: function() {    
-    var dp = this.getDelayPostInfo(16000);
-    var url = top.web_proxy_url.replace(/\$url\$/, "");
-    if((""+dp).length > 0) {
-      postURL(url, dp);
+  postDelayPostInfo: function() {
+    if (top.web_proxy_url) {                   
+      var dp = this.getDelayPostInfo(16000);
+      var url = top.web_proxy_url.replace(/\$url\$/, "");
+      if((""+dp).length > 0) {
+        postURL(url, dp);
+      }
     }
   },
 
