@@ -734,7 +734,7 @@ function proxifyURL(loc, subdomain, cacheable, rewrite) {
 
   // No need to proxy from our own server;
   // can cause problems when running on localhost.
-  if((rewriteForSure || !sameDomainRegExp.test(loc)) && !(/^\//.test(loc))) {
+  if(top.web_proxy_url && (rewriteForSure || !sameDomainRegExp.test(loc)) && !(/^\//.test(loc))) {
     loc = top.web_proxy_url.replace(/\$url\$/, WA.Utils.Base64.encode64(loc));
     if(subdomain && subdomain.length > 0) {
       loc = top.webanywhere_location + loc;
