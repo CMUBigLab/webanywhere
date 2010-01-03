@@ -33,7 +33,7 @@ ini_set('display_errors','On');
 //
 $_config            = array
                     (
-                        'url_var_name'             => 'q',
+                        'url_var_name'             => 'proxy_url',
                         'flags_var_name'           => 'hl',
                         'get_form_name'            => '____pgfa',
                         'basic_auth_var_name'      => '____pbavn',

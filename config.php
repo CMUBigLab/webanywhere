@@ -29,7 +29,7 @@
 
   // The path to the web proxy.
   // $url$ will be replaced with the URL Escaped URL to fetch.
-  $wp_path = $root_path . '/wp/wawp.php?q=$url$&$dp$';
+  $wp_path = $root_path . '/wp/wawp.php?proxy_url=$url$&$dp$';
 
   // Path to the sounds folder.
   $sounds_path = $root_path . '/sounds/';
