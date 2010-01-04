@@ -178,7 +178,7 @@ WA.Utils = {
    * @return A string of the XPATH that was created.
    */
   getXPath: function(node) {
-    if(!node) {
+    if(!node || !node.ownerDocument) {
     	return "(none)";
     }
 
