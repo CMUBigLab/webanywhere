@@ -104,7 +104,12 @@ WA.Extensions.VisualSpotlighter = function() {
      */
     this.restore = function() {
     	if(this._node) {
-        this._node.className = this._className;
+      	  try {
+            this._node.className = this._className;
+          } 
+          catch(err) {
+            // do nothing?
+          }
     	}
     }
   };
