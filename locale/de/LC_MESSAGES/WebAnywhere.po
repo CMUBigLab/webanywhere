@@ -1,0 +1,196 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-01-17 14:37+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: index.php:235 scripts/wa.js:350 scripts/wa.js:350
+msgid "Go"
+msgstr "Grasen"
+
+#: index.php:243
+msgid "Next"
+msgstr "Zurück"
+
+#: index.php:246
+msgid "Previous"
+msgstr "Vor"
+
+#: index.php:254
+msgid "Welcome to WebAnywhere"
+msgstr "Willkommen auf webanyhwere"
+
+#: scripts/input/keyboard.js:423 scripts/input/keyboard.js:423
+msgid "Invalid key press"
+msgstr "Ungültige Taste"
+
+#: scripts/sound/sounds.js:625 scripts/sound/sounds.js:625
+msgid "Welcome to Web Anywhere"
+msgstr "Willkommen auf Web Anyhwere"
+
+#: scripts/wa.js:253 scripts/wa.js:378 scripts/wa.js:673 scripts/wa.js:253
+#: scripts/wa.js:378 scripts/wa.js:673
+msgid "End of page"
+msgstr "Ende der Seite"
+
+#: scripts/wa.js:277 scripts/wa.js:277
+msgid "Page has loaded."
+msgstr "Seite geladen wurde."
+
+#: scripts/wa.js:280 scripts/wa.js:280
+msgid "WebAnywhere has loaded."
+msgstr "WebAnywhere geladen wurde."
+
+#: scripts/wa.js:288 scripts/wa.js:288
+msgid "Headings"
+msgstr "Überschriften"
+
+#: scripts/wa.js:288 scripts/wa.js:288
+msgid "Heading"
+msgstr "Überschrift"
+
+#: scripts/wa.js:289 scripts/wa.js:289
+msgid "Links"
+msgstr "Links"
+
+#: scripts/wa.js:289 scripts/wa.js:289
+msgid "Link"
+msgstr "Link"
+
+#: scripts/wa.js:333 scripts/wa.js:333
+msgid "Type a string to find in the current page"
+msgstr "Geben Sie eine Zeichenfolge in die aktuelle Seite zu finden"
+
+#: scripts/wa.js:413 scripts/wa.js:1721 scripts/wa.js:413 scripts/wa.js:1721
+msgid "Start of page"
+msgstr "Beginn der Seite"
+
+#: scripts/wa.js:983 scripts/wa.js:983
+msgid "Not in a table."
+msgstr "nicht in einer Tabelle"
+
+#: scripts/wa.js:1276 scripts/wa.js:1284 scripts/wa.js:1276 scripts/wa.js:1284
+msgid "no"
+msgstr "nein"
+
+#: scripts/interface/interface.js:34 scripts/interface/interface.js:34
+msgid "Location field text area:"
+msgstr "Textbereich des Standorts"
+
+#: scripts/interface/interface.js:241 scripts/interface/interface.js:241
+msgid "Select a language to switch to"
+msgstr "Wählen Sie eine Sprache zu wechseln"
+
+#: scripts/nodes.js:322 scripts/nodes.js:322
+msgid "Button"
+msgstr "Schaltfläche"
+
+#: scripts/nodes.js:325 scripts/nodes.js:325
+msgid "Checkbox"
+msgstr "Kontrollkästchen"
+
+#: scripts/nodes.js:330 scripts/nodes.js:330
+msgid "File Input"
+msgstr "Input-Datei"
+
+#: scripts/nodes.js:337 scripts/nodes.js:337
+msgid "Image Input"
+msgstr "Input-Bild"
+
+#: scripts/nodes.js:342 scripts/nodes.js:342
+msgid "Password Textarea"
+msgstr "Textbereich Passwort"
+
+#: scripts/nodes.js:346 scripts/nodes.js:346
+msgid "Radio Button"
+msgstr "Radio-Button"
+
+#: scripts/nodes.js:350 scripts/nodes.js:350
+msgid "Reset Button"
+msgstr "Reset-Button"
+
+#: scripts/nodes.js:353 scripts/nodes.js:353
+msgid "Submit Button"
+msgstr "Submit-Button"
+
+#: scripts/nodes.js:357 scripts/nodes.js:436 scripts/nodes.js:357
+#: scripts/nodes.js:436
+msgid "Text Area"
+msgstr "Textbereich"
+
+#: scripts/nodes.js:376 scripts/nodes.js:380 scripts/nodes.js:376
+#: scripts/nodes.js:380
+msgid "link"
+msgstr "Link"
+
+#: scripts/nodes.js:384 scripts/nodes.js:384
+msgid "button"
+msgstr "Schaltfläche"
+
+#: scripts/nodes.js:389 scripts/nodes.js:389
+msgid "Heading 1"
+msgstr "Überschrift erste"
+
+#: scripts/nodes.js:392 scripts/nodes.js:392
+msgid "Heading 2"
+msgstr "Überschrift zweite"
+
+#: scripts/nodes.js:395 scripts/nodes.js:395
+msgid "Heading 3"
+msgstr "Überschrift dritte"
+
+#: scripts/nodes.js:398 scripts/nodes.js:398
+msgid "Heading 4"
+msgstr "Überschrift vierte"
+
+#: scripts/nodes.js:401 scripts/nodes.js:401
+msgid "Heading 5"
+msgstr "Überschrift fünfte"
+
+#: scripts/nodes.js:404 scripts/nodes.js:404
+msgid "Heading 6"
+msgstr "Überschrift sechste"
+
+#: scripts/nodes.js:410 scripts/nodes.js:410
+msgid "Image"
+msgstr "Bild"
+
+#: scripts/nodes.js:422 scripts/nodes.js:422
+msgid "Selection"
+msgstr "Auswahl"
+
+#: scripts/nodes.js:429 scripts/nodes.js:429
+msgid "Table"
+msgstr "Tabelle"
+
+#: scripts/nodes.js:430 scripts/nodes.js:430
+msgid "start"
+msgstr "Beginn"
+
+#: scripts/nodes.js:431 scripts/nodes.js:431
+msgid "rows"
+msgstr "Reihen"
+
+#: scripts/nodes.js:432 scripts/nodes.js:432
+msgid "columns"
+msgstr "Spalten"
+
+#: scripts/nodes.js:443 scripts/nodes.js:443
+msgid "List with"
+msgstr "Liste mit"
+
+#: scripts/nodes.js:443 scripts/nodes.js:443
+msgid "items"
+msgstr "Elemente"
