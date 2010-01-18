@@ -26,3 +26,9 @@ show_report(array('which' => 'index', 'category' => 'error', 'group' => 'url', '
 }}}
 
 Since the proxy only block localhost and 127.0.0.1. A better solution is to add "127.0.0.1 your_local_domain" to /etc/hosts. Then access WA with your_local_domain.
+
+== Why do we need proxy in WA? ==
+
+Without the proxy, the WebAnywhere Javascript would not have access to the content that is loaded due to th same origin policy.
+
+This would prevent code at webanywhere.cs.washington.edu from accessing content at google.com, for instance, which it needs to do to parse the DOM and figure out what to read.
