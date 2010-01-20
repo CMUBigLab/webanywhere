@@ -16,7 +16,7 @@
     * [http://www.sitepoint.com/blogs/2009/04/07/how-to-install-apache-on-windows/ How to Install Apache Web Server on Windows]
   # Install PHP and make sure it is applied to the Webserver
     * [http://www.php.net/downloads.php]
-    * Note: If using Windows, be sure to download the VC6, thread safe version this is explained at [http://www.sitepoint.com/blogs/2009/07/07/install-php53-windows/# How to Install PHP 5.3 on Windows]
+    * Note: If using Windows, be sure to download the VC6 thread safe version. [http://www.sitepoint.com/blogs/2009/07/07/install-php53-windows/# How to Install PHP 5.3 on Windows]
 
 ==Installing PHP==
 
@@ -25,10 +25,12 @@ Required modules:
   * PDO
   * SQLite 3
 
-[Note: This no longer seems to be the case] For windows PHP installer, SQLite 2 is the default. To install SQLite 3, You may need to do following:
+*Note: This no longer seems to be the case.* For windows PHP installer, SQLite 2 is the default. To install SQLite 3, You may need to do following:
   # download php_pdo_sqlite.dll to PHP/ext/
   # edit php.ini. change "extension=php_sqlite.dll" to "extension=php_pdo_sqlite.dll"
   # restart Apache
+
+20100120--When installing on a Windows 7 machine Apache complained about not finding ntwdblib.dll which is needed by MySQL so I uncommented MySQL and MSQL from the PHP extensions set up.
 
 ==Configure Apache for Perl==
 *This is only needed if you want to deploy Festival TTS server on Linux*
@@ -179,7 +181,8 @@ $sound_url_base = 'http://localhost/perl/ekho_agent.pl?text=$text$&cache=1&mtts=
 
 ==Setting Up Webanywhere in Apache==
 
-  # Move the downloaded WebAnywhere code into the ?? folder where Apache gets the information to host.
+  # Move the downloaded WebAnywhere code into the htdocs folder within Apache.
+  # Change the name of the WebAnywhere folder from "webanywhere" to "wa"
   # Adjust the config.php file with the following adjustments: ... 
     * Change path of accesses database file: $sql_lite_filename = "C:/webanywhere-accesses.sdb";
-  # Directing your internet browser to: ??? should now go the WebAnywhere hosted on your computer.
+  # Directing your internet browser to http://localhost/wa/ should open the WebAnywhere hosted on your computer.
