@@ -176,8 +176,8 @@ $sound_url_base = 'http://localhost/perl/ekho_agent.pl?text=$text$&cache=1&mtts=
 =Deploy Webanywhere=
 
 ==Downloading the Code==
-  # Install svn on the computer and checkout the code from this site.
-    * TortoiseSVN is recommended for windows machines
+  # Install svn on the computer and [http://code.google.com/p/webanywhere/source/checkout checkout the code from this site].
+    * [http://tortoisesvn.net/downloads TortoiseSVN] is recommended for windows machines
 
 ==Setting Up Webanywhere in Apache==
 
