@@ -181,8 +181,8 @@ $sound_url_base = 'http://localhost/perl/ekho_agent.pl?text=$text$&cache=1&mtts=
 
 ==Setting Up Webanywhere in Apache==
 
-  # Move the downloaded WebAnywhere code into the htdocs folder within Apache.
-  # Change the name of the WebAnywhere folder from "webanywhere" to "wa"
+  # Move the downloaded Webanywhere code into the htdocs folder within Apache.
+  # Change the name of the Webanywhere folder from "webanywhere" to "wa"
   # Adjust the config.php file with the following adjustments: ... 
     * Change path of accesses database file: $sql_lite_filename = "C:/webanywhere-accesses.sdb";
-  # Directing your internet browser to http://localhost/wa/ should open the WebAnywhere hosted on your computer.
+  # Directing your internet browser to http://localhost/wa/ should open the Webanywhere hosted on your computer.
