@@ -168,6 +168,8 @@ WA.Sound = {
       var stats = this._currentTimeAndTotalFlash(this.playing);
       var done_frac = stats[0]/stats[1];
 
+      done_frac = (done_frac+"").substring(0,4);
+
       WA.Extensions.soundFinished(this.playing, done_frac);
     }
 
@@ -493,14 +495,14 @@ WA.Sound = {
               this.whileplaying = null;
             }
           },
-  	      onfinish: function(){WA.Sound._onSoundFinish()},
+  	      onfinish: function(){WA.Sound._onSoundFinish(this);},
           volume: 75
         });
       }
     } else if(sound.readyState == 3) {
       WA.Utils.log('sound exists: ' + sound);
       this.lastPath = 15;
-      sound.onjustbeforefinish = function(){WA.Sound._onSoundFinish()};
+      //sound.onjustbeforefinish = function(){alert('here3'); WA.Sound._onSoundFinish();};
       var duration = (WA.Sound.Prefetch.prefetchRecords[string] && WA.Sound.Prefetch.prefetchRecords[string].soundlength) ? WA.Sound.Prefetch.prefetchRecords[string].soundlength : this.timingArray[string].length; 
       WA.Utils.log('finished sound: ' + this.timingArray[string].playStart.getTime() + ' ' + duration + ' ' + this.timingArray[string].orig_string);
 
@@ -564,7 +566,7 @@ WA.Sound = {
 
       var is_playing = WA.Sound.isPlaying(WA.Sound.playing);
       if(is_playing) {
-        setTimeout(function(){_onsoundfinish()}, 100);
+        setTimeout(function(){WA.Sound._onsoundfinish()}, 100);
       } else if(WA.browseMode == WA.LOOPING) {
         WA.Sound.add(this.playing);
         this.playing = null;
