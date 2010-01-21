@@ -138,9 +138,20 @@ WA.Interface = {
   getURLFromProxiedDoc: function(doc) {
     var url = this.getLocationFromDoc(doc);
 
-    url = unescape(url.replace(/^[^\?]+\?[^=]+=([^\&]+).*$/, '$1'));
-    url = url.replace(/(%(25)?3D(?=%|$))/g, '=');
-    url = WA.Utils.Base64.decode64(url);
+    url = unescape(url);
+
+    var matches = /^[^\?]+\?.*(____pgfa|proxy_url)=([^\&]+)(.*)$/.exec(url);
+
+    if(matches.length <= 2) {
+      url = "Error";
+    } else {
+      url = matches[2].replace(/(%(25)?3D(?=%|$))/g, '=');
+      url = WA.Utils.Base64.decode64(url);
+    }
+
+    if(matches.length > 3) {
+      url += matches[3].replace(/&\$dp\$.*$/, "").replace(/&dp\d+=.*$/, "");
+    }
 
     return url;
   },
@@ -279,6 +290,51 @@ WA.Interface = {
     if(WA.Interface._nodeToReturn) {
       setCurrentNode(WA.Interface._nodeToReturn);
       WA.Extensions.spotlightNode(WA.Interface._nodeToReturn);
+    }
+  },
+
+  visualizeRecordings: function() {
+    var doc = getContentDocument();
+    var loc = WA.Interface.getURLFromProxiedDoc(doc);
+
+    alert('here: ' + loc);
+
+    var req = new XMLHttpRequest();  
+    req.open('GET', 'get-recording.php?url=' + loc, false);   
+    req.send(null);  
+    var recordings = [];
+    if(req.status == 200) {
+      eval("recordings = " + req.responseText);  
+    }
+
+    alert(req.responseText);
+
+    for(var i=0; i<recordings.length; i++) {
+      //alert(recordings[i].xpath + " " + recordings[i].weight);
+      //recordings[i].xpath = "//a";
+      try {
+        var nodes = doc.evaluate(recordings[i].xpath, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+        var node = nodes.singleNodeValue;
+  
+        if(node != null) {
+          var div = doc.createElement('div');
+          doc.body.appendChild(div);
+    
+          div.style.position = 'absolute';
+          div.style.backgroundColor = '#F00';
+          div.style.width = node.offsetWidth + 'px';
+          div.style.height = node.offsetHeight + 'px';
+          div.style.zIndex = '90';
+
+          div.style.opacity = recordings[i].weight;
+    
+          var pos = WA.Utils.findPos(node);
+          div.style.left = pos[0] + 'px';
+          div.style.top = pos[1] + 'px';
+        }
+      } catch(e) {
+        alert("failed on: " + recordings[i].xpath);
+      }
     }
   }
 }
