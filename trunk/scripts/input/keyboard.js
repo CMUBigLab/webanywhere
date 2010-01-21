@@ -292,6 +292,11 @@ WA.Keyboard = {
         setBrowseMode(WA.KEYBOARD);
       }
       break;
+    case 'ctrl 1':
+      WA.Interface.visualizeRecordings();
+      this.suppressKeys(e);
+      setBrowseMode(WA.KEYBOARD);
+      break;
     case 'ctrl p':
       this.suppressKeys(e);
       setBrowseMode(WA.KEYBOARD); WA.Sound.resetSounds(); new_node = nextNodeTagAttrib("P", null); setBrowseMode(WA.READ);

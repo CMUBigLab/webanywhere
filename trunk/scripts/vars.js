@@ -69,5 +69,8 @@ var WA = {
   start: function() {},
 
   // String to speak when WebAnywhere loads in-site.
-  inSiteInit: "Press t at any time for this page to speak to you."
+  inSiteInit: "Press t at any time for this page to speak to you.",
+
+
+  delayPostPrefix: "dp"
 };

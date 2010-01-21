@@ -20,9 +20,12 @@ WA.Extensions.RecorderExtension = function() {
     WA.Utils.delayProxyPost(params);
   };
 
+  this._lastSpotlight = "";
+
   // Record the spotlighter .
   this.spotlight = function(node) {
     var xpath = WA.Utils.getXPath(node);
+    this._lastSpotlight = xpath;
     this.recordEvent("x(" + (this._seq++) + ")" + xpath);
   };
 
@@ -34,7 +37,8 @@ WA.Extensions.RecorderExtension = function() {
   // Record when a sound finishes.
   // We do not record the sid of the finishing sound.
   this.soundFinished = function(sid, percent) {
-    this.recordEvent("sf(" + (this._seq++) + ")" + percent + "," + sid);
+    this.recordEvent("sf(" + (this._seq++) + ")" + percent + "," + this._lastSpotlight + "," + sid);
+    this._lastSpotlight = "";
   };
 
   // Generic reset.

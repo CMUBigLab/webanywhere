@@ -125,7 +125,7 @@ WA.Utils = {
       var dp = this.getDelayPostInfo(16000);
       var url = top.web_proxy_url.replace(/\$url\$/, "");
       if((""+dp).length > 0) {
-        postURL(url, dp);
+        this.postURL(url, dp);
       }
     }
   },
@@ -146,7 +146,7 @@ WA.Utils = {
 
     for(var i=0; postInfo.length < maxlength && queue.length > 0; i++) {
     	if(postInfo.length > 0) {postInfo += "&";}
-      postInfo += "dp" + i + "=" + escape(queue.shift());
+      postInfo += WA.delayPostPrefix + i + "=" + escape(queue.shift());
     }
 
     /*if(postInfo.length > 0) {
@@ -178,7 +178,7 @@ WA.Utils = {
    * @return A string of the XPATH that was created.
    */
   getXPath: function(node) {
-    if(!node) {
+    if(!node || !node.ownerDocument) {
     	return "(none)";
     }
 
