@@ -42,11 +42,14 @@ if (file_exists($js_locale_file)) {
 
 // set voice
 if (empty($sound_url_base)) {
-    if (array_key_exists($locale, $voices)) {
-        $sound_url_base = $voices[$locale];
-    } else {
-        $sound_url_base = $voices["en"];
-    }
+  if (array_key_exists('voice', $_REQUEST) &&
+      array_key_exists($_REQUEST['voice'], $voices)) {
+    $sound_url_base = $voices[$_REQUEST['voice']];
+  } else if (array_key_exists($locale, $voices)) {
+    $sound_url_base = $voices[$locale];
+  } else {
+    $sound_url_base = $voices["en"];
+  }
 }
 
 echo "<script type='text/javascript'>top.sound_url_base='$sound_url_base';</script>";
