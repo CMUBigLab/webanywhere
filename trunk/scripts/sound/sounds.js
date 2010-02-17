@@ -104,7 +104,13 @@ WA.Sound = {
   // Processes a sound by breaking it up according to punctuation,
   // then adds the resulting sound(s) to the queue of sounds to play.
   splitSoundsByBoundaries: true,
-  boundarySplitterRegExp: /[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+)+[\.!\?:;\s]*/,
+  // \u3002 - Chinese full stop (.)
+  // \uff01 - Chinese exclamation (!)
+  // \uff1f - Chinese question mark (?)
+  // \uff1a - Chinese colon (:)
+  // \uff0c - Chinese comma (,)
+  // \uff1b - Chinese semi-colon (;)
+  boundarySplitterRegExp: /[\.!\?:;\s]*(\s+\(|\s+\-\s+|[\.!\?:;\)]\s+|[\u3002\uff01\uff1f\uff1a\uff0c\uff1b])+[\.!\?:;\s]*/,
   splitSoundsByBoundary: function(sid) {
     return (sid + "").split(this.boundarySplitterRegExp);
   },
