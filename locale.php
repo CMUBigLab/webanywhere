@@ -9,8 +9,10 @@ if (empty($fixed_locale)) {
       // load locale according to HTTP_ACCEPT_LANGUAGE
       preg_match('/^([a-z]+)-*([a-z]*)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
       $locale = $matches[1];
+      $locale1 = $locale;
       if (! empty($matches[2])) {
-        $locale .= '_' . strtoupper($matches[2]);
+        $locale2 = strtoupper($matches[2]);
+        $locale .= '_' . $locale2;
       }
     }
   } else {
@@ -23,9 +25,10 @@ if (empty($fixed_locale)) {
 }
 
 // set PHP locale
-$php_locale_file = "locale/$locale/LC_MESSAGES/WebAnywhere.php";
-if (file_exists($php_locale_file)) {
-  include($php_locale_file);
+if (file_exists("locale/$locale/LC_MESSAGES/WebAnywhere.php")) {
+  include("locale/$locale/LC_MESSAGES/WebAnywhere.php");
+} else if (file_exists("locale/$locale1/LC_MESSAGES/WebAnywhere.php")) {
+  include("locale/$locale1/LC_MESSAGES/WebAnywhere.php");
 } else {
   function wa_gettext($text) {
       return $text;
@@ -33,9 +36,10 @@ if (file_exists($php_locale_file)) {
 }
 
 // set Javascript locale
-$js_locale_file = "locale/$locale/LC_MESSAGES/WebAnywhere.js";
-if (file_exists($js_locale_file)) {
-  echo "<script type='text/javascript' src='$js_locale_file'></script>";
+if (file_exists("locale/$locale/LC_MESSAGES/WebAnywhere.js")) {
+  echo "<script type='text/javascript' src='locale/$locale/LC_MESSAGES/WebAnywhere.js'></script>";
+} else if (file_exists("locale/$locale1/LC_MESSAGES/WebAnywhere.js")) {
+  echo "<script type='text/javascript' src='locale/$locale1/LC_MESSAGES/WebAnywhere.js'></script>";
 } else {
   echo "<script type='text/javascript'>function wa_gettext(text) { return text; }</script>";
 }
@@ -52,7 +56,18 @@ if (empty($sound_url_base)) {
   }
 }
 
+// set home page
+if (empty($default_content_url)) {
+  if (array_key_exists($locale, $home_pages)) {
+    $default_content_url = $home_pages[$locale];
+  } else if (array_key_exists($locale1, $home_pages)) {
+    $default_content_url = $home_pages[$locale1];
+  } else if (array_key_exists('en', $home_pages)) {
+    $default_content_url = $home_pages['en'];
+  } else {
+    $default_content_url = '';
+  }
+}
+
 echo "<script type='text/javascript'>top.sound_url_base='$sound_url_base';</script>";
-
-
 ?>

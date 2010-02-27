@@ -9,6 +9,8 @@ Procedures to add new locale:
 7. Run `perl update_locale.pl` to update *.php and *.js under locale directory.
 8. Change the locale you want to use in config.php. Add one line like this:
    $fixed_locale = 'de';
+9. Different locale can has different home page. We can set it in config.php like this:
+   $home_pages['de'] = 'http://hostname/index_de.html';
 
 Procedures to update existing locale:
 1. Wrap new string in PHP/JS files with wa_gettext("new text"). (Please make sure it's a double quote not single quote)
