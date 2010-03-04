@@ -32,6 +32,8 @@ We want to test WA on the following set of sites/applications:
   * [http://www.w3.org/WAI/ W3C/WAI]
   * [http://sp1ral.com/tests/iframe4.html iframe test page]
   * [http://sp1ral.com/tests/flood-data-final.html complex table test page]
+  * [http://sp1ral.com/tests/visibility.html visibility test]
+  * [http://twitter.com twitter] hangs, loads nothings. Find a way to fail gracefully.
   * others?
   
 Platforms
