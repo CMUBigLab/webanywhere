@@ -1,5 +1,5 @@
 #summary List of servers that hosting WebAnywhere
 
-* Alpha version: http://wa.cs.washington.edu/
-* Beta version: http://webanywhere.cs.washington.edu/beta/
-* Server in China: http://wa.eguidedog.net/
+  * Alpha version: http://wa.cs.washington.edu/
+  * Beta version: http://webanywhere.cs.washington.edu/beta/
+  * Server in China: http://wa.eguidedog.net/
