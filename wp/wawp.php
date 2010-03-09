@@ -995,6 +995,10 @@ if($_content_type == 'text/css') {
     $_response_body = preg_replace('#<(img|image)[^>]*?>#si', '', $_response_body);
   }
 
+   // remove target="_blank" to forbid opening in a new window
+   $_response_body = preg_replace('#(<a\s+[^>]*?)target=["\']_blank["\']#si',
+       "$1", $_response_body);
+
   //$_response_body = preg_replace('#(function )(_)#is', '$1_$2', $_response_body);  
   $_response_body = preg_replace('#\.replace\(([^\/])#is', '.rep($1', $_response_body);  
 
