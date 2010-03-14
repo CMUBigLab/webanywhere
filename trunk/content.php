@@ -30,7 +30,7 @@ if(!isset($_REQUEST['submit'])) {
 <div>
 <p>
 WebAnywhere has been initialized and is now ready to use.
-Press the 'forward slash' key at any time to hear a list of available shortcut keys.
+Press CTRL and 'forward slash' key at any time to hear a list of available shortcut keys.
 </p>
 <p>
 <span><a href="http://webinsight.cs.washington.edu/projects/webanywhere/">WebAnywhere</a> is a non-visual interface to the web that requires no new software to be downloaded or installed.</span><span>It works right in the browser, which means you can access it from any computer, even locked-down public computer terminals.</span><span>WebAnywhere enables you to interact with the web in a similar way to how you may have used other screen readers before.</span>
