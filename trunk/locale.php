@@ -24,7 +24,6 @@ if (empty($fixed_locale)) {
   $locale = $fixed_locale;
 }
 
-`echo "$locale, $locale1" >> /tmp/wa.log`;
 if (empty($locale1)) {
   $locale1 = substr($locale, 0, 2);
 }
@@ -62,7 +61,6 @@ if (empty($sound_url_base)) {
 }
 
 // set home page
-`echo "$locale, $locale1" >> /tmp/wa.log`;
 if (empty($default_content_url)) {
   if (array_key_exists($locale, $home_pages)) {
     $default_content_url = $home_pages[$locale];
