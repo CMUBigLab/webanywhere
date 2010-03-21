@@ -1,7 +1,7 @@
 <?php $wa_text = array();
 $wa_text[""]="";
 $wa_text["Go"]="Grasen";
-$wa_text["Next"]="Zurück";
+$wa_text["Next"]="Nächst";
 $wa_text["Previous"]="Vor";
 $wa_text["Welcome to WebAnywhere"]="Willkommen zu Webüberall";
 $wa_text["Invalid key press"]="Ungültige Taste";

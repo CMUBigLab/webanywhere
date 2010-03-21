@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-14 11:37+0800\n"
+"POT-Creation-Date: 2010-03-21 18:37+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,19 +16,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: index.php:234 scripts/wa.js:362 scripts/wa.js:362
+#: index.php:234 scripts/wa.js:362 index.php:235 scripts/wa.js:350
+#: scripts/wa.js:350
 msgid "Go"
 msgstr "浏览"
 
-#: index.php:242
+#: index.php:242 index.php:243
 msgid "Next"
-msgstr "前进"
+msgstr "下一个"
 
-#: index.php:245
+#: index.php:245 index.php:246
 msgid "Previous"
-msgstr "后退"
+msgstr "上一个"
 
-#: scripts/wa.js:345 scripts/wa.js:345
+#: scripts/wa.js:345 scripts/wa.js:333 scripts/wa.js:333
 msgid "Type a string to find in the current page"
 msgstr "输入字符串，在本页中查找"
 
@@ -37,49 +38,53 @@ msgid "Location field text area:"
 msgstr "地址栏："
 
 #: scripts/input/keyboard.js:419 scripts/input/keyboard.js:423
-#: scripts/input/keyboard.js:423
+#: scripts/input/keyboard.js:428 scripts/input/keyboard.js:428
 msgid "Invalid key press"
 msgstr "无效按键"
 
 #: scripts/sound/sounds.js:603 scripts/sound/sounds.js:582
-#: scripts/sound/sounds.js:582
+#: scripts/sound/sounds.js:625 scripts/sound/sounds.js:633
+#: scripts/sound/sounds.js:633
 msgid "Welcome to Web Anywhere"
 msgstr "欢迎访问Web Anywhere"
 
-#: scripts/wa.js:304 scripts/wa.js:304
+#: scripts/wa.js:304 scripts/wa.js:288 scripts/wa.js:288
 msgid "Headings"
 msgstr "标题"
 
-#: scripts/wa.js:304 scripts/wa.js:304
+#: scripts/wa.js:304 scripts/wa.js:288 scripts/wa.js:288
 msgid "Heading"
 msgstr "标题"
 
-#: scripts/wa.js:305 scripts/wa.js:305
+#: scripts/wa.js:305 scripts/wa.js:289 scripts/wa.js:289
 msgid "Links"
 msgstr "链接"
 
-#: scripts/wa.js:305 scripts/wa.js:305
+#: scripts/wa.js:305 scripts/wa.js:289 scripts/wa.js:289
 msgid "Link"
 msgstr "链接"
 
-#: scripts/wa.js:685 scripts/wa.js:390 scripts/wa.js:263 scripts/wa.js:263
-#: scripts/wa.js:390 scripts/wa.js:685
+#: scripts/wa.js:685 scripts/wa.js:390 scripts/wa.js:263 scripts/wa.js:253
+#: scripts/wa.js:378 scripts/wa.js:673 scripts/wa.js:253 scripts/wa.js:378
+#: scripts/wa.js:673
 msgid "End of page"
 msgstr "页末"
 
-#: scripts/wa.js:1713 scripts/wa.js:425 scripts/wa.js:425 scripts/wa.js:1713
+#: scripts/wa.js:1713 scripts/wa.js:425 scripts/wa.js:413 scripts/wa.js:1721
+#: scripts/wa.js:413 scripts/wa.js:1721
 msgid "Start of page"
 msgstr "页首"
 
-#: scripts/wa.js:991 scripts/wa.js:991
+#: scripts/wa.js:991 scripts/wa.js:983 scripts/wa.js:983
 msgid "Not in a table."
 msgstr "不在表格中"
 
-#: scripts/wa.js:1284 scripts/wa.js:1292 scripts/wa.js:1284 scripts/wa.js:1292
+#: scripts/wa.js:1284 scripts/wa.js:1292 scripts/wa.js:1276 scripts/wa.js:1276
+#: scripts/wa.js:1284
 msgid "no"
 msgstr "没有"
 
-#: index.php:253
+#: index.php:253 index.php:254
 msgid "Welcome to WebAnywhere"
 msgstr "欢迎访问Web Anywhere"
 
@@ -87,11 +92,11 @@ msgstr "欢迎访问Web Anywhere"
 msgid "forward"
 msgstr "前进"
 
-#: scripts/vars.js:71 scripts/wa.js:290 scripts/wa.js:290
+#: scripts/vars.js:71 scripts/wa.js:290 scripts/wa.js:280 scripts/wa.js:280
 msgid "WebAnywhere has loaded."
 msgstr "欢迎访问WebAnywhere"
 
-#: scripts/vars.js:74 scripts/wa.js:287 scripts/wa.js:287
+#: scripts/vars.js:74 scripts/wa.js:287 scripts/wa.js:277 scripts/wa.js:277
 msgid "Page has loaded."
 msgstr "页面已载入"
 
@@ -201,6 +206,7 @@ msgstr "重置按钮"
 msgid "Submit Button"
 msgstr "提交按钮"
 
-#: scripts/interface/interface.js:217 scripts/interface/interface.js:217
+#: scripts/interface/interface.js:217 scripts/interface/interface.js:241
+#: scripts/interface/interface.js:252 scripts/interface/interface.js:252
 msgid "Select a language to switch to"
 msgstr "选择切换到一种新的语言"
