@@ -1,8 +1,8 @@
 <?php $wa_text = array();
 $wa_text[""]="";
 $wa_text["Go"]="浏览";
-$wa_text["Next"]="前进";
-$wa_text["Previous"]="后退";
+$wa_text["Next"]="下一个";
+$wa_text["Previous"]="上一个";
 $wa_text["Type a string to find in the current page"]="输入字符串，在本页中查找";
 $wa_text["Location field text area:"]="地址栏：";
 $wa_text["Invalid key press"]="无效按键";

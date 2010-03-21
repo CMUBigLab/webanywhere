@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-07 11:30+0800\n"
+"POT-Creation-Date: 2010-03-21 18:37+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr "Grasen"
 
 #: index.php:243
 msgid "Next"
-msgstr "Zurück"
+msgstr "Nächst"
 
 #: index.php:246
 msgid "Previous"
@@ -33,10 +33,12 @@ msgid "Welcome to WebAnywhere"
 msgstr "Willkommen zu Webüberall"
 
 #: scripts/input/keyboard.js:423 scripts/input/keyboard.js:428
+#: scripts/input/keyboard.js:428
 msgid "Invalid key press"
 msgstr "Ungültige Taste"
 
 #: scripts/sound/sounds.js:625 scripts/sound/sounds.js:633
+#: scripts/sound/sounds.js:633
 msgid "Welcome to Web Anywhere"
 msgstr "Willkommen zu Webüberall"
 
@@ -90,6 +92,7 @@ msgid "Location field text area:"
 msgstr "Textbereich des Standorts"
 
 #: scripts/interface/interface.js:241 scripts/interface/interface.js:252
+#: scripts/interface/interface.js:252
 msgid "Select a language to switch to"
 msgstr "Wählen Sie eine Sprache, um zu wechseln"
 
