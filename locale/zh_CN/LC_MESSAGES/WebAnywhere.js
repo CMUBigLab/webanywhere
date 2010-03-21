@@ -64,7 +64,7 @@ wa_text["skip to the next link or form control."]="跳到下一个链接或者�
 wa_text["read the next element on the page."]="阅读页面当前位置的下一个元素。";
 wa_text["move the cursor to the location box where you can type a URL to visit."]="把光标移到地址栏，输入您要访问的位置。";
 wa_text["The following keyboard shortcuts are available."]="快捷键如下。";
-wa_text["Press escape to exit this menu."]="按ESC键退出本菜单。";
+wa_text["Press escape to exit this menu."]="按键盘左上角Escape键退出本菜单。";
 
 function wa_gettext(text) {
   if (wa_text[text]) {
