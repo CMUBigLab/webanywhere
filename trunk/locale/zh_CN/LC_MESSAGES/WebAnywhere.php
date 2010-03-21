@@ -46,6 +46,25 @@ $wa_text["Radio Button"]="单选按钮";
 $wa_text["Reset Button"]="重置按钮";
 $wa_text["Submit Button"]="提交按钮";
 $wa_text["Select a language to switch to"]="选择切换到一种新的语言";
+$wa_text["Keyboard Shortcuts"]="键盘快捷键";
+$wa_text["Arrow Down"]="下方向键";
+$wa_text["Arrow Up"]="上方向键";
+$wa_text["read the previous element on the page."]="阅读页面当前位置的上一个元素。";
+$wa_text["skip to the next heading."]="跳到下一个标题。";
+$wa_text["skip to the next input element."]="跳到下一个表单输入元素。";
+$wa_text["read continuously from the current position."]="从当前位置开始连续读取。";
+$wa_text["read continuously, starting over from the beginning of the page."]="从头开始连续读取本页。";
+$wa_text["when a selection box is focused, read the next option."]="在选项框里读取下一个选项。";
+$wa_text["when a selection box is focused, read the previous option."]="在选项框里读取上一个选项。";
+$wa_text["search text in current page."]="搜索网页内文字。";
+$wa_text["silence WebAnywhere and pause the system."]="暂停读取网页。";
+$wa_text["skip to the next column by cell when in a table."]="在表格中跳到下一列。";
+$wa_text["skip to the next row by cell when in a table."]="在表格中跳到下一行。";
+$wa_text["skip to the next link or form control."]="跳到下一个链接或者表格。";
+$wa_text["read the next element on the page."]="阅读页面当前位置的下一个元素。";
+$wa_text["move the cursor to the location box where you can type a URL to visit."]="把光标移到地址栏，输入您要访问的位置。";
+$wa_text["The following keyboard shortcuts are available."]="快捷键如下。";
+$wa_text["Press escape to exit this menu."]="按ESC键退出本菜单。";
 
 function wa_gettext($text) {
     global $wa_text;

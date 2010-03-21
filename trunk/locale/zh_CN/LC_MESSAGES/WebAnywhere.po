@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-21 18:37+0800\n"
+"POT-Creation-Date: 2010-03-21 23:35+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -207,6 +207,85 @@ msgid "Submit Button"
 msgstr "提交按钮"
 
 #: scripts/interface/interface.js:217 scripts/interface/interface.js:241
-#: scripts/interface/interface.js:252 scripts/interface/interface.js:252
+#: scripts/interface/interface.js:252 scripts/interface/interface.js:255
+#: scripts/interface/interface.js:255
 msgid "Select a language to switch to"
 msgstr "选择切换到一种新的语言"
+
+#: scripts/interface/interface.js:196 scripts/interface/interface.js:196
+msgid "Keyboard Shortcuts"
+msgstr "键盘快捷键"
+
+#: scripts/interface/interface.js:200 scripts/interface/interface.js:210
+#: scripts/interface/interface.js:200 scripts/interface/interface.js:210
+msgid "Arrow Down"
+msgstr "下方向键"
+
+#: scripts/interface/interface.js:201 scripts/interface/interface.js:211
+#: scripts/interface/interface.js:201 scripts/interface/interface.js:211
+msgid "Arrow Up"
+msgstr "上方向键"
+
+#: scripts/interface/interface.js:201 scripts/interface/interface.js:201
+msgid "read the previous element on the page."
+msgstr "阅读页面当前位置的上一个元素。"
+
+#: scripts/interface/interface.js:203 scripts/interface/interface.js:203
+msgid "skip to the next heading."
+msgstr "跳到下一个标题。"
+
+#: scripts/interface/interface.js:204 scripts/interface/interface.js:204
+msgid "skip to the next input element."
+msgstr "跳到下一个表单输入元素。"
+
+#: scripts/interface/interface.js:207 scripts/interface/interface.js:207
+msgid "read continuously from the current position."
+msgstr "从当前位置开始连续读取。"
+
+#: scripts/interface/interface.js:208 scripts/interface/interface.js:208
+msgid "read continuously, starting over from the beginning of the page."
+msgstr "从头开始连续读取本页。"
+
+#: scripts/interface/interface.js:210 scripts/interface/interface.js:210
+msgid "when a selection box is focused, read the next option."
+msgstr "在选项框里读取下一个选项。"
+
+#: scripts/interface/interface.js:211 scripts/interface/interface.js:211
+msgid "when a selection box is focused, read the previous option."
+msgstr "在选项框里读取上一个选项。"
+
+#: scripts/interface/interface.js:212 scripts/interface/interface.js:212
+msgid "search text in current page."
+msgstr "搜索网页内文字。"
+
+#: scripts/interface/interface.js:209 scripts/interface/interface.js:209
+msgid "silence WebAnywhere and pause the system."
+msgstr "暂停读取网页。"
+
+#: scripts/interface/interface.js:206 scripts/interface/interface.js:206
+msgid "skip to the next column by cell when in a table."
+msgstr "在表格中跳到下一列。"
+
+#: scripts/interface/interface.js:205 scripts/interface/interface.js:205
+msgid "skip to the next row by cell when in a table."
+msgstr "在表格中跳到下一行。"
+
+#: scripts/interface/interface.js:202 scripts/interface/interface.js:202
+msgid "skip to the next link or form control."
+msgstr "跳到下一个链接或者表格。"
+
+#: scripts/interface/interface.js:200 scripts/interface/interface.js:200
+msgid "read the next element on the page."
+msgstr "阅读页面当前位置的下一个元素。"
+
+#: scripts/interface/interface.js:199 scripts/interface/interface.js:199
+msgid "move the cursor to the location box where you can type a URL to visit."
+msgstr "把光标移到地址栏，输入您要访问的位置。"
+
+#: scripts/interface/interface.js:197 scripts/interface/interface.js:197
+msgid "The following keyboard shortcuts are available."
+msgstr "快捷键如下。"
+
+#: scripts/interface/interface.js:197 scripts/interface/interface.js:197
+msgid "Press escape to exit this menu."
+msgstr "按ESC键退出本菜单。"
