@@ -157,10 +157,10 @@ WA.Keyboard = {
     case 'ctrl a':
       WA.Extensions.callPeriodics();
       break;
-    case 'alt leftarrow':
+    case 'alt arrowleft':
       goBack();
       break;
-    case 'alt rightarrow':
+    case 'alt arrowright':
       goForward();
       break;
     case 'ctrl n':

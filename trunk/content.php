@@ -72,6 +72,8 @@ Pressing SHIFT in combination with them reverses the direction of the search, se
 <li><b>CTRL+Arrow Down</b> - when a selection box is focused, read the next option.</li>
 <li><b>CTRL+Arrow Up</b> - when a selection box is focused, read the previous option.</li>
 <li><b>CTRL+F</b> - search text in current page.</li>
+<li><b>ALT+Arrow Left</b> - Go back to previous page.</li>
+<li><b>ALT+Arrow Right</b> - Go forward to next page.</li>
 </ul>
 </div>
 

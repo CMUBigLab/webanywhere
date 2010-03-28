@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-21 23:45+0800\n"
+"POT-Creation-Date: 2010-03-28 14:36+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -208,7 +208,7 @@ msgstr "提交按钮"
 
 #: scripts/interface/interface.js:217 scripts/interface/interface.js:241
 #: scripts/interface/interface.js:252 scripts/interface/interface.js:255
-#: scripts/interface/interface.js:255
+#: scripts/interface/interface.js:257 scripts/interface/interface.js:257
 msgid "Select a language to switch to"
 msgstr "选择切换到一种新的语言"
 
@@ -289,3 +289,19 @@ msgstr "快捷键如下。"
 #: scripts/interface/interface.js:197 scripts/interface/interface.js:197
 msgid "Press escape to exit this menu."
 msgstr "按键盘左上角Escape键退出本菜单。"
+
+#: scripts/interface/interface.js:213 scripts/interface/interface.js:213
+msgid "Arrow Left"
+msgstr "左方向键"
+
+#: scripts/interface/interface.js:213 scripts/interface/interface.js:213
+msgid "Go back to previous page."
+msgstr "返回上一页面。"
+
+#: scripts/interface/interface.js:214 scripts/interface/interface.js:214
+msgid "Arrow Right"
+msgstr "右方向键"
+
+#: scripts/interface/interface.js:214 scripts/interface/interface.js:214
+msgid "Go forward to next page."
+msgstr "前往下一页面。"
