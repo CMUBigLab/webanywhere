@@ -21,4 +21,7 @@ Procedures to update existing locale:
 How to change locale at runtime:
 If $fixed_local is not specified in config.php, we can chage locale at runtime with something like "http://<WA-host>/index.php?locale=de"
 
+Bug:
+The text should not longer than one line because there is a bug in xgettext.
+
 Please contact Cameron Wong (hgneng at gmail.com) if you get problems with instructions above.

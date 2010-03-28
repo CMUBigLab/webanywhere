@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-28 14:36+0800\n"
+"POT-Creation-Date: 2010-03-28 15:14+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -305,3 +305,11 @@ msgstr "右方向键"
 #: scripts/interface/interface.js:214 scripts/interface/interface.js:214
 msgid "Go forward to next page."
 msgstr "前往下一页面。"
+
+#: scripts/interface/interface.js:213 scripts/interface/interface.js:213
+msgid "Before using this function,"
+msgstr "使用此功能前，"
+
+#: scripts/interface/interface.js:213 scripts/interface/interface.js:213
+msgid "we need to go to Location with CTRL+L first."
+msgstr "需先通过CTRL+L定位到地址栏。"
