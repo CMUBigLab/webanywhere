@@ -65,6 +65,10 @@ $wa_text["read the next element on the page."]="阅读页面当前位置的下�
 $wa_text["move the cursor to the location box where you can type a URL to visit."]="把光标移到地址栏，输入您要访问的位置。";
 $wa_text["The following keyboard shortcuts are available."]="快捷键如下。";
 $wa_text["Press escape to exit this menu."]="按键盘左上角Escape键退出本菜单。";
+$wa_text["Arrow Left"]="左方向键";
+$wa_text["Go back to previous page."]="返回上一页面。";
+$wa_text["Arrow Right"]="右方向键";
+$wa_text["Go forward to next page."]="前往下一页面。";
 
 function wa_gettext($text) {
     global $wa_text;
