@@ -679,7 +679,7 @@ function endNodeFocus(e) {
  **/
 function goBack() {
   var contentDoc = getContentDocument();
-  if(contentDoc.history.back) {
+  if(contentDoc.history && contentDoc.history.back) {
   	contentDoc.history.back();
   }
 }
@@ -689,7 +689,7 @@ function goBack() {
  **/
 function goForward() {
   var contentDoc = getContentDocument();
-  if(contentDoc.history.forward) {
+  if(contentDoc.history && contentDoc.history.forward) {
   	contentDoc.history.forward();
   }
 }
