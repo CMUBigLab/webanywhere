@@ -26,6 +26,7 @@ WA.Interface = {
     var target = WA.Utils.getTarget(e);
 
     if(WA.Interface.expectingLocationFocus) {
+      WA.Interface.focusBrowserElement('location');
       WA.Interface.expectingLocationFocus = false;
       getScriptWindow().textBoxFocused = true;
 
