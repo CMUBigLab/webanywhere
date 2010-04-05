@@ -1245,7 +1245,7 @@ if($_content_type == 'text/css') {
         }
     }
   
-    $_response_body = preg_replace('#(<head[^>]*>)#is', "$1<script src='wa_prep.js'></script>", $_response_body);
+    //$_response_body = preg_replace('#(<head[^>]*>)#is', "$1<script src='wa_prep.js'></script>", $_response_body);
     //$_response_body = preg_replace('#(</head>)#is', "<base href='" . $url_retrieved . "'/>\n$1", $_response_body);
   
     if($_flags['include_form'] && !isset($_GET['nf']))
