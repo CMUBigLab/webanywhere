@@ -2,4 +2,4 @@
 
   * Alpha version: http://wa.cs.washington.edu/
   * Beta version: http://webanywhere.cs.washington.edu/beta/
-  * Server in China: http://wa.eguidedog.net/
+  * Server in China (声网宝): http://wa.eguidedog.net/
