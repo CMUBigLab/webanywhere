@@ -290,8 +290,7 @@ WA.Sound = {
       default: speak = String.fromCharCode(keycode); 
     }
   
-    var url = '/cgi-bin/getsound.pl?text=' + escape(speak); // BUG: should not hard code TTS engine path here. - Cameron, 2009.3.14
-    url = proxifyURL(url, "", true);
+    var url = urlForString(speak);
   
     switch(this.soundMethod) {
       case this.FLASH_SOUND_METHOD: this._prefetchFlash("keycode_" + keycode, url, false, false); break;
