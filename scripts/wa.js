@@ -92,10 +92,10 @@ function init_browser() {
   }
 
   // Find previous focus.
-  var find_next = document.getElementById('find_next_button');
-  if(find_next) {
-    if(window.attachEvent) find_next.attachEvent('onfocus', browserElementFocus);
-    else if(window.addEventListener) find_next.addEventListener('focus', browserElementFocus, false);
+  var find_previous = document.getElementById('find_previous_button');
+  if(find_previous) {
+    if(window.attachEvent) find_previous.attachEvent('onfocus', browserElementFocus);
+    else if(window.addEventListener) find_previous.addEventListener('focus', browserElementFocus, false);
   }
 
   // Window-level key event handlers.
