@@ -211,7 +211,7 @@ WA.Interface = {
                     "<li style='margin: 0; padding: 0.1em;'><b>CTRL+" + wa_gettext("Arrow Down") + "</b> - " + wa_gettext("when a selection box is focused, read the next option.") + "</li>" +
                     "<li style='margin: 0; padding: 0.1em;'><b>CTRL+" + wa_gettext("Arrow Up") + "</b> - " + wa_gettext("when a selection box is focused, read the previous option.") + "</li>" +
                     "<li style='margin: 0; padding: 0.1em;'><b>CTRL+F</b> - " + wa_gettext("search text in current page.") + "</li>" +
-                    "<li style='margin: 0; padding: 0.1em;'><b>ALT+" + wa_gettext("Arrow Left") + "</b> - " + wa_gettext("Go back to previous page.") + wa_gettext("Before using this function,") + wa_gettext("we need to go to Location with CTRL+L first.") + "</li>" +
+                    "<li style='margin: 0; padding: 0.1em;'><b>ALT+" + wa_gettext("Arrow Left") + "</b> - " + wa_gettext("Go back to previous page.") + wa_gettext("In Firefox browser,") + wa_gettext("we may need to go to Location with CTRL+L first.") + "</li>" +
                     "<li style='margin: 0; padding: 0.1em;'><b>ALT+" + wa_gettext("Arrow Right") + "</b> - " + wa_gettext("Go forward to next page.") + "</li>" +
                     "</ul>" +
                     "</div>",
