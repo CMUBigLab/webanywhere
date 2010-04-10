@@ -69,8 +69,8 @@ wa_text["Arrow Left"]="左方向键";
 wa_text["Go back to previous page."]="返回上一页面。";
 wa_text["Arrow Right"]="右方向键";
 wa_text["Go forward to next page."]="前往下一页面。";
-wa_text["Before using this function,"]="使用此功能前，";
-wa_text["we need to go to Location with CTRL+L first."]="需先通过CTRL+L定位到地址栏。";
+wa_text["In Firefox browser,"]="在火狐浏览器中，";
+wa_text["we may need to go to Location with CTRL+L first."]="可能需要先按CTRL+L定位到地址栏。";
 
 function wa_gettext(text) {
   if (wa_text[text]) {
