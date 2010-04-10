@@ -41,9 +41,9 @@ if (file_exists("locale/$locale/LC_MESSAGES/WebAnywhere.php")) {
 
 // set Javascript locale
 if (file_exists("locale/$locale/LC_MESSAGES/WebAnywhere.js")) {
-  echo "<script type='text/javascript' src='locale/$locale/LC_MESSAGES/WebAnywhere.js'></script>";
+  echo "<script type='text/javascript' charset='utf-8' src='locale/$locale/LC_MESSAGES/WebAnywhere.js'></script>";
 } else if (file_exists("locale/$locale1/LC_MESSAGES/WebAnywhere.js")) {
-  echo "<script type='text/javascript' src='locale/$locale1/LC_MESSAGES/WebAnywhere.js'></script>";
+  echo "<script type='text/javascript' charset='utf-8' src='locale/$locale1/LC_MESSAGES/WebAnywhere.js'></script>";
 } else {
   echo "<script type='text/javascript'>function wa_gettext(text) { return text; }</script>";
 }
