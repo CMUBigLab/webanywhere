@@ -168,7 +168,7 @@ WA.Keyboard = {
       break;
     case 'ctrl l':
       this.suppressKeys(e);
-      WA.Interface.focusLocation();
+      WA.Interface.focusBrowserElement('location');
       setBrowseMode(WA.KEYBOARD);
       break;
     case 'ctrl tab':
