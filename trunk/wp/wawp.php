@@ -1000,7 +1000,7 @@ if($_content_type == 'text/css') {
        "$1", $_response_body);
 
   //$_response_body = preg_replace('#(function )(_)#is', '$1_$2', $_response_body);  
-  $_response_body = preg_replace('#\.replace\(([^\/])#is', '.rep($1', $_response_body);  
+  //$_response_body = preg_replace('#\.replace\(([^\/])#is', '.rep($1', $_response_body);  
 
 
   //$_response_body = preg_replace('#(<\s*/head\s*>)#is', '<script>if(window==top) document.location = "http://webanywhere.cs.washington.edu/content.php";</script>' . '$1', $_response_body);
