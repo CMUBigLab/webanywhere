@@ -69,8 +69,11 @@
   $voices["tr"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=tr&text=$text$'; // Turkish
 
   // The URL that will load in WebAnywhere by default.
-  $default_content_url = "http://" . $webanywhere_domain . $root_path . '/content.php';
-
+  if($webanywhere_domain !== 'localhost') {
+    $default_content_url = "http://" . $webanywhere_domain . $root_path . '/content.php';
+  } else {
+    $default_content_url = "http://webanywhere.cs.washington.edu/beta/content.php";
+  }
   // To prevent malicious users from abusing the web proxy that is part of WebAnywhere,
   // the system can optionally limit the rate at which users can request content.
   $limit_request_rate = false;
