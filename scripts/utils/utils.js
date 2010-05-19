@@ -351,7 +351,7 @@ WA.Utils = {
 		if(self.innerWidth != undefined) {
 		  return [win.innerWidth, win.innerHeight];
     } else {
-  		// var docelem = win.document.documentElement;
+  		//var docelem = win.document.documentElement;
   		var docelem = win.document.body;
   		return [docelem.clientWidth, docelem.clientHeight];
 		}
@@ -366,7 +366,11 @@ WA.Utils = {
   getScrollOffset: function(win) {
   	if(win.scrollY != undefined) {
   		return [win.scrollX, win.scrollY];
-  	} else if(win.document.documentElement.scrollTop) {
+  	} else if(win.document.body.scrollTop) {
+  	   var delem = win.document.body;
+  	   return [delem.scrollLeft, delem.scrollTop];
+  	}
+  	else if(win.document.documentElement.scrollTop) {
   		var delem = win.document.documentElement;
       return [delem.scrollLeft, delem.scrollTop];
   	} else {

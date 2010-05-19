@@ -250,7 +250,8 @@ echo $script_path;
 	        </table>
         </div>
 
-        <div id="wa_text_display_container" style="width: 5000px;">
+        <!-- div id="wa_text_display_container" style="width: 5000px;" -->
+        <div id="wa_text_display_container">
           <span id="wa_text_display" style="width: 100%; margin: 0; padding: 0.1em; font-size: 3em; color: #FF0; font-weight: bold;"><?php echo wa_gettext("Welcome to WebAnywhere") ?></span>
         </div>
 

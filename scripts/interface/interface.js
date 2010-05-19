@@ -96,9 +96,9 @@ WA.Interface = {
 
   updateCurrentlyPlayingSize: function(time, total) {
     // Not the best way to handle whatever problem is happening with IE.
-    if(WA.Utils.isIE()) {
-      return;
-    }
+    //if(WA.Utils.isIE()) {
+     // return;
+    //}
 
     var width = WA.Utils.contentWidthHeight(top)[0];
     var text_disp = document.getElementById('wa_text_display');
