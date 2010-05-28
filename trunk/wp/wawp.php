@@ -968,7 +968,13 @@ if($_content_type == 'text/css') {
   $_response_body = preg_replace('/&#\d+;/', '...', $_response_body);
 
   // Automatic refreshes are also bad for accessibility.
-  $_response_body = preg_replace('#http-equiv="Refresh"#', 'http-equiv="Refresh2"', $_response_body);
+  //$_response_body = preg_replace('#http-equiv="Refresh"#', 'http-equiv="Refresh2"', $_response_body);
+  $_response_body = preg_replace_callback('#content="(?:\d+;)?(.*)"#', function ($match) {
+      global $_script_url;
+      global $_config;
+      return 'content="0;'. $_script_url . '?' . $_config['url_var_name'] . '=' . encode_url($match[1]) . '"';
+  }, $_response_body);
+  
   $_response_body = preg_replace('#([\'"])(https?://(?!webinsight\.).*)\1#', "$1$2$1", $_response_body);
 
   //

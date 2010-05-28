@@ -135,13 +135,11 @@ WA.Interface = {
    * @param url Proxied URL.
    * @return Original URL of the page.
    */
-  getURLFromProxiedDoc: function(doc) {
-    var url = this.getLocationFromDoc(doc);
-
+  getURLFromProxiedURL: function(url){
     url = unescape(url);
 
     var matches = /^[^\?]+\?.*(____pgfa|proxy_url)=([^\&]+)(.*)$/.exec(url);
-
+    if(!matches) return; // hmm, error?
     if(matches.length <= 2) {
       url = "Error";
     } else {
@@ -154,6 +152,14 @@ WA.Interface = {
     }
 
     return url;
+  },
+  
+  /**
+   * Returns the actual underlying (non-proxied) URL from a given DOM Document object.
+   */
+  getURLFromProxiedDoc: function(doc) {
+    var url = this.getLocationFromDoc(doc);
+    return this.getURLFromProxiedURL(url);
   },
 
   getLocationFromDoc: function(doc) {
