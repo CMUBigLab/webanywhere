@@ -284,5 +284,8 @@ echo $script_path;
     </DIV>
     <DIV ID="wa_blocker_div"></DIV>
     <DIV ID="wa_blocker_content_div"></DIV>
+    <?php if($webtrax){ ?>
+      <script src="scripts/extensions/flash/swfobject.js" type="text/javascript"></script>
+    <?php } ?>
 </BODY>
 </HTML>

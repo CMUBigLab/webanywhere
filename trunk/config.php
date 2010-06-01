@@ -105,6 +105,9 @@
   // This records only the paths taken through content and not the content itself.
   $record_interactions = false;
   $record_file = "interactions.rc";
+  
+  // Will visualizations of non-visual interactions be displayable?
+  $webtrax = false;
 
   // Extensions files.
   // Comment individual extensions out to prevent their inclusion.
@@ -134,10 +137,16 @@
 
     // Adds support for speaking selected text.
     ,'extensions/selection-reading-extension.js'
+    
+    // Adds support for detecting content filters
+  	//,'extensions/filter-detect.js'
   );
 
   // Adds support for recording user interactions.
   if($record_interactions) {
     array_push($extensions, 'extensions/recorder-extension.js');
+    if($webtrax){
+      array_push($extensions, 'extensions/webtrax.js');
+    }
   }
 ?>

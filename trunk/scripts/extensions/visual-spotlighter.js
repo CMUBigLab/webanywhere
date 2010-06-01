@@ -64,6 +64,13 @@ WA.Extensions.VisualSpotlighter = function() {
     } else {
     	node.className = "wahighlight";
     }
+    
+    if(WA.Extensions.WebTrax){
+      if(node){
+        WA.Extensions.WebTrax.trace.push({node: node});
+        WA.Extensions.WebTrax.currentHLNode = node;
+      }
+    }
   },
 
   /**
