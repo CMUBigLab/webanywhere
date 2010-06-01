@@ -26,6 +26,7 @@ WA.Extensions.RecorderExtension = function() {
   this.spotlight = function(node) {
     var xpath = WA.Utils.getXPath(node);
     this._lastSpotlight = xpath;
+    this._lastSpotlightNode = node;
     this.recordEvent("x(" + (this._seq++) + ")" + xpath);
   };
 

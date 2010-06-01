@@ -293,7 +293,26 @@ WA.Keyboard = {
       }
       break;
     case 'ctrl 1':
-      WA.Interface.visualizeRecordings();
+      if(WA.Extensions.WebTrax){
+        WA.Extensions.WebTrax.recordMode = 'trail';
+        WA.Extensions.WebTrax.instance.visualizeRecordings(getContentDocument());
+      }
+
+      this.suppressKeys(e);
+      setBrowseMode(WA.KEYBOARD);
+      break;
+    case 'ctrl 2':
+      if(WA.Extensions.WebTrax){
+        WA.Extensions.WebTrax.recordMode = 'heatmap';
+        WA.Extensions.WebTrax.instance.visualizeRecordings(getContentDocument());
+      }
+      this.suppressKeys(e);
+      setBrowseMode(WA.KEYBOARD);
+      break;
+    case 'ctrl 3':
+      if(WA.Extensions.WebTrax){
+        WA.Extensions.WebTrax.removeFlash();
+      }
       this.suppressKeys(e);
       setBrowseMode(WA.KEYBOARD);
       break;
