@@ -43,7 +43,7 @@ WA.Extensions.FilterDetect = function(){
 
   	var success = function(e){
   	  document.body.removeChild(img);
-	  	if(img.width > 0){
+	  	if(img.offsetWidth > 0){
 	  	  resultLambda(true);
 	  	} else {
 	  		resultLambda(false);
@@ -82,7 +82,7 @@ WA.Extensions.FilterDetect = function(){
 		for(var i = 0; i < imgs.length; i++){
 		  var img = imgs[i];
 		  var imgHost = parseUri(WA.Interface.getURLFromProxiedURL(img.src)).host;
-		  if(imgHost == docHost){
+		  if(imgHost == docHost && img.offsetWidth > 0){
 		    found = true;
 		    break;
 	    }
