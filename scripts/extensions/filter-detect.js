@@ -42,12 +42,12 @@ WA.Extensions.FilterDetect = function(){
   	img.src = uri;
 
   	var success = function(e){
-  	  document.body.removeChild(img);
-	  	if(img.offsetWidth > 0){
+	  	if((img.offsetWidth && img.offsetWidth > 0) || (img.width && img.width > 0)){
 	  	  resultLambda(true);
 	  	} else {
 	  		resultLambda(false);
 	  	}
+	  	document.body.removeChild(img);
   	};
 
   	var failure = function(e){
@@ -57,10 +57,10 @@ WA.Extensions.FilterDetect = function(){
 
   	if(img.addEventListener){
   	  img.addEventListener('load', success, false);
-  	  img.addEventListener('error', failure, false);
+  	  //img.addEventListener('error', failure, false);
   	} else if(img.attachEvent){
   		img.attachEvent('onload', success);
-  		img.attachEvent('onerror', failure);
+  		//img.attachEvent('onerror', failure);
   	}
   	document.body.appendChild(img);
 	};
@@ -82,7 +82,7 @@ WA.Extensions.FilterDetect = function(){
 		for(var i = 0; i < imgs.length; i++){
 		  var img = imgs[i];
 		  var imgHost = parseUri(WA.Interface.getURLFromProxiedURL(img.src)).host;
-		  if(imgHost == docHost && img.offsetWidth > 0){
+		  if((imgHost == docHost) && ((img.width && img.width > 0) || (img.offsetWidth && img.offsetWidth > 0))){
 		    found = true;
 		    break;
 	    }
