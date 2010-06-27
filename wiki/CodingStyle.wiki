@@ -42,7 +42,7 @@ There are should be no spaces at the end of lines.
 This also means that no line should contain only spaces.
 
 ==Comments==
-functions should follow the JavaDoc, for example:
+functions should follow the JavaDoc format, for example:
 {{{
   /**
    * Return true if we should treat this node as a leaf, false otherwise.
