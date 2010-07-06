@@ -24,14 +24,20 @@ WA.Extensions.SelectionReadingExtension = function() {
   this.oncePerDocument = function(doc) {
     WA.Utils.log("ATTACHING MOUSEUP HANDLER");
     var self = this;
-
+    //The reference to the document doesn't seem to exist
+    //Get a new reference in order to set up the event listeners
+    var doc = getContentDocument();
     if(doc.attachEvent) doc.attachEvent('onmouseup', function() {self.handleMouseUp(doc); });
     else if(doc.addEventListener) doc.addEventListener('mouseup', function() {self.handleMouseUp(doc); }, false);
-
     if(doc.attachEvent) doc.attachEvent('onmousedown', function() {self.handleMouseDown(doc); });
     else if(doc.addEventListener) doc.addEventListener('mousedown', function() {self.handleMouseDown(doc); }, false);
   };
-}
+};
 
-var selectionExtension = new WA.Extensions.SelectionReadingExtension();
-WA.Extensions.oncePerDocument.push(selectionExtension);
+
+//Run from anonymous function to avoid polluting the namespace.
+(function() {
+  var selectionExtension = new WA.Extensions.SelectionReadingExtension();
+  WA.Extensions.oncePerDocument.push(selectionExtension);
+})();
+
