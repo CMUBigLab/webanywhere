@@ -43,12 +43,12 @@ WA.Interface = {
   locationMouseDown: function(e) {
     var target = WA.Utils.getTarget(e);
     WA.Interface.expectingLocationFocus = true;
-
-    // Prevent WebAnywhere from continuing reading.
+    /*// Prevent WebAnywhere from continuing reading.
     WA.Sound.silenceAll();
     WA.Extensions.spotlightNode(null);
-
-    WA.Interface.locationFocus(e);
+	alert("pony");
+    WA.Interface.locationFocus(e);*/
+    WA.Interface.focusBrowserElement('location');
   },
 
   /**
