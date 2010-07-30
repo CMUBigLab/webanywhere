@@ -15,6 +15,7 @@ WA.Extensions.SelectionReadingExtension = function() {
   };
 
   this.handleMouseDown = function(doc) {
+    var cdim = WA.Utils.contentWidthHeight(top);
     // Stop WebAnywhere from reading new nodes, remove any current spotlights,
     // and empty the sound queue.
     WA.Sound.silenceAll();
@@ -27,10 +28,10 @@ WA.Extensions.SelectionReadingExtension = function() {
     //The reference to the document doesn't seem to exist
     //Get a new reference in order to set up the event listeners
     var doc = getContentDocument();
-    if(doc.attachEvent) doc.attachEvent('onmouseup', function() {self.handleMouseUp(doc); });
-    else if(doc.addEventListener) doc.addEventListener('mouseup', function() {self.handleMouseUp(doc); }, false);
-    if(doc.attachEvent) doc.attachEvent('onmousedown', function() {self.handleMouseDown(doc); });
-    else if(doc.addEventListener) doc.addEventListener('mousedown', function() {self.handleMouseDown(doc); }, false);
+    if(doc.attachEvent) doc.body.attachEvent('onmouseup', function() {self.handleMouseUp(doc); });
+    else if(doc.addEventListener) doc.body.addEventListener('mouseup', function() {self.handleMouseUp(doc); }, false);
+    if(doc.attachEvent) doc.body.attachEvent('onmousedown', function() {self.handleMouseDown(doc); });
+    else if(doc.addEventListener) doc.body.addEventListener('mousedown', function() {self.handleMouseDown(doc); }, false);
   };
 };
 
