@@ -228,8 +228,7 @@ echo $script_path;
 	              <form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;" autocomplete="off">
 	                <td width="70%">
 	                    <label for="location" style="position: absolute; top: -100px">Location:&nbsp;</label>
-	                    <input class="inputbox" type="text" id="location"
-	                      autocomplete="off" value="http://webinsight.cs.washington.edu/wa/content.php"/>
+	                    <input class="inputbox" type="text" id="location" autocomplete="off"/>
 	                </td>
 	                <td>
 	                    <input class="inputbutton" name="go" type="submit" value="<?php echo wa_gettext('Go') ?>" id="location_go" onclick='navigate(this); return false;'/>
