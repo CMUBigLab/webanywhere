@@ -444,6 +444,7 @@ WA.Keyboard = {
         } else if(source == 'key press') {
         } else if(source == 'key down') {}
   
+        WA.Sound.resetSounds();
         WA.Sound.addSound(wa_gettext("Invalid key press"));
         this.resetKeyboardModifiers();
   
