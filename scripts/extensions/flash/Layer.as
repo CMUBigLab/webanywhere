@@ -41,13 +41,15 @@ package {
 		private var points:Array = [];
 		private var debug_txt:TextField = new TextField();
 		
+		private var numPages:int = 1;
+		
 		/**
 		 * Initializes root and ExternalInterface, and sets up most event listeners.
 		 */
 		public function Layer(){
 			addChild(s);
 			addChild(drawLayer);
-			//addChild(debug_txt); // don't draw it unless it's needed
+			addChild(debug_txt); // don't draw it unless it's needed
 			
 			initTxt();
 
@@ -97,12 +99,14 @@ package {
 		 * Glue that takes a JS array of { x:Num, y:Num, heat:Num } points and draws the heatmap in AS.
 		 * Called by _do, from JS.
 		 */
-		private function heatmap(pts:*):* {
+		private function heatmap(pts:*, num_pages:int = 1):* {
+			debug_txt.appendText('\nheatmap(' + pts + ', ' + num_pages + ')');
+			numPages = num_pages;
 			points = objToArray(pts);
 			debug_txt.appendText('\nHEATMAP ' + points.length + ' points' + pts);
 			drawPoints();
 			drawHeatmap();
-			return 'heatmapOKAY' + points.join(', ');
+			return '\nheatmapOKAY' + points.join(', ');
 		}
 		
 		
@@ -145,7 +149,11 @@ package {
 						trace(d);
 						if(points[k].heat){
 							trace('---', d, points[k].heat);
-							d *= Math.abs(points[k].heat);
+							if(numPages > 1){
+								d *= Math.abs(points[k].heat) / numPages;
+							} else {
+								d *= Math.abs(points[k].heat);
+							}
 						} else {
 							trace('!!no heat');
 						}
@@ -153,11 +161,11 @@ package {
 						var yy:* = p.y + j;
 						if(xx < 0 || yy < 0 || xx >= grid_w || yy >= grid_h) continue; // these are out of bounds
 						if(!grid[xx][yy]){
-							var o:Object = {x: xx, y: yy, d: d };
+							var o:Object = { x: xx, y: yy, d: d / numPages };
 							grid[xx][yy] = o;
 							dPoints.push(o);
 						} else {
-							grid[xx][yy].d += d;
+							grid[xx][yy].d += d / numPages;
 						}
 					}
 				}
@@ -167,6 +175,16 @@ package {
 			for(i = 0; i < dplen; i++){
 				o = dPoints[i];
 				// (i * 6 ) / 360.0) * (2 * Math.PI)
+				
+				/*
+					TODO: For aggregate heatmap, just add a new property to the points 
+					objects passed in from JS, a count of how many visits there were.  
+					
+					use the visit count for each point to multiply against maxD, because
+					o.d could be visitCount * maxD at the max since there are multiple hits
+					(potentially) for each point.
+				*/
+				
 				if(o.d < maxD){
 					var heat:Number = o.d / maxD;
 				} else if(o.d == 0){
@@ -174,6 +192,7 @@ package {
 				} else {
 					heat = 1;
 				}
+				
 				//if(heat < 0.2 && heat > 0) heat = 0.2;
 				var opacity:Number = uint(255 * heat) << 24;
 
@@ -253,7 +272,7 @@ package {
 		 * This function can be called directly by JavaScript.  Currently, it is called 
 		 * after the user activates the heatmap shortcut (ctrl 2), via fl.invoke('heatmap', args)
 		 */
-		public function _do(f:*, args:*):* {
+		public function _do(f:*, ...args:*):* {
 			debug_txt.appendText('\ngot args: ' + f + ', ' + args);
 			try {
 				return {
@@ -262,7 +281,7 @@ package {
 					debug: function(args:*):void {
 						__do.apply(this, args);
 					}
-				}[f].call(this, args);
+				}[f].apply(this, args);
 			} catch(err:Error){
 				return 'error: ' + err.toString();
 			}

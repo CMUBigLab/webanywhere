@@ -84,6 +84,7 @@ WA.Nodes = {
     // Use straight-forward, but error-prone method.
     // In particular, this will not distinguish between an image with alt=""
     // and undefined alt text.
+    // TODO: FIXME
     var attrVal = node.getAttribute(attrib);
     if(attrVal != null && attrVal != "") {
       return true;

@@ -4,6 +4,10 @@ WA.Extensions.WebTrax = function() {
   arguments.callee.recordMode = 'trail'; // can also be 'heatmap'
   arguments.callee.trace = [];
   arguments.callee.instance = this;
+  arguments.callee.pagenum = 0;
+  arguments.callee.pageStart = new Date().getTime();
+  arguments.callee.random = Math.floor(Math.random() * 1000);
+  arguments.callee.recordQueue = [];
   
 	this.showHeatmap = function(){
 	  alert('heatmap');
@@ -23,10 +27,10 @@ WA.Extensions.WebTrax = function() {
     var attrs = { 
       id: 'flash',
       data: top.webanywhere_url + '/scripts/extensions/flash/Layer.swf?' + Math.random(), 
-      width: '100%', 
-      height: '100%',
+      width: fdoc.body.getClientRects()[0].width.toString() + ' px', 
+      height: fdoc.body.getClientRects()[0].height.toString() + ' px',
       wmode: 'transparent',
-      allowScriptAccess: 'sameDomain',
+      allowScriptAccess: 'sameDomain'
     };
     swfobject.createSWF(attrs, {}, div);
     
@@ -44,7 +48,7 @@ WA.Extensions.WebTrax = function() {
     if(this._heatpoints){
       //alert('passing heatmap points to flash: ' + this._heatpoints.length);
       WA.Extensions.WebTrax.heatpoints = this._heatpoints;
-      setTimeout(function(){ fl.invoke('heatmap', WA.Extensions.WebTrax.heatpoints); }, 500);
+      setTimeout(function(){ fl.invoke('heatmap', WA.Extensions.WebTrax.heatpoints, WA.Extensions.WebTrax.trace.numPages); }, 500);
     }
   };
   
@@ -112,9 +116,85 @@ WA.Extensions.WebTrax = function() {
     }
   };
   
+  this.showAggregateHeatmap = function(xpathArrays){
+    alert('showing aggregate map, ' + xpathArrays.length + ' visits. ');
+    
+    var aggregatePoints = [];
+    var numPages = 0;
+    
+    var prevSession = '';
+    var prevPagenum = -1;
+    
+    for(var i = 0; i < xpathArrays.length; i++){
+      var xpath = xpathArrays[i].xpath;
+      //alert('xpath: ' + i + '/' + xpathArrays.length + ': ' + xpath + ', completeness: '  + xpathArrays[i].completeness);
+      var elems = document.getElementById('content_frame').contentDocument.evaluate(xpath, document.getElementById('content_frame').contentDocument, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+      
+      var sessionid = xpathArrays[i].sessionid;
+      var pagenum = xpathArrays[i].pagenum;
+      
+      if(pagenum != prevPagenum && sessionid == prevSession){
+        numPages++;
+        prevPagenum = pagenum;
+      }
+      
+      if(sessionid != prevSession){
+        numPages++;
+        prevSession = sessionid;
+        prevPagenum = pagenum;
+      }
+      
+      for(var j = 0; j < elems.snapshotLength; j++){
+        var elem = elems.snapshotItem(j);
+        //alert('got result: ' + elem );
+        break;
+        /* need to do something similar to the original heatmap, where <span/>s are 
+           handled separately, but those and all other elements have their position 
+           determined by getClientRect(s) or some similar method. 
+           
+           also need to add some new fields to the database:
+              - percent
+              - action: "click", type, read, etc.
+              * duration: getTimer() - getTimerWhenPageLoaded (optional)
+        */
+        
+        
+      }
+      
+      if(elem){
+        // this object should match the object that is passed into the regular 
+        // WebTrax array (an element and a percent-read)
+        var completeness = parseFloat(xpathArrays[i].completeness);
+        aggregatePoints.push({
+          node: elem,
+          partial: true,
+          percent: completeness
+        });
+      }
+      
+    }
+    
+    alert('got this many page visits: ' + numPages + ', this many elems: ' + aggregatePoints.length);
+    aggregatePoints.numPages = numPages;
+    WA.Extensions.WebTrax.trace = aggregatePoints;
+    WA.Extensions.WebTrax.recordMode = 'heatmap';
+    WA.Extensions.WebTrax.instance.visualizeRecordings(getContentDocument());
+    
+    /*
+      next: 
+        - take xpath array and convert each xpath into (x, y) coordinates on the current page
+        - test or rework heatmap code so that it weights these visits properly
+        - pass coordinates to heatmap code and generate heatmap.... this probably won't use 
+          exactly the same code as before
+    */
+  }
+  
   this.calculateHeatmap = function(){
     var pointSpacing = 40; // in pixels, #px between heatpoints, horizontally, in a span or what not
     this._heatpoints = [];
+    
+    var recordInfos = [];
+    
     for(var i = 0; i < WA.Extensions.WebTrax.trace.length; i++){
       var node = WA.Extensions.WebTrax.trace[i].node;
       var obj = WA.Extensions.WebTrax.trace[i];
@@ -129,6 +209,14 @@ WA.Extensions.WebTrax = function() {
       }
       
       if(node && node.style){
+        // out of date (10.17.10)
+        recordInfos.push({
+          uri: WA.Interface.getURLFromProxiedDoc(document.getElementById('content_frame').contentDocument),
+          xpath: WA.Utils.getXPath(node),
+          completeness: percentFill,
+          sessionid: top.sessionid + WA.Extensions.WebTrax.random.toString(),
+          pagenum: WA.Extensions.WebTrax.pagenum
+        });
         
         if(node.id == 'always_first_node'){
           continue; // this one is causing problems
@@ -222,6 +310,14 @@ WA.Extensions.WebTrax = function() {
         }
       }
     }
+    
+    // send path info to database, only if this is the ctrl+2 non-aggregate version
+    if(!WA.Extensions.WebTrax.trace.numPages){
+      for(i = 0; i < recordInfos.length; i++){
+        WA.Utils.postURL('/wa/webtrax-record.php', 'json=' + encodeURIComponent(JSON.stringify(recordInfos[i])), function(e){ });
+      }
+    }
+    
     this.showHeatmap();
   }
   
@@ -239,7 +335,7 @@ WA.Extensions.WebTrax = function() {
   };
   
   this.soundFinished = function(sid, percent){
-    WA.Extensions.WebTrax.trace.push([WA.Extensions.RecorderExtension._lastSpotlight, percent]);
+    //WA.Extensions.WebTrax.trace.push([WA.Extensions.RecorderExtension._lastSpotlight, percent]);
     
     if(true || WA.Extensions.WebTrax.recordMode == 'heatmap'){
       var i = 0;
@@ -249,10 +345,112 @@ WA.Extensions.WebTrax = function() {
           //alert('matching finished node, ' + percent);
           cur.partial = true;
           cur.percent = percent;
+          
+          // send node info to DB
+
+          var percentFill = 0;
+          if(cur.partial){
+            percentFill = percent;
+          } else {
+            percentFill = 0;
+          }
+
+          if(cur.node){
+            
+            var rect;
+            if(cur.node.nodeName == 'SPAN'){
+              rect = cur.node.getClientRects()[0];
+            } else {
+              rect = cur.node.getBoundingClientRect();
+            }
+            
+            var contentDoc = document.getElementById('content_frame').contentDocument;
+            contentDoc = contentDoc ? contentDoc : document.frames['content_frame'].document;
+            
+            WA.Extensions.WebTrax.recordQueue.push({
+              uri: WA.Interface.getURLFromProxiedDoc(contentDoc),
+              xpath: WA.Utils.getXPath(cur.node),
+              completeness: percentFill,
+              sessionid: top.sessionid + WA.Extensions.WebTrax.random.toString(),
+              time: (new Date().getTime() - WA.Extensions.WebTrax.pageStart),
+              type: 'readElement',
+              keycode: 0,
+              text: cur.node.textContent,
+              x: parseInt(rect.left),
+              y: parseInt(rect.top),
+              width: parseInt(rect.width),
+              height: parseInt(rect.height),
+              pagenum: WA.Extensions.WebTrax.pagenum
+            });
+            
+            if(WA.Extensions.WebTrax.recordQueue.length >= 5){
+              this.sendQueue();
+            }
+            
+          }
         }
       }
     }
   };
+  
+  this.sendQueue = function(){
+    var queue = WA.Extensions.WebTrax.recordQueue;
+    if(queue.length > 0){
+      WA.Utils.postURL('webtrax-record.php', 'json=' + encodeURIComponent(JSON.stringify(queue)), function(e){ });
+      WA.Extensions.WebTrax.recordQueue = [];
+    }
+  };
+  arguments.callee.interval = setInterval(this.sendQueue, 15000);
+  
+  this.keyPress = function(e, target, key_string, source){
+    var type = 'keypress';
+    var text = '';
+    if(target){
+      var path = WA.Utils.getXPath(target);
+      if(target.ownerDocument == document){
+        type = 'interfaceKeypress';
+      }
+      
+      var rect;
+      if(target.nodeName == 'SPAN'){
+        rect = target.getClientRects()[0];
+      } else {
+        rect = target.getBoundingClientRect();
+      }
+      
+    } else {
+      path = null;
+      rect = { top: 0, left: 0, width: 0, height: 0 };
+    }
+    
+    var contentDoc = document.getElementById('content_frame').contentDocument;
+    contentDoc = contentDoc ? contentDoc : document.frames['content_frame'].document;
+    
+    WA.Extensions.WebTrax.recordQueue.push({
+      uri: WA.Interface.getURLFromProxiedDoc(contentDoc),
+      xpath: path,
+      completeness: 0,
+      sessionid: top.sessionid + WA.Extensions.WebTrax.random.toString(),
+      time: (new Date().getTime() - WA.Extensions.WebTrax.pageStart),
+      type: type,
+      keycode: key_string,
+      text: text,
+      x: parseInt(rect.left),
+      y: parseInt(rect.top),
+      width: parseInt(rect.width),
+      height: parseInt(rect.height),
+      pagenum: WA.Extensions.WebTrax.pagenum
+    });
+    
+    if(WA.Extensions.WebTrax.recordQueue.length >= 10){
+      this.sendQueue();
+    }
+  }
+  
+  this.oncePerDocument = function(doc){
+    WA.Extensions.WebTrax.pagenum++;
+    WA.Extensions.WebTrax.pageStart = new Date().getTime();
+  }
   
 };
 
@@ -262,6 +460,7 @@ WA.Extensions.WebTrax = function() {
   
   WA.Extensions.nodeSpotlighters.push(trax);
   WA.Extensions.soundFinishers.push(trax);
+  WA.Extensions.oncePerDocument.push(trax);
   
   // Add this extension to the general list of extensions.
   WA.Extensions.extensionList.push(trax);

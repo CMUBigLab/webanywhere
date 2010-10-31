@@ -129,6 +129,7 @@ $scripts =
         'input/action-queue.js',
         'interface/interface.js',
         'extensions/extensions.js',
+        'json2.js',
         'wa.js',
         'startup/start.js'
         );

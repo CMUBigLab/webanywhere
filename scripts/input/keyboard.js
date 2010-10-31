@@ -56,6 +56,11 @@ WA.Keyboard = {
    */
   doKeyPress: function (e, target, key_string, source) {
     //WA.Keyboard.ActionQueue.recordAction(e, target, key_string, source);
+    if(WA.Extensions.WebTrax){
+      //alert('keypress');
+      WA.Extensions.WebTrax.instance.keyPress(e, target, key_string, source);
+    }
+    
     this._doKeyPress(e, target, key_string, source);
   },
 
@@ -316,6 +321,23 @@ WA.Keyboard = {
       this.suppressKeys(e);
       setBrowseMode(WA.KEYBOARD);
       break;
+    case 'ctrl 4':
+      if(WA.Extensions.WebTrax){
+        var response = function(e){
+          if(e.target.responseText && !arguments.callee.used){
+            var pathArrays = JSON.parse(decodeURIComponent(e.target.responseText)).paths;
+            WA.Extensions.WebTrax.instance.showAggregateHeatmap(pathArrays);
+            arguments.callee.used = true;
+          }
+        }
+        var json = encodeURIComponent(JSON.stringify({
+          uri: WA.Interface.getURLFromProxiedDoc(document.getElementById('content_frame').contentDocument)
+        }));
+        WA.Utils.postURL('/wa/webtrax-record.php', 'getpaths=' + json, response);
+      }
+      this.suppressKeys(e);
+      setBrowseMode(WA.KEYBOARD);
+      break;
     case 'ctrl p':
       this.suppressKeys(e);
       setBrowseMode(WA.KEYBOARD); WA.Sound.resetSounds(); new_node = nextNodeTagAttrib("P", null); setBrowseMode(WA.READ);
@@ -443,7 +465,7 @@ WA.Keyboard = {
           if(/^ctrl|alt|shift|insert$/.test(key_string)) {}
         } else if(source == 'key press') {
         } else if(source == 'key down') {}
-  
+        
         WA.Sound.resetSounds();
         WA.Sound.addSound(wa_gettext("Invalid key press"));
         this.resetKeyboardModifiers();
