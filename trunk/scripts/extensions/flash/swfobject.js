@@ -13,7 +13,7 @@ var swfobject = function() {
 		ON_READY_STATE_CHANGE = "onreadystatechange",
 		
 		win = window,
-		doc = document.getElementById('content_frame').contentDocument,
+		doc = document.getElementById('content_frame').contentDocument ? document.getElementById('content_frame').contentDocument : document.frames['content_frame'].document,
 		nav = navigator,
 		
 		plugin = false,

@@ -307,12 +307,12 @@ if($record_interactions) {
 
   $id = strtoupper(substr(session_id(), 0, 8));
 
-  $myFile = $record_file;
+  /*$myFile = $record_file;
   $fh = fopen($myFile, 'a+') or die("can't open file");
   for($i=0; isset($_REQUEST["dp".$i]); $i++) {
     fwrite($fh, $id . "\t" . $_REQUEST["dp".$i] . "\n");
   }
-  fclose($fh);
+  fclose($fh);*/
 }
 
 //

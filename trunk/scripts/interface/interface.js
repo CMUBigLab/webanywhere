@@ -163,6 +163,7 @@ WA.Interface = {
   },
 
   getLocationFromDoc: function(doc) {
+    if(!doc) return '';
     var url = ""+((typeof doc.location == "undefined") ? doc[0].location : doc.location);
     return url;
   },

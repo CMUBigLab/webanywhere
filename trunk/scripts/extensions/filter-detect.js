@@ -81,6 +81,11 @@ WA.Extensions.FilterDetect = function(){
 		var found = false;
 		for(var i = 0; i < imgs.length; i++){
 		  var img = imgs[i];
+		  try {
+		    img.src;
+	    } catch(err){
+	      break;
+      }
 		  var imgHost = parseUri(WA.Interface.getURLFromProxiedURL(img.src)).host;
 		  if((imgHost == docHost) && ((img.width && img.width > 0) || (img.offsetWidth && img.offsetWidth > 0))){
 		    found = true;

@@ -185,7 +185,7 @@ WA.Utils = {
     var xpath = "";
 
     var namespace = node.ownerDocument.documentElement.namespaceURI;
-    var prefix = namespace ? "x:" : "";
+    var prefix = ''; // namespace ? "x:" : "";
 
     var node2 = node;
     var doc = node.ownerDocument;
@@ -245,10 +245,13 @@ WA.Utils = {
 
       node2 = node2.parentNode;
     }
-
+    
+    // cutting the below code out because it seems that "#" isn't even legal xpath...
+    // not sure why this was added
+    /*
     if(node_id) {
       xpath += '#' + node_id;
-    }
+    }*/
     return xpath;
   },
 
