@@ -44,6 +44,7 @@
   $voices["zh_CN"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=mandarin&text=$text$'; // Simplified Chinese
   $voices["zh_TW"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=mandarin&text=$text$'; // Traditional Chinese
   $voices["de"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=de&text=$text$'; // German
+  $voices["hi"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=hi&text=$text$'; // Hindi
   $voices["fr"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=fr&text=$text$'; // French
   $voices["af"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=af&text=$text$'; // Afrikanns
   $voices["bs"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=bs&text=$text$'; // Bosnian
