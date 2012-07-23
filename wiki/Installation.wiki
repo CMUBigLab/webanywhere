@@ -186,3 +186,7 @@ $sound_url_base = 'http://localhost/perl/ekho_agent.pl?text=$text$&cache=1&mtts=
   # Adjust the config.php file with the following adjustments: ... 
     * Change path of accesses database file: $sql_lite_filename = "C:/webanywhere-accesses.sdb";
   # Directing your internet browser to http://localhost/wa/ should open the Webanywhere hosted on your computer.
+
+= Another Guide =
+This is another home of WebAnywhere. It's worth taking a look at it:
+http://hci.cs.rochester.edu/wa/getting_started.html
