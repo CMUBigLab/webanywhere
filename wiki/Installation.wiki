@@ -192,39 +192,49 @@ $sound_url_base = 'http://localhost/perl/ekho_agent.pl?text=$text$&cache=1&mtts=
 This guide is based on Ubuntu 12.04 (64bit) and latest code in SVN (2012-09-20).
 
 ==1. Install Web server==
+{{{
 $ sudo apt-get install apache2
 $ sudo apt-get install php5
 $ sudo apt-get install php5-sqlite
+}}}
 
 ==2. Copy WebAnywhere code to web server==
 
 We can get latest code with following command:
+{{{
 svn checkout http://webanywhere.googlecode.com/svn/trunk/ webanywhere-read-only
+}}}
 
 Or download from a stable release.
 
 In my case, I extract webanywhere in /var/www/wa
 
 I also add full write permission in my dev machine in case of any permission issue. (don't do it on production)
+{{{
 $ sudo chmod -R a+w ~/webanywhere
+}}}
 
 ==3. Config WebAnywhere==
+{{{
 $ vi config.php
 comment the config for windows path and uncomment the linux path.
 $ sudo mkdir /wa
 $ sudo touch /wa/webanywhere-accesses.sdb
 $ sudo chmod -R a+w /wa
+}}}
 
 ==4. Install Flash plugin to Firefox==
 
 ==5. Open http://localhost/wa/==
 (change the URL on your own case)
-You should see home page your WebAnywhere server but without sound.
+You should see home page your WebAnywhere server and hear sound.
 
 ==6. Prepare to debug (for developer)==
 Install Firebug.
 Install PHP Xdebug extension
+{{{
 $ sudo apt-get install php5-xdebug
+}}}
 Install easy xdebug extension for Firefox
 Install Netbeans add some config to PHP to enable xdebug with Netbeans.(optional, but I use xdebug with Netbeans)
 
