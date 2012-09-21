@@ -15,3 +15,5 @@ Browse to your installation of WebAnywhere.
 Useful Information:
 Accessing WebAnywhere with the following URL will display additional debug info:
 http://localhost/wa/index.php?debug=true
+
+For more detail, please refer to http://code.google.com/p/webanywhere/wiki/Installation
