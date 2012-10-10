@@ -238,6 +238,32 @@ $ sudo apt-get install php5-xdebug
 Install easy xdebug extension for Firefox
 Install Netbeans add some config to PHP to enable xdebug with Netbeans.(optional, but I use xdebug with Netbeans)
 
+=Deploy Guide for Windows XP=
+==1. Install Web Server==
+Although MySQL is not needed for WebAnywhere, we just install the whole WAMP for simplicity:
+http://www.wampserver.com/en/
+
+==2. Copy WebAnywhere code to web server==
+Download latest code (http://webanywhere.googlecode.com/files/wa-20120920.tar.bz2)
+
+==3. Config WebAnywhere==
+edit config.php
+
+Uncomment following line (and comment the next line for Linux path)
+{{{
+$sqlite_filename = "C:/webanywhere-accesses.sdb";
+}}}
+
+Replace the TTS server to another server in China (I don't know why the default TTS server doesn't work. I remember it worked when I wrote the deploy guide for Ubuntu last month)
+{{{
+  $voices["en"] = 'http://wa.eguidedog.net/cgi-bin/ekho.pl?text=$text$'; // English
+}}}
+
+==4. Open http://locahost/wa/ in Chrome Browser==
+You should see home page your WebAnywhere? server and hear sound.
+
+If you use other web browser, please make sure Flash is installed.
+
 = Another Guide =
 This is another home of WebAnywhere. It's worth taking a look at it:
 http://hci.cs.rochester.edu/wa/getting_started.html
