@@ -246,6 +246,8 @@ http://www.wampserver.com/en/
 ==2. Copy WebAnywhere code to web server==
 Download latest code (http://webanywhere.googlecode.com/files/wa-20120920.tar.bz2)
 
+Put it under /wa of web server root (c:/wamp/www)
+
 ==3. Config WebAnywhere==
 edit config.php
 
