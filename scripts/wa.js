@@ -794,14 +794,28 @@ function setContentLocation(loc) {
  * @param node Node to play.
  * @param node_text Text to play.
  **/
+
+  /* playSound function modified by Alex Qiang Chen
+      Date: 24 Sept 2015, Thursday
+      Purpose: To modify the code to include Speech Synthesis APIs and Web Speech APIs */
+      
 function playNodeSound(node, node_text) {
-  WA.Sound.addSound(node_text);
+
+  /* #AQC# */
+         narrate(node_text);
+  /* End #AQC# */
+
+  //WA.Sound.addSound(node_text);
 
   // Update prefetcher with node that will be played.
-  if(WA.prefetchStrategy > 1) {
-    if(WA.prefetchStrategy == 3) {
+  if(WA.prefetchStrategy > 1) 
+  {
+    if(WA.prefetchStrategy == 3) 
+    {
       WA.Sound.Prefetch.prefetchPrediction();
-    } else {
+    } 
+    else 
+    {
       WA.Sound.Prefetch.incPrefetchIndex();
       WA.Sound.Prefetch.prefetchNextOnes(currentNode, 3);
     }
@@ -1701,8 +1715,14 @@ function prevNode() {
     } else if(WA.browseMode == WA.PREV_CHAR_BACKONE) {
       setBrowseMode(WA.PREV_CHAR);
     } else if(WA.browseMode != WA.PAUSED) {
+
+         /* #AQC# */
+         narrate(node_text);
+         /* End #AQC# */
+
+
       // Queue the sound to be played.
-      WA.Sound.addSound(node_text);
+      //WA.Sound.addSound(node_text);
 
       // Update for the next play.
       if(WA.browseMode == WA.PLAY_ONE_BACKWARD) {
@@ -1888,3 +1908,20 @@ function focusNode(node) {
     } catch(e) {}
   }
 }
+
+  
+/* #AQC# */
+/* Request to narrate and display selected content using Web Speech APIs for WebKit */
+function narrate(narrateText)
+{
+  window.speechSynthesis.cancel();  // Clear any existing speech utterance playing
+
+  // ** Temperory fix **
+  document.getElementById('wa_text_display').innerHTML = narrateText; // to display text on interface
+
+  var msg = new SpeechSynthesisUtterance(narrateText);  // Create a new instance of text in Speech Synthesis format
+  var voices = window.speechSynthesis.getVoices();
+  msg.rate = 2.0; // 0.1 to 10
+  window.speechSynthesis.speak(msg);  // Play text to user
+}
+/* End #AQC# */

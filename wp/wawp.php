@@ -179,6 +179,8 @@ function set_post_files($array, $parent_key = null) {
 function url_parse($url, & $container) {
   $temp = @parse_url($url);
 
+  //var_dump($temp);
+
   if(!empty($temp)) {
     $temp['port_ext'] = '';
     $temp['base']     = $temp['scheme'] . '://' . $temp['host'];

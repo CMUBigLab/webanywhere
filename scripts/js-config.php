@@ -26,6 +26,6 @@ top.cross_domain_security = '<?php echo $cross_domain_security; ?>';
 
 top.sounds_path='<?php echo $sounds_path; ?>';
 
-if(hasConsole) console.log(top.sound_url_base + ' ' + top.web_proxy_url);
+if(hasConsole) console.log(top.sound_url_base + ' ' + top.web_proxy_url);	// Show in JavaScript console
 
 top.sessionid = "<?php echo strtoupper(substr(session_id(), 0, 10)); ?>";

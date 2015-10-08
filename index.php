@@ -5,6 +5,7 @@ if(isset($_REQUEST['debug']) && $_REQUEST['debug']==='true') {
   ini_set('display_errors','On');
 }
 
+
 // Standard WebAnywhere configuration file.
 include('config.php');
 
@@ -35,14 +36,14 @@ if(strlen($arguments) > 0) {
 
 $start_url = (isset($_REQUEST['starting_url']) ? base64_encode($_REQUEST['starting_url']) : base64_encode($default_content_url));
 $start_url = str_replace('$url', $start_url, $wp_path);
+
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
- "http://www.w3.org/TR/html4/strict.dtd">
-<HTML>
-<HEAD>
-<TITLE>WebAnywhere - Your Access Technology Anywhere</TITLE>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<SCRIPT LANGUAGE="Javascript">
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebAnywhere - Your Access Technology Anywhere</title>
+<meta charset="UTF-8">
+<script language="Javascript">
 /* <![CDATA[ */
 var old_open = window.open;
 window.open = function() {}
@@ -98,7 +99,7 @@ function resizeContentFrame() {
   document.getElementById('wa_iframe_div').style.height = newHeight + 'px';
 }
 /* ]]> */
-</SCRIPT>
+</script>
 
 <?php // Start of the WebAnywhere code. ?>
 <script type="text/javascript" src="<?php
@@ -181,6 +182,9 @@ echo $_REQUEST['script'];
 <script type="text/javascript">
 WA.sessionid="<?php echo session_id(); ?>";
 function browserOnload() {
+  document.getElementById("location_go").addEventListener("click", function(){ navigate(this); return false; });  // monitor location Go button
+  document.getElementById("find_next_button").addEventListener("click", function(){ nextNodeContentFinder(this); return false; });  // monitor document search Next button
+  document.getElementById("find_previous_button").addEventListener("click", function(){ prevNodeContentFinder(this); return false; });  // monitor document search Previous button
 }
 </script>
 <script type="text/javascript" src="<?php
@@ -188,7 +192,7 @@ echo $script_path;
 ?>/input/keymapping.php"></script>
 
 
-<STYLE type="text/css">
+<style type="text/css">
   html, body { margin:0; padding:0; width: 100%; height: 100%; overflow: hidden; border: none;}
   body {font-family: Georgia, "Times New Roman", Times, serif;}
 
@@ -198,7 +202,7 @@ echo $script_path;
 
   input {border: 1px solid #000; font-size: 1.7em; margin: 0; vertical-align: middle;}
   .inputbox {height: 34px; padding: 0;}
-  .inputbutton {height: 36px; padding: 0 3px 3px 3px; font-weight: bold;}
+  .inputbutton {height: 36px; padding: 0 3px 3px 3px; font-weight: bold; font-size: large;}
   #location {width: 100%;}
 
   #wa_browser_interface {text-align: center; margin: 0; padding: 0;}
@@ -207,7 +211,7 @@ echo $script_path;
   #wa_navigator {background-color: #BBB; padding-bottom: 1px; border-bottom: 1px solid #DDD;}
   #wa_navigator_inner {background-color: #000; padding-bottom: 1px; border-bottom: 1px solid #777;}
 
-  #content_frame {position: absolute; top: 55px; margin: 0; padding:0; height: 100%; display: block; width:100%; border: none; height: 100%; width: 100%;}
+  #content_frame {position: absolute; top: 55px; margin: 0; padding:0; display: block; border: none; height: 100%; width: 100%;}
   #wa_iframe_div {position: absolute; top: 55px; height: 100%; width: 100%; z-index: 1;}
 
   #wa_blocker_div {display: none; position: absolute; left: 0; width: 100%; z-index: 2; background-color: #BBB; filter:alpha(opacity=85); -moz-opacity:0.85; -khtml-opacity: 0.85; opacity: 0.85;}
@@ -216,12 +220,12 @@ echo $script_path;
 
   .wahighlight {border-color: #FF0 !important; color: #FF0 !important; background-color: #000 !important;}
   a.wahighlight {color: #FF0 !important;}
-</STYLE>
-</HEAD>
+</style>
+</head>
 
-<BODY onload="resizeContentFrame(); browserOnload();" onresize="resizeContentFrame()">
-    <DIV ID="wa_navigator">
-      <DIV ID="wa_navigator_inner">
+<body onload="resizeContentFrame(); browserOnload();" onresize="resizeContentFrame()">
+    <div ID="wa_navigator">
+      <div ID="wa_navigator_inner">
 
       <div id="wa_browser_interface">
 	        <table width="100%">
@@ -229,21 +233,24 @@ echo $script_path;
 	              <form onSubmit="javascript:navigate(this);return false;" style="margin: 0; padding: 0; display: inline;" autocomplete="off">
 	                <td width="70%">
 	                    <label for="location" style="position: absolute; top: -100px">Location:&nbsp;</label>
-	                    <input class="inputbox" type="text" id="location" autocomplete="off"/>
+	                    <input class="inputbox" type="text" id="location" autocomplete="off" placeholder="Location">
 	                </td>
 	                <td>
-	                    <input class="inputbutton" name="go" type="submit" value="<?php echo wa_gettext('Go') ?>" id="location_go" onclick='navigate(this); return false;'/>
+	                    <button class="inputbutton" name="go" type="submit" id="location_go"><?php echo wa_gettext('Go') ?></button>
+                      <!--input class="inputbutton" name="go" type="submit" value="<?php echo wa_gettext('Go') ?>" id="location_go" onclick='navigate(this); return false;'-->
 	                  </td>
 	              </form>
 	              <form onSubmit="javascript:nextNodeContentFinder(this);return false;" style="margin: 0; padding: 0; display: inline;" autocomplete="off">
 	                <td width="20%">
-	                    <input class="inputbox" type="text" name="finder_field" id="wa_finder_field"/>
+	                    <input class="inputbox" type="text" name="finder_field" id="wa_finder_field" placeholder="Search document">
 	                </td>
 	                <td>
-	                    <input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="<?php echo wa_gettext('Next') ?>" onclick='nextNodeContentFinder(this); return false;'/>
+                      <button class="inputbutton" id="find_next_button" name="find_next_button" type="button"><?php echo wa_gettext('Next') ?></button>
+	                    <!--input class="inputbutton" id="find_next_button" name="find_next_button" type="button" value="<?php echo wa_gettext('Next') ?>" onclick='nextNodeContentFinder(this); return false;'/-->
 	                </td>
 	                <td>
-	                    <input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="<?php echo wa_gettext('Previous') ?>" onclick='prevNodeContentFinder(this); return false;'/>
+                      <button class="inputbutton" id="find_previous_button" name="find_previous_button" type="button"><?php echo wa_gettext('Previous') ?></button>
+	                    <!--input class="inputbutton" id="find_previous_button" name="find_previous_button" type="button" value="<?php echo wa_gettext('Previous') ?>" onclick='prevNodeContentFinder(this); return false;'/-->
 	                </td>
 	              </form>
 	            </tr>
@@ -275,17 +282,17 @@ echo $script_path;
         <?php } ?>
 </div>
 
-       </DIV>
-    </DIV>
-    <DIV ID="wa_iframe_div">
-        <IFRAME  id="content_frame" NAME="content_frame" WIDTH="100%" HEIGHT="100%" FRAMEBORDER="0" SRC="<?php echo $start_url; ?>" onload="newPage('onload' + this.contentWindow)">
+       </div>
+    </div>
+    <div id="wa_iframe_div">
+        <iframe  id="content_frame" name="content_frame" width="100%" height="100%" frameborder="0" src="<?php echo $start_url; ?>" onload="newPage('onload' + this.contentWindow)">
             <p><a href="<?php echo $start_url; ?>">example</a></p>
-        </IFRAME>
-    </DIV>
-    <DIV ID="wa_blocker_div"></DIV>
-    <DIV ID="wa_blocker_content_div"></DIV>
+        </iframe>
+    </div>
+    <div id="wa_blocker_div"></div>
+    <div id="wa_blocker_content_div"></div>
     <?php if($webtrax){ ?>
       <script src="scripts/extensions/flash/swfobject.js" type="text/javascript"></script>
     <?php } ?>
-</BODY>
-</HTML>
+</body>
+</html>

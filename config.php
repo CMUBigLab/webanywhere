@@ -19,7 +19,8 @@
   // $fixed_locale = 'zh_CN';
 
   // The relative path to WebAnywhere on the web server.
-  $root_path = '/wa';
+  $root_path = '/WebAnywhere_v1.2';
+  // $root_path = '/wa';
 
   // The path to the script minimizer code.
   $min_script_path = $root_path . '/min';
@@ -70,10 +71,14 @@
   $voices["tr"] = 'http://webanywhere.cs.washington.edu/cgi-bin/espeak/getsound.pl?lang=tr&text=$text$'; // Turkish
 
   // The URL that will load in WebAnywhere by default.
-  if($webanywhere_domain !== 'localhost') {
+  if($webanywhere_domain !== 'localhost') 
+  {
     $default_content_url = "http://" . $webanywhere_domain . $root_path . '/content.php';
-  } else {
-    $default_content_url = "http://webanywhere.cs.washington.edu/beta/content.php";
+  } 
+  else 
+  {
+    $default_content_url = "http://www.cmu.edu";
+    //$default_content_url = "http://webanywhere.cs.washington.edu/beta/content.php";
   }
   // To prevent malicious users from abusing the web proxy that is part of WebAnywhere,
   // the system can optionally limit the rate at which users can request content.
@@ -86,7 +91,7 @@
   // Filename for SQLite database used to limit requests -
   // should not be accessible from the web.
   // Despite the default, a unix-style path will also work on unix systems.
-  $sqlite_filename = "C:/webanywhere-accesses.sdb";
+  //$sqlite_filename = "C:/webanywhere-accesses.sdb";
   //$sqlite_filename = "/wa/webanywhere-accesses.sdb";
 
   // Temporary directory where the cache of minimized scripts is stored.

@@ -48,7 +48,7 @@ if (file_exists("locale/$locale/LC_MESSAGES/WebAnywhere.js")) {
   echo "<script type='text/javascript'>function wa_gettext(text) { return text; }</script>";
 }
 
-// set voice
+/*/ set voice
 if (empty($sound_url_base)) {
   if (array_key_exists('voice', $_REQUEST) &&
       array_key_exists($_REQUEST['voice'], $voices)) {
@@ -56,9 +56,9 @@ if (empty($sound_url_base)) {
   } else if (array_key_exists($locale, $voices)) {
     $sound_url_base = $voices[$locale];
   } else {
-    $sound_url_base = $voices["en"];
+    $sound_url_base = '';//http://localhost:8888/WebAnywhere_v1.1/sounds/waiting.mp3';// #AQC# $voices["en"];
   }
-}
+}*/
 
 // set home page
 if (empty($default_content_url)) {

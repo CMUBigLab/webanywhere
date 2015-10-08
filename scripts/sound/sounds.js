@@ -72,7 +72,7 @@ WA.Sound = {
     this.soundQ = new Array();
     WA.Sound.setWhatsPlaying(null);
   
-    this.soundMethod = 1;
+    this.soundMethod = 2; //1;
     this.soundsLoaded = new Array();
   
     setBrowseMode(WA.READ);   
@@ -270,16 +270,31 @@ WA.Sound = {
     return url;
   },
 
-  // Play the sound.
+  // Play the sound.                      /* #AQC# Add TTS -- Google Speech Synthesis here */
+  /* playSound function modified by Alex Qiang Chen
+      Date: 24 Sept 2015, Thursday
+      Purpose: To modify the code to include Speech Synthesis APIs and Web Speech APIs */
+  /* replaced variable 'url' with 'http://localhost:8888/WebAnywhere_v1.1/sounds/waiting.mp3' */
   playSound: function(string, bm) {
     var playdone = true;
-    string = WA.Sound.prepareSound(string);
+
+    /* #AQC# */
+    narrate(string);
+    /*window.speechSynthesis.cancel();  // Clear any existing speech utterance playing
+
+    var msg = new SpeechSynthesisUtterance(string);  // Create a new instance of text in Speech Synthesis format
+    msg.rate = 2.0; // 0.1 to 10
+    window.speechSynthesis.speak(msg);  // Play text to user
+    /* End #AQC# */
+
+
+   /* string = WA.Sound.prepareSound(string);
     url = WA.Sound.urlForString(string);
 
     switch(this.soundMethod) {
       case this.FLASH_SOUND_METHOD: this._prefetchFlash(string, url, playdone, bm); break;
       case this.EMBED_SOUND_METHOD: Embed._prefetchEmbed(string, url, playdone, bm); break;
-    }
+    }*/
   },
 
   // Prefetches the key with the supplied keycode.
@@ -289,13 +304,22 @@ WA.Sound = {
       case 8: speak = "back space"; break;
       default: speak = String.fromCharCode(keycode); 
     }
+
+    /* #AQC# */
+    narrate(node_text);
+    /*window.speechSynthesis.cancel();  // Clear any existing speech utterance playing
+
+    var msg = new SpeechSynthesisUtterance(speak);  // Create a new instance of text in Speech Synthesis format
+    msg.rate = 2.0; // 0.1 to 10
+    window.speechSynthesis.speak(msg);  // Play text to user
+    /* End #AQC# */
   
-    var url = urlForString(speak);
+    /*var url = urlForString(speak);
   
     switch(this.soundMethod) {
       case this.FLASH_SOUND_METHOD: this._prefetchFlash("keycode_" + keycode, url, false, false); break;
       case this.EMBED_SOUND_METHOD: Embed._prefetchEmbed("keycode_" + keycode, url, false, false); break;
-    }
+    }*/
   },
 
   // Load all the sounds for the keypresses
@@ -531,6 +555,9 @@ WA.Sound = {
     this.lastPath = 10;
     sound.didalmostfinish = false;
   },
+
+
+  /* #AQC# Sound player  */
 
   playLoadingSound: function() {
     return;
